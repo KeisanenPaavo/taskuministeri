@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CompareData, CompareRow, CountryCode, MaybeByCountry } from "../types";
 import { num } from "../format";
+import { LineChart } from "./charts";
 
 // Vertailu osa-alueittain: menot tehtävittäin ja lajeittain sekä tulot lajeittain.
 // Data on miljoonina euroina, ja se muunnetaan valinnan mukaan % BKT:stä tai euroiksi asukasta kohden päivässä.
@@ -38,13 +39,19 @@ export default function CompareTool({
   const [unit, setUnit] = useState<CUnit>("pct");
   const [open, setOpen] = useState<Set<string>>(new Set());
   const group = data.groups.find((g) => g.id === groupId)!;
-  const scale = data.scale[group.year];
+  const [pick, setPick] = useState(0);
 
-  const conv = (vals: MaybeByCountry, c: CountryCode) => {
-    const v = vals[c];
+  /** Milj. € → valittu yksikkö annetun vuoden BKT:n tai väkiluvun mukaan. */
+  const convAt = (v: number | null, c: CountryCode, year: number) => {
     if (v === null) return null;
-    return unit === "pct" ? (v / scale.gdp[c]) * 100 : (v * 1e6) / scale.pop[c] / daysIn(group.year);
+    const sc = data.scale[year];
+    return unit === "pct" ? (v / sc.gdp[c]) * 100 : (v * 1e6) / sc.pop[c] / daysIn(year);
   };
+  const conv = (vals: MaybeByCountry, c: CountryCode) => convAt(vals[c], c, group.year);
+
+  // Aikajanalle valittavat erät: pääluokat ja niiden alaerät.
+  const options = group.rows.flatMap((r) => [{ row: r, sub: false }, ...r.parts.map((p) => ({ row: p, sub: true }))]);
+  const picked = options[Math.min(pick, options.length - 1)].row;
 
   const max = Math.max(...group.rows.flatMap((r) => codes.map((c) => conv(r.values, c) ?? 0))) * 1.08;
 
@@ -79,7 +86,14 @@ export default function CompareTool({
     const canOpen = !sub && r.parts.length > 0;
     const isOpen = open.has(key);
     const name = canOpen ? (
-      <button className="dot-name compare-open" aria-expanded={isOpen} onClick={() => toggle(key)}>
+      <button
+        className="dot-name compare-open"
+        aria-expanded={isOpen}
+        onClick={() => {
+          toggle(key);
+          setPick(options.findIndex((o) => o.row === r));
+        }}
+      >
         <span className="compare-sign" aria-hidden="true">
           {isOpen ? "−" : "+"}
         </span>
@@ -89,7 +103,15 @@ export default function CompareTool({
       <span className="dot-name">{r.name}</span>
     );
     return (
-      <div key={key + (sub ? ":sub" : "")} className={`dot-row ${sub ? "sub" : ""}`} role="row">
+      <div
+        key={key + (sub ? ":sub" : "")}
+        className={`dot-row compare-row ${sub ? "sub" : ""} ${picked === r ? "picked" : ""}`}
+        role="row"
+        title="Näytä aikajanalla"
+        onClick={(e) => {
+          if (!(e.target as HTMLElement).closest(".compare-open")) setPick(options.findIndex((o) => o.row === r));
+        }}
+      >
         {name}
         <span className="dot-track" aria-hidden="true">
           {codes.map((c) => {
@@ -126,7 +148,10 @@ export default function CompareTool({
               role="tab"
               aria-selected={g.id === groupId}
               className={g.id === groupId ? "on" : ""}
-              onClick={() => setGroupId(g.id)}
+              onClick={() => {
+                setGroupId(g.id);
+                setPick(0);
+              }}
             >
               {g.title}
             </button>
@@ -152,7 +177,8 @@ export default function CompareTool({
       </div>
 
       <p className="compare-hint">
-        {group.hint} Vuosi {group.year}. Avaa rivi plusmerkistä nähdäksesi tarkemman erittelyn.
+        {group.hint} Vuosi {group.year}. Plusmerkki avaa tarkemman erittelyn. Valitse rivi, niin näet sen kehityksen
+        aikajanalla taulukon alla.
       </p>
 
       <ul className="compare-gaps">
@@ -207,6 +233,52 @@ export default function CompareTool({
           {allOpen ? "Sulje erittelyt" : "Avaa kaikki erittelyt"}
         </button>
       )}
+
+      <div className="compare-timeline">
+        <div className="compare-timeline-head">
+          <label htmlFor="compare-pick" className="unit-label">
+            Aikajanalla
+          </label>
+          <select id="compare-pick" value={pick} onChange={(e) => setPick(Number(e.target.value))}>
+            {options.map((o, i) => (
+              <option key={i} value={i}>
+                {o.sub ? "\u2003" : ""}
+                {o.row.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <h4>
+          {picked.name}, {data.from}–{group.year}
+        </h4>
+        <div className="legend">
+          {codes.map((c) => (
+            <span key={c}>
+              <i style={{ borderColor: colors[c] }} />
+              {names[c]}
+            </span>
+          ))}
+        </div>
+        <LineChart
+          height={240}
+          minY={0}
+          unit={unit === "pct" ? "%" : "€/pv"}
+          series={codes.map((c) => ({
+            label: names[c],
+            color: colors[c],
+            width: c === "FI" ? 3.5 : 2.5,
+            points: picked.hist[c]
+              .map((v, i) => ({ year: data.from + i, value: convAt(v, c, data.from + i) }))
+              .filter((p): p is { year: number; value: number } => p.value !== null),
+          }))}
+        />
+        <p className="compare-hint">
+          {unit === "pct"
+            ? "Osuus BKT:stä kasvaa myös silloin, kun talous supistuu: vuosien 2009 ja 2020 piikit johtuvat osin BKT:n pudotuksesta."
+            : "Euromäärät ovat käyvin hinnoin, joten nousuun sisältyy myös inflaatio."}
+        </p>
+      </div>
+
       {unit === "day" && (
         <p className="compare-hint">
           Ruotsin kruunut on muunnettu euroiksi vuoden keskikurssilla. Hintatasot eroavat maiden välillä, ja esimerkiksi

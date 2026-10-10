@@ -29,6 +29,8 @@ export interface CompareRow {
   id?: string;
   name: string;
   values: MaybeByCountry;
+  /** Aikasarja vuodesta CompareData.from vertailuvuoteen asti. */
+  hist: Record<CountryCode, (number | null)[]>;
   parts: CompareRow[];
 }
 
@@ -41,6 +43,8 @@ export interface CompareGroup {
 }
 
 export interface CompareData {
+  /** Aikasarjojen alkuvuosi. */
+  from: number;
   /** Vuosittain BKT (milj. €) ja väkiluku muunnoksia varten. */
   scale: Record<string, { gdp: ByCountry; pop: ByCountry }>;
   groups: CompareGroup[];

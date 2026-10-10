@@ -2378,3 +2378,41 @@ svg text {
     font-size: 13px;
   }
 }
+.compare-timeline {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+.compare-timeline-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.compare-timeline-head select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+.compare-timeline h4 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+.compare-row {
+  cursor: pointer;
+}
+.compare-row:hover,
+.compare-row.picked {
+  background: var(--surface-2);
+}
+.compare-row.picked .dot-name {
+  font-weight: 700;
+}

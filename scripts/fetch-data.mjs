@@ -260,46 +260,58 @@ const TAX_TREE = [
   ["property", "Kiinteistö- ja varallisuusverot", ["D29A", "D59A"], []],
 ];
 const TAX_TOTAL = "D2_D5_D91_D61_M_D995";
+/** Aikajanan alkuvuosi. */
+const COMPARE_FROM = 2000;
 const NONTAX = [
   ["Myyntitulot ja asiakasmaksut", ["P11_P12_P131"]],
   ["Korko- ja osinkotulot", ["D4REC"]],
 ];
 
 async function fetchCompare() {
-  const since = { sinceTimePeriod: "2018" };
+  const since = { sinceTimePeriod: String(COMPARE_FROM) };
   const meur = { sector: "S13", unit: "MIO_EUR", ...since };
   const byCountry = (fn) => Object.fromEntries(COUNTRIES.map((c) => [c.code, fn(c.code)]));
-  const r1 = (v) => (v === undefined || v === null ? null : Math.round(v * 10) / 10);
-  const sumOf = (src, t) => (codes) => (g) => codes.reduce((s, k) => s + (src.get(g, k, t) ?? 0), 0);
+  const r1 = (v) => (v === undefined || v === null || Number.isNaN(v) ? null : Math.round(v * 10) / 10);
+  // Summa koodeista; puuttuu (undefined), jos yksikään koodi ei löydy.
+  const sumOf = (src) => (codes) => (g, t) => {
+    const vals = codes.map((k) => src.get(g, k, t));
+    return vals.every((v) => v === undefined || v === null) ? undefined : vals.reduce((s, v) => s + (v ?? 0), 0);
+  };
+  const yearsTo = (y) => Array.from({ length: Number(y) - COMPARE_FROM + 1 }, (_, i) => String(COMPARE_FROM + i));
 
   // BKT ja väkiluku muunnoksia varten
   const gdp = await eurostat("nama_10_gdp", { na_item: "B1GQ", unit: "CP_MEUR", ...since }, "na_item");
   const pop = await eurostat("nama_10_pe", { na_item: "POP_NC", unit: "THS_PER", ...since }, "na_item");
   const scale = {};
   const addScale = (y) => {
-    scale[y] = {
-      gdp: byCountry((g) => gdp.get(g, "B1GQ", y)),
-      pop: byCountry((g) => Math.round(pop.get(g, "POP_NC", y) * 1000)),
-    };
+    for (const t of yearsTo(y)) {
+      scale[t] = {
+        gdp: byCountry((g) => gdp.get(g, "B1GQ", t)),
+        pop: byCountry((g) => Math.round(pop.get(g, "POP_NC", t) * 1000)),
+      };
+    }
   };
+
+  /** Rivi: arvot vertailuvuodelta ja aikasarja vuodesta COMPARE_FROM. fn(g, t) palauttaa milj. €. */
+  const mkRow = (y, id, name, fn, parts = []) => ({
+    ...(id ? { id } : {}),
+    name,
+    values: byCountry((g) => r1(fn(g, y))),
+    hist: byCountry((g) => yearsTo(y).map((t) => r1(fn(g, t)))),
+    parts,
+  });
+  const minShare = (vals, y) => Math.max(...COUNTRIES.map((c) => (vals[c.code] ?? 0) / scale[y].gdp[c.code]));
+  const keepPart = (y) => (p) => minShare(p.values, y) >= 0.0003;
 
   // Menot tehtävittäin
   const cofogCodes = COFOG_TREE.flatMap(([c, , subs]) => [c, ...subs.map((s) => s[0])]);
   const exp = await eurostat("gov_10a_exp", { cofog99: cofogCodes, na_item: "TE", ...meur }, "cofog99");
-  const cy = latestCommonYear(
-    exp,
-    COFOG_TREE.map((d) => d[0]),
-  );
+  const cy = latestCommonYear(exp, COFOG_TREE.map((d) => d[0]));
   addScale(cy);
-  const minShare = (vals, y) => Math.max(...COUNTRIES.map((c) => (vals[c.code] ?? 0) / scale[y].gdp[c.code]));
-  const cofog = COFOG_TREE.map(([code, name, subs]) => ({
-    id: code,
-    name,
-    values: byCountry((g) => r1(exp.get(g, code, cy))),
-    parts: subs
-      .map(([sc, sn]) => ({ name: sn, values: byCountry((g) => r1(exp.get(g, sc, cy))) }))
-      .filter((p) => minShare(p.values, cy) >= 0.0003),
-  }));
+  const xget = sumOf(exp);
+  const cofog = COFOG_TREE.map(([code, name, subs]) =>
+    mkRow(cy, code, name, xget([code]), subs.map(([sc, sn]) => mkRow(cy, null, sn, xget([sc]))).filter(keepPart(cy))),
+  );
 
   // Menot lajeittain ja tulot: gov_10a_main
   const mainCodes = [
@@ -311,19 +323,18 @@ async function fetchCompare() {
   const main = await eurostat("gov_10a_main", { na_item: mainCodes, ...meur }, "na_item");
   const ey = latestCommonYear(main, ECON_TREE.flatMap(([, , c]) => c).concat("TE"));
   addScale(ey);
-  const eget = sumOf(main, ey);
-  const econ = ECON_TREE.map(([id, name, codes, parts]) => ({
-    id,
-    name,
-    values: byCountry((g) => r1(eget(codes)(g))),
-    parts: parts.map(([pn, pc]) => ({ name: pn, values: byCountry((g) => r1(eget(pc)(g))) })),
-  }));
-  econ.push({
-    id: "otherExp",
-    name: "Muut menot (mm. EU-maksut, kehitysapu, pääomansiirrot)",
-    values: byCountry((g) => r1(main.get(g, "TE", ey) - econ.reduce((s, r) => s + r.values[g], 0))),
-    parts: [],
-  });
+  const mget = sumOf(main);
+  const econ = ECON_TREE.map(([id, name, codes, parts]) =>
+    mkRow(ey, id, name, mget(codes), parts.map(([pn, pc]) => mkRow(ey, null, pn, mget(pc)))),
+  );
+  const econCodes = ECON_TREE.map(([, , c]) => c);
+  econ.push(
+    mkRow(ey, "otherExp", "Muut menot (mm. EU-maksut, kehitysapu, pääomansiirrot)", (g, t) => {
+      const parts = econCodes.map((c) => mget(c)(g, t));
+      const te = main.get(g, "TE", t);
+      return te === undefined || parts.some((v) => v === undefined) ? undefined : te - parts.reduce((s, v) => s + v, 0);
+    }),
+  );
 
   const taxCodes = [TAX_TOTAL, ...TAX_TREE.flatMap(([, , c, p]) => [...c, ...p.flatMap((x) => x[1])])];
   const tax = await eurostat("gov_10a_taxag", { na_item: taxCodes, ...meur }, "na_item");
@@ -338,30 +349,33 @@ async function fetchCompare() {
       ),
     );
   addScale(ry);
-  const tget = sumOf(tax, ry);
-  const revenue = TAX_TREE.map(([id, name, codes, parts]) => ({
-    id,
-    name,
-    values: byCountry((g) => r1(tget(codes)(g))),
-    parts: parts
-      .map(([pn, pc]) => ({ name: pn, values: byCountry((g) => r1(tget(pc)(g))) }))
-      .filter((p) => minShare(p.values, ry) >= 0.0003),
-  }));
-  revenue.push({
-    id: "otherTax",
-    name: "Muut verot",
-    values: byCountry((g) => r1(tax.get(g, TAX_TOTAL, ry) - revenue.reduce((s, r) => s + r.values[g], 0))),
-    parts: [],
-  });
-  const nget = sumOf(main, ry);
-  revenue.push({
-    id: "nonTax",
-    name: "Muut kuin verotulot",
-    values: byCountry((g) => r1(main.get(g, "TR", ry) - tax.get(g, TAX_TOTAL, ry))),
-    parts: NONTAX.map(([pn, pc]) => ({ name: pn, values: byCountry((g) => r1(nget(pc)(g))) })),
-  });
+  const tget = sumOf(tax);
+  const revenue = TAX_TREE.map(([id, name, codes, parts]) =>
+    mkRow(ry, id, name, tget(codes), parts.map(([pn, pc]) => mkRow(ry, null, pn, tget(pc))).filter(keepPart(ry))),
+  );
+  const taxRowCodes = TAX_TREE.map(([, , c]) => c);
+  revenue.push(
+    mkRow(ry, "otherTax", "Muut verot", (g, t) => {
+      const total = tax.get(g, TAX_TOTAL, t);
+      return total === undefined ? undefined : total - taxRowCodes.reduce((s, c) => s + (tget(c)(g, t) ?? 0), 0);
+    }),
+  );
+  revenue.push(
+    mkRow(
+      ry,
+      "nonTax",
+      "Muut kuin verotulot",
+      (g, t) => {
+        const tr = main.get(g, "TR", t);
+        const total = tax.get(g, TAX_TOTAL, t);
+        return tr === undefined || total === undefined ? undefined : tr - total;
+      },
+      NONTAX.map(([pn, pc]) => mkRow(ry, null, pn, mget(pc))),
+    ),
+  );
 
   return {
+    from: COMPARE_FROM,
     scale,
     groups: [
       {
@@ -767,7 +781,11 @@ async function main() {
   };
 
   await mkdir("public/data", { recursive: true });
-  await writeFile("public/data/finance.json", JSON.stringify(out, null, 2) + "\n");
+  // Lukulistat yhdelle riville, jotta aikasarjat eivät paisuta tiedostoa.
+  const json = JSON.stringify(out, null, 2).replace(/\[\s+((?:-?[\d.]+|null)(?:,\s+(?:-?[\d.]+|null))*)\s+\]/g, (_, x) =>
+    `[${x.split(/,\s+/).join(", ")}]`,
+  );
+  await writeFile("public/data/finance.json", json + "\n");
 
   const sumRev = out.revenue.reduce((s, r) => s + r.value, 0);
   const sumExp = out.expenditure.reduce((s, r) => s + r.value, 0);
