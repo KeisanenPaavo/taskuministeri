@@ -31,8 +31,10 @@ Malli ([src/model.ts](src/model.ts)) on tarkoituksella yksinkertainen ja läpin�
 
 - Verotulot kasvavat nimellisen BKT:n mukana.
 - Menot (pl. korot) kasvavat inflaation ja luontaisen menokasvun verran (oletus 1,2 % vuodessa). Ne eivät seuraa talouskasvua.
-- Velasta uusitaan 20 % vuodessa uuteen korkoon, joten korkomuutos näkyy korkomenoissa viiveellä.
-- Veromuutoksiin sisältyy käyttäytymisvaikutus, joka vie osan staattisesta tuotosta.
+- Velasta hinnoitellaan uudelleen 18,5 % vuodessa (Valtiokonttori: uudelleenhinnoitteluaika 5,39 v), joten korkomuutos näkyy korkomenoissa viiveellä.
+- Veromuutosten tuotot on kalibroitu VM:n vaikutusarvioihin (tuloveroasteikko: VM 2023, ALV: HE 61/2024, yhteisövero: VM 2026). Käyttäytymisvaikutus vie osan staattisesta tuotosta.
+
+Kaikki kertoimet lähteineen ovat `COEFFICIENTS`-listassa tiedostossa `src/model.ts`, ja ne näytetään myös sivun alalaidassa. Omat arviot on merkitty erikseen.
 
 Rajoitukset: malli ei huomioi finanssipolitiikan kerroinvaikutuksia, työllisyysvaikutuksia eikä suhdannevaihtelua.
 

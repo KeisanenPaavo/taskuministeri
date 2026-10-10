@@ -5,10 +5,12 @@
 //  - Menot (pl. korot) kasvavat inflaation verran ja lisäksi "luontaisen menokasvun"
 //    verran (ikääntyminen, palvelutarve). Ne EIVÄT automaattisesti seuraa talouskasvua,
 //    joten nopeampi kasvu parantaa taloutta ja hitaampi heikentää.
-//  - Velasta erääntyy ja uusitaan vuosittain noin viidesosa, joten korkojen nousu
-//    siirtyy korkomenoihin vähitellen.
-//  - Veromuutoksilla on käyttäytymisvaikutus: osa staattisesta tuotosta katoaa,
-//    kun ihmiset ja yritykset sopeutuvat.
+//  - Velasta uusitaan vuosittain noin viidesosa, joten korkojen nousu siirtyy
+//    korkomenoihin vähitellen.
+//  - Veromuutosten tuotot on kalibroitu valtiovarainministeriön vaikutusarvioihin.
+//    Käyttäytymisvaikutus vie osan staattisesta tuotosta.
+//
+// Kaikki kertoimet lähteineen ovat alla COEFFICIENTS-listassa, joka näytetään myös sivulla.
 
 import type { FinanceData } from "./types";
 
@@ -16,7 +18,7 @@ export interface Scenario {
   realGrowth: number; // %/v
   inflation: number; // %/v
   interestRate: number; // uuden velan korko, %
-  incomeTaxPp: number; // ansiotuloveron keskimääräinen muutos, %-yks.
+  incomeTaxPp: number; // valtion ansiotuloveroasteikon kaikkien portaiden muutos, %-yks.
   vatPp: number; // ALV:n yleinen verokanta, muutos %-yks.
   corporateTaxPp: number; // yhteisöveron kanta, muutos %-yks.
   excisePct: number; // valmisteverojen muutos, %
@@ -28,7 +30,7 @@ export interface Scenario {
 export const DEFAULT_SCENARIO: Scenario = {
   realGrowth: 1.2,
   inflation: 2.0,
-  interestRate: 3.0,
+  interestRate: 2.7,
   incomeTaxPp: 0,
   vatPp: 0,
   corporateTaxPp: 0,
@@ -39,29 +41,135 @@ export const DEFAULT_SCENARIO: Scenario = {
 };
 
 export const YEARS = 10;
-/** Osuus velasta, joka uusitaan vuosittain uuteen korkoon (~ 1 / keskimaturiteetti). */
-export const ROLLOVER = 0.2;
 export const VAT_GENERAL_RATE = 25.5;
 export const CORPORATE_RATE = 20;
-/** Osuus ALV-tuotosta, joka kertyy yleisestä verokannasta (loput alennetuista kannoista). */
-export const VAT_GENERAL_SHARE = 0.75;
-/** Käyttäytymisvaikutus: osuus staattisesta tuotosta, joka menetetään. */
-export const BEHAVIOR = { incomeTax: 0.3, vat: 0.1, corporateTax: 0.35, excise: 0.2 };
 
-/** Ansiotuloveropohja: palkat + verotettavat etuudet (karkea arvio). */
-export function incomeTaxBase(d: FinanceData) {
-  return d.wages + 0.6 * d.cashBenefits;
+/** Osuus velasta, joka hinnoitellaan vuosittain uudelleen (1 / uudelleenhinnoitteluaika 5,4 v). */
+export const ROLLOVER = 0.185;
+
+/**
+ * Valtion ansiotuloveroasteikon +1 %-yks. kaikkiin portaisiin tuottaa staattisesti
+ * noin 1,2 mrd € (VM 2023). Suhteutettuna vuoden 2023 kotitalouksien tuloveroihin
+ * (34,8 mrd €) se on 3,45 % tuloverojen kertymästä.
+ */
+export const INCOME_TAX_PER_PP = 1200 / 34788;
+
+/**
+ * ALV:n yleisen kannan korotus 24 -> 25,5 % (HE 61/2024): staattisesti 1 167 milj. €
+ * vuoden 2025 tasolla. Kun mukaan lasketaan julkisen sektorin omiin ostoihin sisältyvä
+ * ALV, nettotuotto on 1 031 milj. €. Kysyntävaikutuksen jälkeen 956 milj. €.
+ */
+export const VAT_PER_PP = 1167 / 1.5 / 27108; // osuus ALV-tuotosta per %-yks. (2025)
+export const VAT_PUBLIC_PURCHASES = 1 - 1031 / 1167; // ≈ 11,7 % palaa julkisille menoille
+
+/** Käyttäytymisvaikutus: osuus (netto)tuotosta, joka menetetään. */
+export const BEHAVIOR = {
+  incomeTax: 0.25,
+  vat: 1 - 956 / 1031, // ≈ 7,3 % (HE 61/2024)
+  corporateTax: 0.4, // VM 2026: itserahoittavuus 34–46 %
+  excise: 0.15,
+};
+
+export interface Coefficient {
+  name: string;
+  value: string;
+  source: string;
+  url?: string;
+  own?: boolean;
 }
 
+/** Kertoimet ja niiden lähteet, näytetään sivun alalaidassa. */
+export const COEFFICIENTS: Coefficient[] = [
+  {
+    name: "Valtion tuloveroasteikko +1 %-yks.",
+    value: "≈ 1,2 mrd € staattisesti (2023 tasolla), skaalattu verokertymän mukana",
+    source: "VM, Verokartoitus 2023 (via Verotutkimus.fi FIT #10/2026)",
+    url: "https://verotutkimus.fi/tuloverotus-tarkea-veroinstrumentti/",
+  },
+  {
+    name: "Tuloveron käyttäytymisvaikutus",
+    value: "25 % staattisesta tuotosta",
+    source:
+      "Oma arvio tutkimuskirjallisuuden joustoista: keskituloiset 0–0,2, suurituloisimmat 0,4–0,5 (Verotutkimus.fi FIT #10/2026)",
+    url: "https://verotutkimus.fi/tuloverotus-tarkea-veroinstrumentti/",
+    own: true,
+  },
+  {
+    name: "ALV:n yleinen kanta +1 %-yks.",
+    value: "≈ 0,78 mrd € staattisesti, ≈ 0,69 mrd € kun julkisen sektorin omat ALV-menot vähennetään",
+    source: "HE 61/2024 vp (ALV 24 → 25,5 %: 1 167 / 1 031 milj. €)",
+    url: "https://www.eduskunta.fi/pdf/HE+61/2024",
+  },
+  {
+    name: "ALV:n kysyntävaikutus",
+    value: "7 % nettotuotosta (956 / 1 031 milj. €)",
+    source: "HE 61/2024 vp",
+    url: "https://www.eduskunta.fi/pdf/HE+61/2024",
+  },
+  {
+    name: "Yhteisöverokanta ±1 %-yks.",
+    value: "Tuotto / 20 %. VM:n arvio: −2 %-yks. = −832 milj. € staattisesti",
+    source: "VM tiedote 28.4.2026",
+    url: "https://vm.fi/-/yhteisoveroa-ehdotetaan-alennettavaksi-kahdella-prosenttiyksikolla",
+  },
+  {
+    name: "Yhteisöveron itserahoittavuus",
+    value: "40 % (VM:n haarukka 34–46 %, pitkä aikaväli)",
+    source: "VM:n vaikutusarvio 2026, Yle 2026",
+    url: "https://yle.fi/a/74-20226947",
+  },
+  {
+    name: "Valmisteverojen käyttäytymisvaikutus",
+    value: "15 %",
+    source: "Oma arvio: kysynnän hintajousto noin −0,2…−0,3, vero noin puolet hinnasta",
+    own: true,
+  },
+  {
+    name: "Velan uudelleenhinnoittelu",
+    value: "18,5 % velasta vuodessa",
+    source: "Valtiokonttori: keskimääräinen uudelleenhinnoitteluaika 5,39 v (2025), kuoletukset 29,5 mrd €",
+    url: "https://cdn.valtiokonttori.fi/wordpress/sites/18/2026/02/Valtion_velanhallinnan_vuosikatsaus_2025.pdf",
+  },
+  {
+    name: "Uuden lainanoton korko (oletus)",
+    value: "2,7 %",
+    source:
+      "Valtiokonttori: 10 v korko 3,16 % (2025 loppu), lyhyet velkasitoumukset ~2 % (EKP:n talletuskorko), velkasitoumusten osuus lainanotosta ~40 %",
+    url: "https://cdn.valtiokonttori.fi/wordpress/sites/18/2026/02/Valtion_velanhallinnan_vuosikatsaus_2025.pdf",
+  },
+  {
+    name: "Talouskasvun vaikutus rahoitusasemaan",
+    value: "≈ 0,56 (menot / BKT, koska menot eivät seuraa kasvua)",
+    source: "Vertailu: VTV:n arvio Suomen budjettijoustosta noin 0,5, EU-komission hieman korkeampi",
+    url: "https://vtv.fi/en/report/automatic-fiscal-stabilizers-in-finland-1993-2021/",
+  },
+  {
+    name: "Menojen luontainen kasvu",
+    value: "1,2 % vuodessa inflaation lisäksi",
+    source: "Oma oletus (väestön ikääntyminen ja palvelutarve), säädettävissä",
+    own: true,
+  },
+];
+
 const rev = (d: FinanceData, id: string) => d.revenue.find((r) => r.id === id)?.value ?? 0;
+
+/** Staattinen tuotto (milj. €) yhden %-yksikön muutokselle, ennen käyttäytymisvaikutuksia. */
+export function perPointStatic(d: FinanceData) {
+  return {
+    incomeTax: INCOME_TAX_PER_PP * rev(d, "incomeTax"),
+    vat: VAT_PER_PP * rev(d, "vat") * (1 - VAT_PUBLIC_PURCHASES),
+    corporateTax: rev(d, "corporateTax") / CORPORATE_RATE,
+  };
+}
 
 /** Veromuutosten vaikutus perusvuoden tasolla, milj. € (positiivinen = lisää tuloja). */
 export function taxEffects(d: FinanceData, s: Scenario) {
   const b = (k: keyof typeof BEHAVIOR) => (s.behavioral ? 1 - BEHAVIOR[k] : 1);
+  const pp = perPointStatic(d);
   return {
-    incomeTax: (s.incomeTaxPp / 100) * incomeTaxBase(d) * b("incomeTax"),
-    vat: ((rev(d, "vat") * VAT_GENERAL_SHARE) / VAT_GENERAL_RATE) * s.vatPp * b("vat"),
-    corporateTax: (rev(d, "corporateTax") / CORPORATE_RATE) * s.corporateTaxPp * b("corporateTax"),
+    incomeTax: pp.incomeTax * s.incomeTaxPp * b("incomeTax"),
+    vat: pp.vat * s.vatPp * b("vat"),
+    corporateTax: pp.corporateTax * s.corporateTaxPp * b("corporateTax"),
     excise: (s.excisePct / 100) * rev(d, "excise") * b("excise"),
   };
 }

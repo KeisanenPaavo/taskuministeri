@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FinanceData } from "./types";
-import { DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
+import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
 import { money, perCapita, pct } from "./format";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
@@ -214,7 +214,8 @@ export default function App() {
                 vähitellen.
               </li>
               <li>
-                Veromuutoksissa osa tuotosta menetetään käyttäytymisvaikutusten takia (ansiotulovero{" "}
+                Veromuutosten tuotot perustuvat valtiovarainministeriön vaikutusarvioihin. Osa tuotosta menetetään
+                käyttäytymisvaikutusten takia (tulovero{" "}
                 {pct(BEHAVIOR.incomeTax * 100, 0)}, ALV {pct(BEHAVIOR.vat * 100, 0)}, yhteisövero{" "}
                 {pct(BEHAVIOR.corporateTax * 100, 0)}, valmisteverot {pct(BEHAVIOR.excise * 100, 0)}).
               </li>
@@ -241,6 +242,38 @@ export default function App() {
               ennakkotietoja. Alijäämä on tulojen ja menojen erotus, ja se voi poiketa hieman virallisesta
               EDP-alijäämästä. Data päivitetty {data.generated}.
             </p>
+          </div>
+        </div>
+        <div className="wrap">
+          <h3 style={{ marginTop: 24 }}>Kertoimet ja niiden lähteet</h3>
+          <div className="coef-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kerroin</th>
+                  <th>Arvo</th>
+                  <th>Lähde</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COEFFICIENTS.map((c) => (
+                  <tr key={c.name}>
+                    <td>{c.name}</td>
+                    <td>{c.value}</td>
+                    <td>
+                      {c.own && <span className="tag">oma arvio</span>}
+                      {c.url ? (
+                        <a href={c.url} target="_blank" rel="noreferrer">
+                          {c.source}
+                        </a>
+                      ) : (
+                        c.source
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </footer>

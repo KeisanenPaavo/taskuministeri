@@ -4,7 +4,7 @@ import {
   CORPORATE_RATE,
   DEFAULT_SCENARIO,
   VAT_GENERAL_RATE,
-  incomeTaxBase,
+  perPointStatic,
   project,
   spendingEffects,
   taxEffects,
@@ -51,7 +51,7 @@ const PRESETS: Preset[] = [
   {
     id: "package",
     name: "✂️ Sopeutuspaketti",
-    desc: "ALV +1 %-yks., tuloverot +0,5 %-yks. ja menoleikkauksia hallintoon, elinkeinotukiin ja sosiaaliturvaan.",
+    desc: "ALV +1 %-yks., valtion tuloveroasteikko +0,5 %-yks. ja menoleikkauksia hallintoon, elinkeinotukiin ja sosiaaliturvaan.",
     apply: {
       vatPp: 1,
       incomeTaxPp: 0.5,
@@ -82,6 +82,7 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
   const result = useMemo(() => project(data, s), [data, s]);
   const tax = taxEffects(data, s);
   const spend = spendingEffects(data, s);
+  const perPoint = perPointStatic(data);
 
   const update = (patch: Partial<Scenario>) => setScenario({ ...s, ...patch });
   const setSpend = (id: string, v: number) => update({ spending: { ...s.spending, [id]: v } });
@@ -108,7 +109,7 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
     .filter((e) => allSpending || MAIN_SPENDING.includes(e.id) || (s.spending[e.id] ?? 0) !== 0);
 
   const effects = [
-    { label: "Ansiotulovero", v: tax.incomeTax },
+    { label: "Valtion tulovero", v: tax.incomeTax },
     { label: "Arvonlisävero", v: tax.vat },
     { label: "Yhteisövero", v: tax.corporateTax },
     { label: "Valmisteverot", v: tax.excise },
@@ -177,16 +178,16 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
             <h3>🧾 Verot</h3>
             <p className="gl">Veronkorotus parantaa taloutta (vihreä), kevennys heikentää (punainen).</p>
             <Slider
-              label="Ansiotuloverotus"
+              label="Valtion tuloveroasteikko"
               value={s.incomeTaxPp}
               min={-3}
               max={3}
-              step={0.25}
+              step={0.5}
               base={0}
-              format={(v) => `${num(v, 2, true)} %-yks.`}
+              format={(v) => `${num(v, 1, true)} %-yks.`}
               effect={tax.incomeTax}
               fmtEffect={fmtEffect}
-              hint={`Kaikkien palkansaajien ja eläkeläisten keskimääräinen veroaste. 1 %-yks. ≈ ${mrd(incomeTaxBase(data) / 100)} ennen käyttäytymisvaikutuksia.`}
+              hint={`Muutos jokaiseen veroasteikon portaaseen. Pienituloisimmat eivät maksa valtion tuloveroa. 1 %-yks. ≈ ${mrd(perPoint.incomeTax)} (VM).`}
               onChange={(v) => update({ incomeTaxPp: v })}
             />
             <Slider
@@ -199,7 +200,7 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
               format={(v) => `${num(VAT_GENERAL_RATE + v, 1)} %`}
               effect={tax.vat}
               fmtEffect={fmtEffect}
-              hint="Nyt 25,5 %. Nostaa useimpien tuotteiden hintoja."
+              hint={`Nyt 25,5 %. 1 %-yks. ≈ ${mrd(perPoint.vat)} (HE 61/2024). Nostaa useimpien tuotteiden hintoja.`}
               onChange={(v) => update({ vatPp: v })}
             />
             <Slider
@@ -212,7 +213,7 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
               format={(v) => `${num(CORPORATE_RATE + v, 0)} %`}
               effect={tax.corporateTax}
               fmtEffect={fmtEffect}
-              hint="Nyt 20 %. Yritysten voitoista maksettava vero."
+              hint={`Nyt 20 %. 1 %-yks. ≈ ${mrd(perPoint.corporateTax)} ennen dynaamisia vaikutuksia.`}
               onChange={(v) => update({ corporateTaxPp: v })}
             />
             <Slider

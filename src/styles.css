@@ -769,3 +769,39 @@ svg text {
     gap: 0;
   }
 }
+
+.coef-table {
+  overflow-x: auto;
+}
+.coef-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.coef-table th {
+  text-align: left;
+  color: var(--text);
+  font-weight: 600;
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.coef-table td {
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.coef-table td:first-child {
+  color: var(--text);
+  font-weight: 500;
+  min-width: 160px;
+}
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-right: 6px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
