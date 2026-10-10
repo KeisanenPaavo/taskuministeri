@@ -2730,3 +2730,163 @@ svg text {
     grid-row: 2;
   }
 }
+
+/* Työviikko */
+.week {
+  margin-top: 36px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+.week h3 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.week-lead {
+  color: var(--muted);
+  max-width: 720px;
+  margin: 0 0 16px;
+}
+.week-lead b {
+  color: var(--text);
+}
+.week-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.week-axis,
+.week-day {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+}
+.week-axis {
+  height: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--faint);
+}
+.week-ticks {
+  position: relative;
+  height: 16px;
+}
+.week-ticks span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.week-ticks span:first-child {
+  transform: none;
+}
+.week-ticks span:last-child {
+  transform: translateX(-100%);
+}
+.week-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.week-bar {
+  position: relative;
+  height: 36px;
+  background: var(--surface-2);
+}
+.week-bar i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  font-style: normal;
+  overflow: hidden;
+  box-shadow: inset -1px 0 0 var(--bg);
+}
+.week-bar i span {
+  display: block;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 36px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.week-debt {
+  display: inline-block;
+  background: repeating-linear-gradient(135deg, var(--deficit) 0 3px, transparent 3px 7px);
+}
+.week-bar .week-debt {
+  position: absolute;
+  bottom: -9px;
+  height: 6px;
+}
+.week-day:nth-child(4) {
+  margin-bottom: 6px;
+}
+.week-mark {
+  display: inline-block;
+}
+.week-bar .week-mark {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 0;
+  border-left: 3px solid var(--text);
+  margin-left: -1.5px;
+}
+.week-bar .week-mark.rev {
+  border-left-style: dotted;
+}
+.week-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 12px 0;
+  padding: 0;
+  font-size: 14px;
+}
+.week-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.week-legend .week-mark {
+  width: 0;
+  height: 16px;
+  border-left: 3px solid var(--text);
+}
+.week-legend .week-mark.rev {
+  border-left-style: dotted;
+}
+.week-legend .week-debt {
+  flex: none;
+  width: 18px;
+  height: 6px;
+}
+.week-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 32px;
+  font-size: 14px;
+}
+.week-list li {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  border-top: 1px solid var(--border);
+  break-inside: avoid;
+}
+.week-time {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .week-list {
+    columns: 1;
+  }
+}

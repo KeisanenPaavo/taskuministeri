@@ -11,6 +11,7 @@ import { EXPENDITURE_COLORS, REVENUE_COLORS } from "./colors";
 import MuchOrLittle from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
 import CanTower from "./components/CanTower";
+import WorkWeek from "./components/WorkWeek";
 import Cite, { SourcesContext } from "./components/Cite";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
@@ -279,6 +280,7 @@ export default function App() {
               </div>
             </div>
             <BudgetColumns data={data} unit={unit} />
+            <WorkWeek data={data} />
           </section>
 
           <section id="velka">
