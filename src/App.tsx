@@ -193,14 +193,16 @@ function UnitPicker({ unit, setUnit }: { unit: Unit; setUnit: (u: Unit) => void 
   );
 }
 
-export default function App() {
-  const [data, setData] = useState<FinanceData | null>(null);
+/** initialData: esirenderöinnissä ja selaimessa valmiiksi haettu data, jolloin sivu ei näytä latausviestiä. */
+export default function App({ initialData }: { initialData?: FinanceData }) {
+  const [data, setData] = useState<FinanceData | null>(initialData ?? null);
   const [error, setError] = useState<string | null>(null);
   const [unit, setUnit] = useState<Unit>("day");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [game, setGame] = useState<GameId>("sim");
 
   useEffect(() => {
+    if (initialData) return;
     fetch(`${import.meta.env.BASE_URL}data/finance.json`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -208,7 +210,7 @@ export default function App() {
       })
       .then(setData)
       .catch((e) => setError(String(e)));
-  }, []);
+  }, [initialData]);
 
   // Ankkurilinkki (#kokeile) toimii vasta, kun sisältö on ladattu.
   useEffect(() => {

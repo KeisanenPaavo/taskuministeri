@@ -163,7 +163,7 @@ export default function MuchOrLittle({ data }: { data: FinanceData }) {
     <div className="much">
       <div className="much-cols">
         <div className="much-col">
-          <h2 className="much-head">Paljon</h2>
+          <h3 className="much-head">Paljon</h3>
           <ul>
             <li>
               <b>{euros(perSecond)} sekunnissa,</b> joka ikinen sekunti, yöllä ja juhannuksena.
@@ -179,7 +179,7 @@ export default function MuchOrLittle({ data }: { data: FinanceData }) {
         </div>
 
         <div className="much-col">
-          <h2 className="much-head">Vähän</h2>
+          <h3 className="much-head">Vähän</h3>
           <ul>
             <li>
               <b>{day(data.expenditureTotal)} päivässä</b> per suomalainen. Sillä saat koulut, sairaalat, poliisin, tiet
