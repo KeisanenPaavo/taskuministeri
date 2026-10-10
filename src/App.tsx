@@ -123,9 +123,10 @@ export default function App() {
 
       <main className="wrap">
         <div className="hero">
-          <div className="eyebrow">♠ Taskuministeri. Ässät on nyt sun hihassa.</div>
+          <div className="eyebrow">♠ Taskuministeri. Ässä hihassa.</div>
           <h1>
-            Julkinen talous on yhteinen taloutemme. <span className="grad">Nyt voit nähdä sen ja kokeilla itse.</span>
+            {Math.round(data.expenditureTotal / 1000)} miljardia euroa vuodessa.{" "}
+            <span className="grad">Mihin ne menevät, ja mihin sinä ne laittaisit?</span>
           </h1>
           <p className="lead">
             Julkisesta taloudesta väitellään miljardeilla, prosenteilla ja leikkauslistoilla. Kokonaiskuvaa on silti
