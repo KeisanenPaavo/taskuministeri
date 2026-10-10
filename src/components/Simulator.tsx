@@ -75,15 +75,24 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
   const [allSpending, setAllSpending] = useState(false);
   const [tab, setTab] = useState<GroupId>("economy");
   const [hints, setHints] = useState(false);
-  // Mobiilin alapalkki näytetään vain, kun simulaattori on näkyvissä.
   const simRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
+  const chartsRef = useRef<HTMLDivElement>(null);
+  const [simVisible, setSimVisible] = useState(false);
+  const [chartsVisible, setChartsVisible] = useState(false);
   useEffect(() => {
-    if (!simRef.current) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting));
+    if (!simRef.current || !chartsRef.current) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.target === simRef.current) setSimVisible(e.isIntersecting);
+        else setChartsVisible(e.isIntersecting);
+      }
+    });
     io.observe(simRef.current);
+    io.observe(chartsRef.current);
     return () => io.disconnect();
   }, []);
+  // Alapalkki näkyy, kun säätimiä käytetään eikä kaavioita näe.
+  const inView = simVisible && !chartsVisible;
 
   const baseline = useMemo(
     () => project(data, { ...DEFAULT_SCENARIO, spendingTrend: s.spendingTrend, behavioral: s.behavioral }),
@@ -244,25 +253,131 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
         </p>
       </div>
 
-      <p className="step">1 · Valitse lähtötilanne (valinnainen)</p>
-      <div className="presets" style={{ marginBottom: 16 }}>
-        {PRESETS.map((p) => (
-          <button
-            key={p.id}
-            className={`chip ${activePreset?.id === p.id ? "on" : ""}`}
-            title={p.desc}
-            onClick={() =>
-              setScenario({ ...DEFAULT_SCENARIO, ...p.apply, spendingTrend: s.spendingTrend, behavioral: s.behavioral })
-            }
-          >
-            {p.name}
-          </button>
-        ))}
-      </div>
+      <div className="sim-flow" ref={simRef}>
+        <div className="sim-charts" ref={chartsRef}>
+          <p className="step">1 · Näin velka kehittyy</p>
+          <div className="card headline">
+            <div className="big">
+              Vuonna {last.year} julkinen velka olisi <b>{pct(last.debtRatio, 0)}</b> bruttokansantuotteesta.
+            </div>
+            <div className="muted">
+              {Math.abs(diff) < 0.5
+                ? `Nyt ${pct(data.debtRatio, 0)}. Jos mitään ei muuteta, velkasuhde jatkaa kasvuaan.`
+                : `Ilman muutoksia ${pct(lastBase.debtRatio, 0)}, eli valintasi ${
+                    diff < 0 ? "pienentävät" : "kasvattavat"
+                  } velkasuhdetta ${num(Math.abs(diff), 0)} prosenttiyksikköä.`}
+            </div>
+          </div>
 
-      <div className="sim" ref={simRef}>
+          <div className="mini-kpis">
+            <div className={`card kpi ${first.balance < 0 ? "bad" : "good"}`}>
+              <div className="label">
+                {first.balance < 0 ? "Alijäämä" : "Ylijäämä"} {first.year}
+              </div>
+              <div className="value">{fmt(Math.abs(first.balance))}</div>
+              <div className="sub">{pct(first.balanceRatio, 1, true)} BKT:stä</div>
+            </div>
+            <div className={`card kpi ${last.balance < 0 ? "bad" : "good"}`}>
+              <div className="label">
+                {last.balance < 0 ? "Alijäämä" : "Ylijäämä"} {last.year}
+              </div>
+              <div className="value">{fmt(Math.abs(last.balance))}</div>
+              <div className="sub">{pct(last.balanceRatio, 1, true)} BKT:stä</div>
+            </div>
+            <div className="card kpi">
+              <div className="label">Korkomenot {last.year}</div>
+              <div className="value">{fmt(last.interest)}</div>
+              <div className="sub">{pct((last.interest / last.revenue) * 100, 1)} kaikista tuloista</div>
+            </div>
+          </div>
+
+          <div className="card chart-card">
+            <h4>Julkinen velka suhteessa BKT:hen</h4>
+            <div className="legend">
+              <span>
+                <i style={{ borderColor: "var(--text)" }} />
+                Toteutunut
+              </span>
+              <span>
+                <i className="dash" style={{ borderColor: "var(--baseline)" }} />
+                Ilman muutoksia
+              </span>
+              <span>
+                <i style={{ borderColor: "var(--accent)" }} />
+                Sinun valintasi
+              </span>
+            </div>
+            <LineChart
+              height={250}
+              splitYear={data.baseYear}
+              refLine={{ value: 60, label: "EU:n viitearvo 60 %" }}
+              minY={0}
+              series={[
+                {
+                  label: "Toteutunut",
+                  color: "var(--text)",
+                  points: history.map((h) => ({ year: h.year, value: h.debtRatio })),
+                },
+                {
+                  label: "Ilman muutoksia",
+                  color: "var(--baseline)",
+                  dashed: true,
+                  width: 2,
+                  points: [anchor, ...baseline.map((r) => ({ year: r.year, value: r.debtRatio }))],
+                },
+                {
+                  label: "Sinun valintasi",
+                  color: "var(--accent)",
+                  width: 3.5,
+                  points: [anchor, ...result.map((r) => ({ year: r.year, value: r.debtRatio }))],
+                },
+              ]}
+            />
+          </div>
+
+          <div className="card chart-card">
+            <h4>Vuosittainen yli-/alijäämä suhteessa BKT:hen</h4>
+            <div className="legend">
+              <span>
+                <i style={{ borderColor: "var(--deficit)" }} />
+                Sinun valintasi
+              </span>
+              <span>
+                <i className="dash" style={{ borderColor: "var(--baseline)" }} />
+                Ilman muutoksia
+              </span>
+            </div>
+            <BarChart
+              height={190}
+              refLine={{ value: -3, label: "EU:n alijäämäraja −3 %" }}
+              bars={result.map((r, i) => ({ year: r.year, value: r.balanceRatio, base: baseline[i].balanceRatio }))}
+            />
+          </div>
+        </div>
+
+        <p className="step">2 · Valitse lähtötilanne (valinnainen)</p>
+        <div className="presets" style={{ marginBottom: 16 }}>
+          {PRESETS.map((p) => (
+            <button
+              key={p.id}
+              className={`chip ${activePreset?.id === p.id ? "on" : ""}`}
+              title={p.desc}
+              onClick={() =>
+                setScenario({
+                  ...DEFAULT_SCENARIO,
+                  ...p.apply,
+                  spendingTrend: s.spendingTrend,
+                  behavioral: s.behavioral,
+                })
+              }
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+
         <div className="controls">
-          <p className="step">2 · Tee päätökset</p>
+          <p className="step">3 · Tee päätökset</p>
           <div className="panel">
             <div className="panel-tabs" role="tablist" aria-label="Säätimet">
               {GROUPS.map((g) => (
@@ -456,106 +571,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
           </div>
         </div>
 
-        <div className="results">
-          <p className="step">3 · Katso tulos</p>
-          <div className="card headline">
-            <div className="big">
-              Vuonna {last.year} julkinen velka olisi <b>{pct(last.debtRatio, 0)}</b> bruttokansantuotteesta.
-            </div>
-            <div className="muted">
-              {Math.abs(diff) < 0.5
-                ? `Nyt ${pct(data.debtRatio, 0)}. Jos mitään ei muuteta, velkasuhde jatkaa kasvuaan.`
-                : `Ilman muutoksia ${pct(lastBase.debtRatio, 0)}, eli valintasi ${
-                    diff < 0 ? "pienentävät" : "kasvattavat"
-                  } velkasuhdetta ${num(Math.abs(diff), 0)} prosenttiyksikköä.`}
-            </div>
-          </div>
-
-          <div className="mini-kpis">
-            <div className={`card kpi ${first.balance < 0 ? "bad" : "good"}`}>
-              <div className="label">
-                {first.balance < 0 ? "Alijäämä" : "Ylijäämä"} {first.year}
-              </div>
-              <div className="value">{fmt(Math.abs(first.balance))}</div>
-              <div className="sub">{pct(first.balanceRatio, 1, true)} BKT:stä</div>
-            </div>
-            <div className={`card kpi ${last.balance < 0 ? "bad" : "good"}`}>
-              <div className="label">
-                {last.balance < 0 ? "Alijäämä" : "Ylijäämä"} {last.year}
-              </div>
-              <div className="value">{fmt(Math.abs(last.balance))}</div>
-              <div className="sub">{pct(last.balanceRatio, 1, true)} BKT:stä</div>
-            </div>
-            <div className="card kpi">
-              <div className="label">Korkomenot {last.year}</div>
-              <div className="value">{fmt(last.interest)}</div>
-              <div className="sub">{pct((last.interest / last.revenue) * 100, 1)} kaikista tuloista</div>
-            </div>
-          </div>
-
-          <div className="card chart-card">
-            <h4>Julkinen velka suhteessa BKT:hen</h4>
-            <div className="legend">
-              <span>
-                <i style={{ borderColor: "var(--text)" }} />
-                Toteutunut
-              </span>
-              <span>
-                <i className="dash" style={{ borderColor: "var(--baseline)" }} />
-                Ilman muutoksia
-              </span>
-              <span>
-                <i style={{ borderColor: "var(--accent)" }} />
-                Sinun valintasi
-              </span>
-            </div>
-            <LineChart
-              height={250}
-              splitYear={data.baseYear}
-              refLine={{ value: 60, label: "EU:n viitearvo 60 %" }}
-              minY={0}
-              series={[
-                {
-                  label: "Toteutunut",
-                  color: "var(--text)",
-                  points: history.map((h) => ({ year: h.year, value: h.debtRatio })),
-                },
-                {
-                  label: "Ilman muutoksia",
-                  color: "var(--baseline)",
-                  dashed: true,
-                  width: 2,
-                  points: [anchor, ...baseline.map((r) => ({ year: r.year, value: r.debtRatio }))],
-                },
-                {
-                  label: "Sinun valintasi",
-                  color: "var(--accent)",
-                  width: 3.5,
-                  points: [anchor, ...result.map((r) => ({ year: r.year, value: r.debtRatio }))],
-                },
-              ]}
-            />
-          </div>
-
-          <div className="card chart-card">
-            <h4>Vuosittainen yli-/alijäämä suhteessa BKT:hen</h4>
-            <div className="legend">
-              <span>
-                <i style={{ borderColor: "var(--deficit)" }} />
-                Sinun valintasi
-              </span>
-              <span>
-                <i className="dash" style={{ borderColor: "var(--baseline)" }} />
-                Ilman muutoksia
-              </span>
-            </div>
-            <BarChart
-              height={190}
-              refLine={{ value: -3, label: "EU:n alijäämäraja −3 %" }}
-              bars={result.map((r, i) => ({ year: r.year, value: r.balanceRatio, base: baseline[i].balanceRatio }))}
-            />
-          </div>
-
+        <div className="sim-outcome">
           {changed && (
             <div className="verdict" aria-live="polite">
               <p className="step">Taskuministerin päätöstiedote</p>
