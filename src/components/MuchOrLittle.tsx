@@ -8,37 +8,118 @@ const SECONDS_PER_YEAR = 365 * 24 * 3600;
 
 const euros = (v: number) => `${num(Math.round(v), 0)} €`;
 
-// Suoratoistotilausten hinnat Suomessa (lokakuu 2026). Päivitä, kun hinnat muuttuvat.
-const SUBSCRIPTIONS = [
-  { id: "netflix", name: "Netflix", plan: "Standard", price: 15.99, url: "https://www.netflix.com/fi/" },
-  { id: "spotify", name: "Spotify", plan: "Premium Yksilö", price: 12.99, url: "https://www.spotify.com/fi/premium/" },
+// Vertailukohdat: suoratoistotilaukset kuukaudessa ja tölkin pantti päivässä (hinnat lokakuu 2026).
+// Päivitä, kun hinnat muuttuvat.
+interface Yardstick {
+  id: string;
+  name: string;
+  price: number;
+  period: "month" | "day";
+  /** Ruudun leveys pikseleinä; tölkit ovat kapeita pystyruutuja. */
+  boxW: number;
+  heading: string;
+  note: React.ReactNode;
+  /** Monikko ja yksikkö lukujen perään, esim. "Netflix-tilausta". */
+  many: string;
+}
+
+export const CAN_DEPOSIT = 0.15;
+
+const YARDSTICKS: Yardstick[] = [
+  {
+    id: "netflix",
+    name: "Netflix",
+    price: 15.99,
+    period: "month",
+    boxW: 22,
+    heading: "Jos valtio laskuttaisi kuukausitilauksena",
+    many: "Netflix-tilausta",
+    note: (
+      <>
+        Yksi ruutu on yksi{" "}
+        <a href="https://www.netflix.com/fi/" target="_blank" rel="noreferrer">
+          Netflix Standard
+        </a>{" "}
+        -tilaus, 15,99 €/kk (hinta lokakuussa 2026).
+      </>
+    ),
+  },
+  {
+    id: "spotify",
+    name: "Spotify",
+    price: 12.99,
+    period: "month",
+    boxW: 22,
+    heading: "Jos valtio laskuttaisi kuukausitilauksena",
+    many: "Spotify-tilausta",
+    note: (
+      <>
+        Yksi ruutu on yksi{" "}
+        <a href="https://www.spotify.com/fi/premium/" target="_blank" rel="noreferrer">
+          Spotify Premium Yksilö
+        </a>{" "}
+        -tilaus, 12,99 €/kk (hinta lokakuussa 2026).
+      </>
+    ),
+  },
+  {
+    id: "can",
+    name: "Tölkki",
+    price: CAN_DEPOSIT,
+    period: "day",
+    boxW: 7,
+    heading: "Jos valtio laskuttaisi tölkkipanteissa",
+    many: "tölkkiä",
+    note: (
+      <>
+        Yksi ruutu on yksi palautettu tölkki, pantti 0,15 € (
+        <a
+          href="https://www.palpa.fi/kuluttajille/millaisia-pakkauksia-voi-palauttaa/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Palpa
+        </a>
+        ).
+      </>
+    ),
+  },
 ];
 
-// Pienimmät menoerät, joita on hauska verrata tilaushintaan.
+// Pienimmät menoerät, joita on hauska verrata arkisiin hintoihin.
 const SUB_ROWS = ["environment", "order", "defence", "interest", "unemployment", "culture"];
 
 function SubscriptionCompare({ data }: { data: FinanceData }) {
-  const [subId, setSubId] = useState(SUBSCRIPTIONS[0].id);
-  const sub = SUBSCRIPTIONS.find((x) => x.id === subId)!;
-  const month = (millions: number) => (millions * 1e6) / data.population / 12;
-  const total = month(data.expenditureTotal);
+  const [ysId, setYsId] = useState(YARDSTICKS[0].id);
+  const ys = YARDSTICKS.find((x) => x.id === ysId)!;
+  const monthly = ys.period === "month";
+  // Euroa per asukas kuukaudessa tai päivässä.
+  const per = (millions: number) => (millions * 1e6) / data.population / (monthly ? 12 : 365);
+  const deficit = per(data.expenditureTotal - data.revenueTotal);
+  const total = per(data.expenditureTotal);
   const rows = SUB_ROWS.map((id) => data.expenditure.find((e) => e.id === id))
     .filter((e): e is NonNullable<typeof e> => !!e)
-    .map((e) => ({ name: e.name, eur: month(e.value) }))
+    .map((e) => ({ name: e.name, eur: per(e.value), bad: false }))
     .sort((a, b) => a.eur - b.eur);
-  const count = (v: number) => num(v / sub.price, v / sub.price < 10 ? 1 : 0);
+  rows.push({ name: "Otettiin velaksi", eur: deficit, bad: true });
+  const count = (v: number) => {
+    const n = v / ys.price;
+    return num(n, n < 10 ? 1 : 0);
+  };
+  const eur = (v: number) => (monthly ? `${num(v, 0)} €/kk` : `${num(v, v < 10 ? 2 : 1)} €/pv`);
+  const periodText = monthly ? "kuukaudessa" : "päivässä";
 
   return (
     <div className="subs">
       <div className="subs-head">
-        <h3>Jos valtio laskuttaisi kuukausitilauksena</h3>
-        <div className="toggle" role="group" aria-label="Vertailtava tilaus">
-          {SUBSCRIPTIONS.map((x) => (
+        <h3>{ys.heading}</h3>
+        <div className="toggle" role="group" aria-label="Vertailukohta">
+          {YARDSTICKS.map((x) => (
             <button
               key={x.id}
-              className={x.id === subId ? "on" : ""}
-              aria-pressed={x.id === subId}
-              onClick={() => setSubId(x.id)}
+              className={x.id === ysId ? "on" : ""}
+              aria-pressed={x.id === ysId}
+              onClick={() => setYsId(x.id)}
             >
               {x.name}
             </button>
@@ -46,37 +127,45 @@ function SubscriptionCompare({ data }: { data: FinanceData }) {
         </div>
       </div>
       <p className="subs-lead">
-        Kaikki julkiset palvelut maksavat <b>{euros(total)} kuukaudessa</b> jokaista suomalaista kohden. Se on{" "}
+        Kaikki julkiset palvelut maksavat{" "}
         <b>
-          {count(total)} {sub.name}-tilausta
+          {monthly ? euros(total) : `${num(total, 1)} €`} {periodText}
+        </b>{" "}
+        jokaista suomalaista kohden. {monthly ? "Se on" : "Se vastaa"}{" "}
+        <b>
+          {count(total)} {monthly ? ys.many : "tölkin panttia"}
         </b>
-        . Pienemmät erät mahtuvat muutamaan tilaukseen:
+        {monthly ? "" : " joka päivä"}.{" "}
+        {monthly ? (
+          <>
+            Velaksi siitä otettiin <b>{count(deficit)} tilausta</b> kuussa.
+          </>
+        ) : (
+          <>
+            Jotta velkaa ei tarvitsisi ottaa, jokaisen suomalaisen pitäisi palauttaa lisäksi{" "}
+            <b>{num(Math.round(deficit / ys.price), 0)} tölkkiä joka päivä</b>.
+          </>
+        )}
       </p>
-      <ul className="subs-rows">
+      <ul className={`subs-rows ${ys.id === "can" ? "cans" : ""}`}>
         {rows.map((r) => {
-          const n = r.eur / sub.price;
+          const n = r.eur / ys.price;
           return (
-            <li key={r.name}>
+            <li key={r.name} className={r.bad ? "bad" : ""}>
               <span className="subs-name">{r.name}</span>
               <span className="subs-boxes" aria-hidden="true">
                 {Array.from({ length: Math.ceil(n) }, (_, i) => (
-                  <i key={i} style={{ width: `${Math.min(1, n - i) * 22}px` }} />
+                  <i key={i} style={{ width: `${Math.min(1, n - i) * ys.boxW}px` }} />
                 ))}
               </span>
               <span className="subs-val">
-                {num(r.eur, 0)} €/kk · <b>{count(r.eur)} ×</b>
+                {eur(r.eur)} · <b>{count(r.eur)} ×</b>
               </span>
             </li>
           );
         })}
       </ul>
-      <p className="subs-note">
-        Yksi ruutu on yksi{" "}
-        <a href={sub.url} target="_blank" rel="noreferrer">
-          {sub.name} {sub.plan}
-        </a>{" "}
-        -tilaus, {num(sub.price, 2)} €/kk (hinta lokakuussa 2026). Menot on jaettu tasan kaikkien asukkaiden kesken.
-      </p>
+      <p className="subs-note">{ys.note} Menot on jaettu tasan kaikkien asukkaiden kesken.</p>
     </div>
   );
 }

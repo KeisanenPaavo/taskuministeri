@@ -2227,7 +2227,24 @@ svg text {
 }
 .subs-boxes {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
+  padding: 4px 0;
+}
+.subs-rows.cans .subs-boxes {
+  gap: 3px;
+}
+.subs-rows.cans .subs-boxes i {
+  height: 18px;
+  border-radius: 2px 2px 1px 1px;
+}
+.subs-rows li.bad .subs-boxes i {
+  background: var(--deficit);
+}
+.subs-rows li.bad .subs-name,
+.subs-rows li.bad .subs-val b {
+  color: var(--deficit);
+  font-weight: 600;
 }
 .subs-boxes i {
   display: block;
@@ -2646,4 +2663,70 @@ svg text {
 .masthead-top a,
 .byline a {
   color: inherit;
+}
+
+/* Velka tölkkitornina */
+.can-tower {
+  margin-top: 32px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+  max-width: 820px;
+}
+.can-tower h3 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.can-tower > p:first-of-type {
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+.can-tower b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.tower-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tower-bars li {
+  display: grid;
+  grid-template-columns: minmax(130px, 240px) minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+  border-top: 1px solid var(--border);
+  font-size: 15px;
+}
+.tower-track i {
+  display: block;
+  height: 12px;
+  background: var(--faint);
+}
+.tower-bars li.tower .tower-track i {
+  height: 18px;
+  background: var(--deficit);
+}
+.tower-bars li.tower .tower-name,
+.tower-bars li.tower .tower-val {
+  font-weight: 700;
+  color: var(--deficit);
+}
+.tower-val {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .tower-bars li {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    row-gap: 4px;
+    padding: 6px 0;
+  }
+  .tower-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
 }

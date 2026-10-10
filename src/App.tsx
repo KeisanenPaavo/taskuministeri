@@ -10,6 +10,7 @@ import DailyChallenge from "./components/DailyChallenge";
 import { EXPENDITURE_COLORS, REVENUE_COLORS } from "./colors";
 import MuchOrLittle from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
+import CanTower from "./components/CanTower";
 import Cite, { SourcesContext } from "./components/Cite";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
@@ -308,9 +309,13 @@ export default function App() {
               <div className="card kpi">
                 <div className="label">Korkomenot</div>
                 <div className="value">{fmt(data.interest)}</div>
-                <div className="sub">vuodessa, {interestVsDefence}</div>
+                <div className="sub">
+                  {unit === "total" ? "vuodessa, " : ""}
+                  {interestVsDefence}
+                </div>
               </div>
             </div>
+            <CanTower data={data} />
           </section>
 
           <section id="naapurit">
