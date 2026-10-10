@@ -3016,3 +3016,18 @@ svg text {
 .game-tabs {
   max-width: none;
 }
+
+.debt-chart {
+  margin-bottom: 24px;
+}
+.debt-chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.debt-chart-head h4 {
+  margin: 0;
+}

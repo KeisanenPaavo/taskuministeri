@@ -102,7 +102,8 @@ export function LineChart({ series, height = 260, unit = "%", refLine, splitYear
               <line x1={M.left} x2={M.left + iw} y1={sy(t)} y2={sy(t)} stroke="var(--grid)" />
               <text x={M.left - 6} y={sy(t) + 4} textAnchor="end">
                 {num(t, 0)}
-                {unit}
+                {/* Pitkä yksikkö (esim. mrd €) kerrotaan otsikossa, jotta akseli pysyy kapeana. */}
+                {unit.length <= 1 ? unit : ""}
               </text>
             </g>
           ))}

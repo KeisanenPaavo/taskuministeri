@@ -10,6 +10,7 @@ import DailyChallenge from "./components/DailyChallenge";
 import MuchOrLittle, { SubscriptionCompare } from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
 import CanTower from "./components/CanTower";
+import DebtChart from "./components/DebtChart";
 import WorkWeek from "./components/WorkWeek";
 import Cite, { SourcesContext } from "./components/Cite";
 
@@ -334,6 +335,7 @@ export default function App() {
               BKT:stä. EU:n viitearvo on 60 %.
               <Cite ids={["122g", "15a9"]} />
             </p>
+            <DebtChart data={data} />
             <p className="story-text">
               Velasta maksetaan korkoa {bn(data.interest)} miljardia euroa vuodessa, {day(data.interest)} euroa päivässä
               jokaista suomalaista kohden. Se on{" "}
