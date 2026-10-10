@@ -124,13 +124,13 @@ export default function App() {
 
       <main className="wrap">
         <div className="hero">
-          <div className="eyebrow">♠ Taskuministeri. Ässä hihassa.</div>
+          <div className="eyebrow">♠ Taskuministeri. Onko miljardi paljon vai vähän?</div>
           <h1>
             {Math.round(data.expenditureTotal / 1000)} miljardia euroa vuodessa.{" "}
-            <span className="grad">Onko se paljon vai vähän?</span>
+            <span className="grad">Riippuu, mihin vertaat.</span>
           </h1>
           <p className="lead">
-            Riippuu, mihin sitä vertaa. Miljardeista väitellään joka päivä, mutta harva pystyy hahmottamaan niitä.
+            Miljardeista väitellään joka päivä, mutta harva pystyy hahmottamaan niitä.
             Tällä sivulla ne muutetaan euroiksi jokaista suomalaista kohden, verrataan toisiinsa, ja pääset itse
             kokeilemaan, mitä tapahtuisi, jos päättäisit. Avoimen datan pohjalta, ilman puoluekantaa.
           </p>

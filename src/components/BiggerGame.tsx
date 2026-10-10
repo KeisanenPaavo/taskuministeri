@@ -67,7 +67,7 @@ interface Question {
 }
 
 const RANKS: { min: number; title: string; text: string }[] = [
-  { min: 10, title: "Taskuministeri ♠", text: "Täydet pisteet! Ässä todella hihassa." },
+  { min: 10, title: "Taskuministeri ♠", text: "Täydet pisteet! Miljardit ovat sinulle selvää kauraa." },
   { min: 8, title: "Valtiosihteeri", text: "Hienoa! Tunnet Suomen talouden mittasuhteet paremmin kuin useimmat." },
   { min: 5, title: "Erityisavustaja", text: "Hyvä alku. Muutama luku pääsi yllättämään." },
   { min: 0, title: "Kesäharjoittelija", text: "Miljardit ovat vaikeita. Siksi tämä sivu on olemassa!" },
