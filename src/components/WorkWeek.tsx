@@ -71,6 +71,60 @@ export default function WorkWeek({ data }: { data: FinanceData }) {
         <b>{when(taxEnd)}</b> asti. Vuositasolla veronmaksun vapaapäivä olisi <b>{freeDayText}</b>.
       </p>
 
+      <details className="week-why">
+        <summary>Mistä {num((taxes / data.gdp) * 100, 0)} % tulee?</summary>
+        <p>
+          Luku on verojen ja sosiaaliturvamaksujen yhteissumma suhteessa bruttokansantuotteeseen eli kaikkeen, mitä
+          Suomessa vuodessa tuotetaan. Vuonna {data.baseYear} veroja ja maksuja kertyi {num(taxes / 1000, 1)} mrd € ja
+          BKT oli {num(data.gdp / 1000, 1)} mrd €. Tätä kutsutaan veroasteeksi. Se on keskiarvo koko taloudesta, ei
+          kenenkään yksittäisen ihmisen veroprosentti: mukana ovat myös yritysten maksamat verot ja työnantajien maksut,
+          ja jokaisen oma osuus riippuu tuloista ja kulutuksesta.
+        </p>
+        <table className="week-why-table">
+          <thead>
+            <tr>
+              <th>Vero tai maksu</th>
+              <th>mrd €</th>
+              <th>% BKT:stä</th>
+              <th>Työaikaa viikossa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.revenue
+              .filter((r) => r.id !== "otherRevenue")
+              .map((r) => {
+                const share = r.value / data.gdp;
+                const min = Math.round(share * WEEK * 60);
+                return (
+                  <tr key={r.id}>
+                    <td>{r.name}</td>
+                    <td>{num(r.value / 1000, 1)}</td>
+                    <td>{num(share * 100, 1)} %</td>
+                    <td>
+                      {Math.floor(min / 60)} h {String(min % 60).padStart(2, "0")} min
+                    </td>
+                  </tr>
+                );
+              })}
+            <tr className="total">
+              <td>Yhteensä</td>
+              <td>{num(taxes / 1000, 1)}</td>
+              <td>{num((taxes / data.gdp) * 100, 1)} %</td>
+              <td>
+                {Math.floor((taxes / data.gdp) * WEEK)} h{" "}
+                {String(Math.round((((taxes / data.gdp) * WEEK) % 1) * 60)).padStart(2, "0")} min
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Muut julkiset tulot, kuten myyntitulot, asiakasmaksut sekä eläkerahastojen korko- ja osinkotulot (
+          {num((data.revenue.find((r) => r.id === "otherRevenue")?.value ?? 0) / 1000, 1)} mrd €), eivät ole veroja.
+          Siksi ne näkyvät viikolla erikseen pisteviivaan asti. Eurostat saa Suomen veroasteeksi saman 42 %, ja se on
+          Ruotsin tasolla (luku 5).
+        </p>
+      </details>
+
       <div className="week-grid" role="img" aria-label="Työviikko jaettuna julkisiin menoihin">
         <div className="week-axis" aria-hidden="true">
           <span />
@@ -125,7 +179,8 @@ export default function WorkWeek({ data }: { data: FinanceData }) {
           <em className="week-mark rev" /> Myös muut tulot (esim. maksut ja korot) käytetty {when(revenueEnd)}
         </li>
         <li>
-          <b className="week-debt" /> Velaksi katettu osuus ({when(revenueEnd)} – {when(spendEnd)}). Velka ei kohdistu mihinkään tiettyyn menoon.
+          <b className="week-debt" /> Velaksi katettu osuus ({when(revenueEnd)} – {when(spendEnd)}). Velka ei kohdistu
+          mihinkään tiettyyn menoon.
         </li>
       </ul>
 

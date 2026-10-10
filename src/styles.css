@@ -2890,3 +2890,56 @@ svg text {
     columns: 1;
   }
 }
+
+.week-why {
+  margin: -6px 0 18px;
+  max-width: 760px;
+  font-size: 15px;
+}
+.week-why summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+.week-why p {
+  color: var(--muted);
+  margin: 6px 0 10px;
+}
+.week-why-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.week-why-table th,
+.week-why-table td {
+  text-align: right;
+  padding: 6px 0 6px 12px;
+  border-top: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.week-why-table th:first-child,
+.week-why-table td:first-child {
+  text-align: left;
+  padding-left: 0;
+  white-space: normal;
+}
+.week-why-table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border-top: 0;
+}
+.week-why-table tr.total td {
+  border-top: 1px solid var(--rule);
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .week-why-table th:nth-child(2),
+  .week-why-table td:nth-child(2) {
+    display: none;
+  }
+}
