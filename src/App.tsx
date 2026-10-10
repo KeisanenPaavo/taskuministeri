@@ -4,6 +4,7 @@ import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } fro
 import { money, perCapita, perDay, pct, type Unit } from "./format";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
+import BiggerGame from "./components/BiggerGame";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -93,6 +94,7 @@ export default function App() {
             Taskuministeri
           </div>
           <nav className="nav">
+            <a href="#peli">Peli</a>
             <a href="#rahat">Tulot ja menot</a>
             <a href="#velka">Velka</a>
             <a href="#kokeile">Kokeile itse</a>
@@ -145,6 +147,15 @@ export default function App() {
           </div>
 
           <div className="intro-cards">
+            <a className="card intro-card" href="#peli">
+              <span className="ic">🃏</span>
+              <h3>Testaa vaistosi</h3>
+              <p>
+                Kumpi maksaa enemmän: puolustus vai velan korot? Kymmenen kysymyksen peli, joka opettaa miljardien
+                mittasuhteet minuutissa.
+              </p>
+              <span className="go">Pelaa →</span>
+            </a>
             <a className="card intro-card" href="#rahat">
               <span className="ic">🔍</span>
               <h3>Katso, mihin rahat menevät</h3>
@@ -163,15 +174,6 @@ export default function App() {
               </p>
               <span className="go">Avaa simulaattori →</span>
             </a>
-            <a className="card intro-card" href="#kokeile">
-              <span className="ic">💬</span>
-              <h3>Jaa ja keskustele</h3>
-              <p>
-                Tallenna oma ratkaisusi linkiksi ja jaa se. Keskustelu on parempaa, kun kaikki puhuvat samoista
-                luvuista.
-              </p>
-              <span className="go">Tee oma skenaario →</span>
-            </a>
           </div>
 
           <p className="trust">
@@ -179,6 +181,15 @@ export default function App() {
             Laskentatapa ja kaikki oletukset ovat <a href="#lahteet">avoimesti nähtävillä</a>.
           </p>
         </div>
+
+        <section id="peli">
+          <h2 className="section-title">Lämmittely: kumpi on isompi?</h2>
+          <p className="section-lead">
+            Arvaa ennen kuin katsot. Kumpi kahdesta vie enemmän rahaa tai tuo enemmän tuloja? Vastauksen jälkeen näet
+            luvut euroina päivässä jokaista suomalaista kohden.
+          </p>
+          <BiggerGame data={data} />
+        </section>
 
         <section id="rahat">
           <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
