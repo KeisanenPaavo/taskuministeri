@@ -1,5 +1,6 @@
-/* Taskuministeri: sanomalehden talousgrafiikka.
-   Valkoinen paperi, musta muste, hiusviivat korttien sijaan.
+/* Taskuministeri: vanhan sanomalehden talousgrafiikka. Vain vaalea paperi: sivu ei seuraa
+   käyttöjärjestelmän tummaa tilaa, koska lehtipaperi on ilmeen ydin.
+   Lehtipaperi, lämmin muste, hiusviivat korttien sijaan.
    Väri vain merkitykselle: tulot vihreä, menot sininen, velka punainen. */
 :root {
   /* Vanha sanomalehtipaperi: kellertävä newsprint ja lämmin muste. */
@@ -24,45 +25,6 @@
   --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121212;
-    --surface: #121212;
-    --surface-2: #1f1f1f;
-    --text: #ededed;
-    --muted: #b0b0b0;
-    --faint: #8f8f8f;
-    --border: #333333;
-    --rule: #ededed;
-    --accent: #8db4e8;
-    --on-accent: #121212;
-    --good: #6fbf93;
-    --bad: #f08074;
-    --deficit: #f08074;
-    --baseline: #7a7a7a;
-    --grid: #262626;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #121212;
-  --surface: #121212;
-  --surface-2: #1f1f1f;
-  --text: #ededed;
-  --muted: #b0b0b0;
-  --faint: #8f8f8f;
-  --border: #333333;
-  --rule: #ededed;
-  --accent: #8db4e8;
-  --on-accent: #121212;
-  --good: #6fbf93;
-  --bad: #f08074;
-  --deficit: #f08074;
-  --baseline: #7a7a7a;
-  --grid: #262626;
-  color-scheme: dark;
 }
 
 * {
@@ -2176,18 +2138,4 @@ body::after {
   opacity: 0.9;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.29 0 0 0 0 0.2 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body {
-    background-image: none;
-  }
-  :root:not([data-theme="light"]) body::after {
-    display: none;
-  }
-}
-:root[data-theme="dark"] body {
-  background-image: none;
-}
-:root[data-theme="dark"] body::after {
-  display: none;
 }
