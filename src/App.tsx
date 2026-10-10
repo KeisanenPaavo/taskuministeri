@@ -38,8 +38,10 @@ const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
 
 const GAMES = [
   { id: "bigger", emoji: "🃏", name: "Kumpi on isompi?", desc: "Arvaa kumpi kahdesta maksaa enemmän" },
+  { id: "daily", emoji: "📅", name: "Päivän haaste", desc: "Uusi talouspulma joka päivä" },
   { id: "hundred", emoji: "💯", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
 ] as const;
+type GameId = (typeof GAMES)[number]["id"];
 
 export default function App() {
   const [data, setData] = useState<FinanceData | null>(null);
@@ -47,7 +49,8 @@ export default function App() {
   const [unit, setUnit] = useState<Unit>("total");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [copied, setCopied] = useState(false);
-  const [game, setGame] = useState<"bigger" | "hundred">("bigger");
+  // Päivän haasteen jakolinkki (#haaste) avaa suoraan haaste-välilehden.
+  const [game, setGame] = useState<GameId>(() => (location.hash === "#haaste" ? "daily" : "bigger"));
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/finance.json`)
@@ -62,7 +65,8 @@ export default function App() {
   // Ankkurilinkki (#kokeile) toimii vasta, kun sisältö on ladattu.
   useEffect(() => {
     if (!data) return;
-    const id = location.hash.slice(1);
+    const hash = location.hash.slice(1);
+    const id = hash === "haaste" ? "peli" : hash;
     if (id && /^[a-z]+$/.test(id)) document.getElementById(id)?.scrollIntoView();
   }, [data]);
 
@@ -105,7 +109,6 @@ export default function App() {
             Taskuministeri
           </div>
           <nav className="nav">
-            <a href="#haaste">Päivän haaste</a>
             <a href="#peli">Pelit</a>
             <a href="#rahat">Tulot ja menot</a>
             <a href="#velka">Velka</a>
@@ -142,8 +145,8 @@ export default function App() {
               <span className="ic">🃏</span>
               <h3>Testaa vaistosi</h3>
               <p>
-                Kumpi maksaa enemmän: puolustus vai velan korot? Miten itse jakaisit sata euroa? Pelit opettavat
-                miljardien mittasuhteet minuutissa.
+                Kumpi maksaa enemmän: puolustus vai velan korot? Ratkaise päivän talouspulma tai jaa itse sata
+                euroa. Pelit opettavat miljardien mittasuhteet minuutissa.
               </p>
               <span className="go">Pelaa →</span>
             </a>
@@ -173,19 +176,11 @@ export default function App() {
           </p>
         </div>
 
-        <section id="haaste">
-          <h2 className="section-title">Päivän haaste</h2>
-          <p className="section-lead">
-            Joka päivä uusi talouspulma, sama kaikille. Valitse korteista oikeat toimet ja saavuta tavoite, ja vertaa
-            tulostasi kavereihin.
-          </p>
-          <DailyChallenge data={data} />
-        </section>
-
         <section id="peli">
           <h2 className="section-title">Pelaa ja opi</h2>
           <p className="section-lead">
-            Testaa, kuinka hyvin tunnet Suomen talouden mittasuhteet, ennen kuin katsot lukuja.
+            Testaa, kuinka hyvin tunnet Suomen talouden mittasuhteet, ratkaise päivän talouspulma tai jaa itse sata
+            euroa.
           </p>
           <div className="game-tabs" role="tablist">
             {GAMES.map((g) => (
@@ -204,7 +199,9 @@ export default function App() {
               </button>
             ))}
           </div>
-          {game === "bigger" ? <BiggerGame data={data} /> : <HundredEuros data={data} />}
+          {game === "bigger" && <BiggerGame data={data} />}
+          {game === "daily" && <DailyChallenge data={data} />}
+          {game === "hundred" && <HundredEuros data={data} />}
         </section>
 
         <section id="rahat">

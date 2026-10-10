@@ -1698,7 +1698,6 @@ svg text {
 .daily {
   padding: 20px;
   max-width: 860px;
-  border: 2px solid color-mix(in srgb, var(--accent) 45%, var(--border));
 }
 .daily-top {
   display: flex;
@@ -2102,5 +2101,23 @@ svg text {
   .much-ticker {
     align-items: flex-start;
     font-size: 14px;
+  }
+}
+@media (max-width: 640px) {
+  .game-tabs {
+    gap: 6px;
+  }
+  .game-tabs button {
+    flex-direction: column;
+    text-align: center;
+    gap: 2px;
+    padding: 8px 4px;
+  }
+  .game-tabs .gt-emoji {
+    font-size: 22px;
+  }
+  .game-tabs b {
+    font-size: 13px;
+    line-height: 1.2;
   }
 }
