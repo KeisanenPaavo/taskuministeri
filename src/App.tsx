@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FinanceData } from "./types";
 import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
-import { money, perCapita, perDay, pct, type Unit } from "./format";
+import { money, num, perCapita, perDay, pct, type Unit } from "./format";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
@@ -43,6 +43,56 @@ const GAMES = [
   { id: "hundred", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
 ] as const;
 type GameId = (typeof GAMES)[number]["id"];
+
+// Lehden päiväys, esim. "Lauantai 10. lokakuuta 2026".
+const dateline = (() => {
+  const now = new Date();
+  const weekday = new Intl.DateTimeFormat("fi-FI", { weekday: "long" }).format(now);
+  const date = new Intl.DateTimeFormat("fi-FI", { day: "numeric", month: "long", year: "numeric" }).format(now);
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${date}`;
+})();
+
+/** Pörssinauhan tyylinen avainlukurivi: tuorein vuosi ja muutos edellisestä. */
+function Ticker({ data }: { data: FinanceData }) {
+  const [prev, last] = data.history.slice(-2);
+  const deficit = data.expenditureTotal - data.revenueTotal;
+  const items: { label: string; value: string; change?: string; good?: boolean }[] = [
+    {
+      label: "Julkinen velka",
+      value: `${pct(last.debtRatio, 1)} BKT:stä`,
+      change: `${last.debtRatio >= prev.debtRatio ? "▲" : "▼"} ${num(last.debtRatio - prev.debtRatio, 1, true)} %-yks.`,
+      good: last.debtRatio < prev.debtRatio,
+    },
+    {
+      label: "Velka",
+      value: money(last.debt, data.population, "total"),
+      change: `${last.debt >= prev.debt ? "▲" : "▼"} ${money(last.debt - prev.debt, data.population, "total", true)}`,
+      good: last.debt < prev.debt,
+    },
+    {
+      label: "Alijäämä",
+      value: `${pct(Math.abs(last.balanceRatio), 1)} BKT:stä`,
+      change: `${-last.balanceRatio >= -prev.balanceRatio ? "▲" : "▼"} ${num(-last.balanceRatio + prev.balanceRatio, 1, true)} %-yks.`,
+      good: -last.balanceRatio < -prev.balanceRatio,
+    },
+    { label: "Menot", value: perDay(data.expenditureTotal, data.population) },
+    { label: "Uusi velka", value: perDay(deficit, data.population) },
+    { label: "Korkomenot", value: money(data.interest, data.population, "total") },
+  ];
+  return (
+    <div className="ticker" aria-label={`Avainluvut ${last.year}, muutos edellisestä vuodesta`}>
+      <div className="wrap ticker-row">
+        <span className="ticker-title">Avainluvut {last.year}</span>
+        {items.map((it) => (
+          <span key={it.label} className="ticker-item">
+            <span className="ticker-label">{it.label}</span> <b>{it.value}</b>
+            {it.change && <span className={`ticker-change ${it.good ? "good" : "bad"}`}> {it.change}</span>}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /** Selkeästi nimetty valinta: missä yksikössä luvut näytetään. */
 function UnitPicker({ unit, setUnit }: { unit: Unit; setUnit: (u: Unit) => void }) {
@@ -128,12 +178,17 @@ export default function App() {
 
   return (
     <div className="has-mobile-bar">
-      <header className="topbar">
-        <div className="wrap masthead">
-          <a className="brand" href="#">
+      <header className="masthead-wrap">
+        <div className="wrap">
+          <div className="masthead-top">
+            <span>{dateline}</span>
+            <span className="masthead-motto">Suomen julkisen talouden lehti</span>
+            <span>Lähde: Tilastokeskus</span>
+          </div>
+          <a className="nameplate" href="#">
             Taskuministeri
           </a>
-          <nav className="nav" aria-label="Sivun luvut">
+          <nav className="sections" aria-label="Osastot">
             <a href="#arvaa">Arvaa</a>
             <a href="#luvut">Paljon vai vähän</a>
             <a href="#rahat">Tulot ja menot</a>
@@ -142,13 +197,18 @@ export default function App() {
             <a href="#pelit">Pelit</a>
           </nav>
         </div>
+        <Ticker data={data} />
       </header>
 
       <main className="wrap">
         <div className="hero" id="arvaa">
           <p className="kicker">Julkinen talous {data.baseYear}</p>
           <h1>Onko miljardi paljon vai vähän?</h1>
-          <p className="lead">
+          <p className="byline">
+            Taskuministerin toimitus · Lähteet: Tilastokeskus, valtiovarainministeriö · Päivitetty{" "}
+            {new Date(data.generated).toLocaleDateString("fi-FI")}
+          </p>
+          <p className="lead dropcap">
             Miljardeista väitellään joka päivä, mutta harva osaa sanoa, mikä niistä on paljon. Aloitetaan pelillä:
             arvaa, kumpi on isompi.
           </p>

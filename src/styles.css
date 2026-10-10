@@ -75,44 +75,110 @@ a {
 }
 
 /* ---------- Lehden otsake ---------- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--bg);
+.masthead-wrap {
   border-bottom: 1px solid var(--rule);
 }
-.masthead {
-  display: flex;
+.masthead-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 16px;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  height: 60px;
+  padding: 10px 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
 }
-.brand {
+.masthead-top span:last-child {
+  text-align: right;
+}
+.masthead-motto {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text);
+}
+.nameplate {
+  display: block;
+  text-align: center;
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 28px;
-  letter-spacing: 0.01em;
+  font-size: clamp(44px, 8vw, 88px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  padding: 18px 0 14px;
   text-decoration: none;
-  white-space: nowrap;
 }
-.nav {
+.sections {
   display: flex;
-  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  border-top: 3px double var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
-.nav a {
+.sections a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 10px;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   text-decoration: none;
-  white-space: nowrap;
 }
-.nav a:hover {
+.sections a:hover {
   text-decoration: underline;
+}
+
+/* Pörssinauhan tyylinen avainlukurivi */
+.ticker {
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.ticker-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 40px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.ticker-title {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-right: 4px;
+}
+.ticker-label {
+  opacity: 0.75;
+}
+.ticker b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ticker-change.good {
+  color: #7fd3a4;
+}
+.ticker-change.bad {
+  color: #ff9d92;
+}
+
+.byline {
+  margin: -6px 0 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 3.4em;
+  line-height: 0.8;
+  padding: 0.08em 0.08em 0 0;
 }
 
 .unit-picker {
@@ -211,9 +277,9 @@ a {
 }
 
 section {
-  padding: 48px 0;
-  scroll-margin-top: 68px;
-  border-top: 1px solid var(--rule);
+  padding: 44px 0;
+  scroll-margin-top: 12px;
+  border-top: 3px solid var(--rule);
 }
 .section-title {
   font-size: clamp(30px, 3.4vw, 40px);
@@ -745,9 +811,6 @@ svg text {
 }
 
 @media (max-width: 1020px) {
-  .nav {
-    display: none;
-  }
 }
 
 @media (max-width: 960px) {
@@ -774,9 +837,6 @@ svg text {
   .fact,
   .intro-cards {
     grid-template-columns: 1fr;
-  }
-  .nav {
-    display: none;
   }
   .budget {
     padding: 12px;
@@ -834,9 +894,6 @@ svg text {
   }
   .has-mobile-bar {
     padding-bottom: 72px;
-  }
-  .brand {
-    font-size: 15px;
   }
   .toggle .long {
     display: none;
@@ -2041,18 +2098,7 @@ svg text {
 }
 
 /* ---------- Otsake ja etusivu pienillä näytöillä ---------- */
-@media (max-width: 960px) {
-  .nav {
-    display: none;
-  }
-}
 @media (max-width: 640px) {
-  .masthead {
-    height: 54px;
-  }
-  .brand {
-    font-size: 22px;
-  }
   .hero {
     padding-top: 28px;
   }
@@ -2068,4 +2114,26 @@ svg text {
 .wrap .card {
   padding-left: 0;
   padding-right: 0;
+}
+
+@media (max-width: 640px) {
+  .masthead-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .masthead-motto {
+    display: none;
+  }
+  .nameplate {
+    padding: 12px 0 10px;
+  }
+  .sections {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sections a {
+    padding: 0 10px;
+    white-space: nowrap;
+  }
 }
