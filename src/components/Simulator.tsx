@@ -60,11 +60,20 @@ const PRESETS: Preset[] = [
   },
 ];
 
+type GroupId = "economy" | "taxes" | "spending" | "assumptions";
+const GROUPS: { id: GroupId; name: string }[] = [
+  { id: "economy", name: "Talous" },
+  { id: "taxes", name: "Verot" },
+  { id: "spending", name: "Menot" },
+  { id: "assumptions", name: "Oletukset" },
+];
+
 const MAIN_SPENDING = ["pensions", "health", "education", "defence", "unemployment", "family"];
 
 export default function Simulator({ data, unit, scenario: s, setScenario }: Props) {
   const [allSpending, setAllSpending] = useState(false);
-  const [advanced, setAdvanced] = useState(false);
+  const [tab, setTab] = useState<GroupId>("economy");
+  const [hints, setHints] = useState(false);
   // Mobiilin alapalkki näytetään vain, kun simulaattori on näkyvissä.
   const simRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -108,6 +117,31 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
   const anchor = { year: data.baseYear, value: data.debtRatio };
   const diff = last.debtRatio - lastBase.debtRatio;
 
+  const perYear = unit === "total" ? " vuodessa" : "";
+  const D = DEFAULT_SCENARIO;
+  const changedCount: Record<GroupId, number> = {
+    economy: [s.realGrowth !== D.realGrowth, s.interestRate !== D.interestRate, s.inflation !== D.inflation].filter(
+      Boolean,
+    ).length,
+    taxes: [s.incomeTaxPp, s.vatPp, s.corporateTaxPp, s.excisePct].filter((v) => v !== 0).length,
+    spending: Object.values(s.spending).filter((v) => v !== 0).length,
+    assumptions: [s.spendingTrend !== D.spendingTrend, s.behavioral !== D.behavioral].filter(Boolean).length,
+  };
+  const resetGroup = (g: GroupId) => {
+    if (g === "economy") update({ realGrowth: D.realGrowth, interestRate: D.interestRate, inflation: D.inflation });
+    if (g === "taxes") update({ incomeTaxPp: 0, vatPp: 0, corporateTaxPp: 0, excisePct: 0 });
+    if (g === "spending") update({ spending: {} });
+    if (g === "assumptions") update({ spendingTrend: D.spendingTrend, behavioral: D.behavioral });
+  };
+  const lead = {
+    economy: `Asiat, joihin päättäjät eivät suoraan pysty vaikuttamaan. Esimerkiksi +0,5 %-yks. nopeampi kasvu pienentäisi velkaa vuonna ${last.year} noin ${num(growthLesson, 0)} %-yks.`,
+    taxes: "Veronkorotus parantaa taloutta (vihreä), kevennys heikentää (punainen).",
+    spending:
+      "Muutos prosentteina menoluokan nykytasosta. Leikkaus parantaa taloutta (vihreä), lisäys heikentää (punainen).",
+    assumptions: "Mallin taustaoletukset. Niitä ei yleensä tarvitse muuttaa.",
+  }[tab];
+
+  const allSpendCount = data.expenditure.filter((e) => e.id !== "interest").length;
   const spendList = data.expenditure
     .filter((e) => e.id !== "interest")
     .sort((a, b) => b.value - a.value)
@@ -141,166 +175,196 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
 
       <div className="sim" ref={simRef}>
         <div className="controls">
-          <div className="card group">
-            <h3>Talous</h3>
-            <p className="gl">Asiat, joihin päättäjät eivät suoraan pysty vaikuttamaan.</p>
-            <Slider
-              label="Talouskasvu vuodessa"
-              value={s.realGrowth}
-              min={-1}
-              max={4}
-              step={0.1}
-              base={DEFAULT_SCENARIO.realGrowth}
-              format={(v) => pct(v, 1)}
-              hint={`Kasvu tuo lisää verotuloja, mutta menot eivät kasva samaa tahtia. +0,5 %-yks. nopeampi kasvu pienentäisi velkaa vuonna ${result[result.length - 1].year} noin ${num(growthLesson, 0)} %-yks.`}
-              onChange={(v) => update({ realGrowth: v })}
-            />
-            <Slider
-              label="Korko uudelle velalle"
-              value={s.interestRate}
-              min={0}
-              max={7}
-              step={0.1}
-              base={DEFAULT_SCENARIO.interestRate}
-              format={(v) => pct(v, 1)}
-              hint={`Korkomenot ${last.year}: ${fmt(last.interest)} vuodessa`}
-              onChange={(v) => update({ interestRate: v })}
-            />
-            <Slider
-              label="Inflaatio"
-              value={s.inflation}
-              min={0}
-              max={6}
-              step={0.1}
-              base={DEFAULT_SCENARIO.inflation}
-              format={(v) => pct(v, 1)}
-              hint="Hintojen nousu kasvattaa sekä tuloja että menoja."
-              onChange={(v) => update({ inflation: v })}
-            />
-          </div>
-
-          <div className="card group">
-            <h3>Verot</h3>
-            <p className="gl">Veronkorotus parantaa taloutta (vihreä), kevennys heikentää (punainen).</p>
-            <Slider
-              label="Valtion tuloveroasteikko"
-              value={s.incomeTaxPp}
-              min={-3}
-              max={3}
-              step={0.5}
-              base={0}
-              format={(v) => `${num(v, 1, true)} %-yks.`}
-              effect={tax.incomeTax}
-              fmtEffect={fmtEffect}
-              hint={`Muutos jokaiseen veroasteikon portaaseen. Pienituloisimmat eivät maksa valtion tuloveroa. 1 %-yks. ≈ ${mrd(perPoint.incomeTax)} (VM).`}
-              onChange={(v) => update({ incomeTaxPp: v })}
-            />
-            <Slider
-              label="Arvonlisävero (yleinen kanta)"
-              value={s.vatPp}
-              min={-4}
-              max={4}
-              step={0.5}
-              base={0}
-              format={(v) => `${num(VAT_GENERAL_RATE + v, 1)} %`}
-              effect={tax.vat}
-              fmtEffect={fmtEffect}
-              hint={`Nyt 25,5 %. 1 %-yks. ≈ ${mrd(perPoint.vat)} (HE 61/2024). Nostaa useimpien tuotteiden hintoja.`}
-              onChange={(v) => update({ vatPp: v })}
-            />
-            <Slider
-              label="Yhteisövero"
-              value={s.corporateTaxPp}
-              min={-5}
-              max={5}
-              step={1}
-              base={0}
-              format={(v) => `${num(CORPORATE_RATE + v, 0)} %`}
-              effect={tax.corporateTax}
-              fmtEffect={fmtEffect}
-              hint={`Nyt 20 %. 1 %-yks. ≈ ${mrd(perPoint.corporateTax)} ennen dynaamisia vaikutuksia.`}
-              onChange={(v) => update({ corporateTaxPp: v })}
-            />
-            <Slider
-              label="Valmisteverot"
-              value={s.excisePct}
-              min={-30}
-              max={30}
-              step={5}
-              base={0}
-              format={(v) => pct(v, 0, true)}
-              effect={tax.excise}
-              fmtEffect={fmtEffect}
-              hint="Polttoaineet, sähkö, alkoholi, tupakka, makeat juomat."
-              onChange={(v) => update({ excisePct: v })}
-            />
-          </div>
-
-          <div className="card group">
-            <h3>Menot</h3>
-            <p className="gl">Leikkaus parantaa taloutta (vihreä), lisäys heikentää (punainen).</p>
-            {spendList.map((e) => (
-              <Slider
-                key={e.id}
-                label={e.name}
-                dot={EXPENDITURE_COLORS[e.id]}
-                value={s.spending[e.id] ?? 0}
-                min={-25}
-                max={25}
-                step={1}
-                base={0}
-                format={(v) => pct(v, 0, true)}
-                effect={-spend[e.id]}
-                fmtEffect={fmtEffect}
-                hint={`Nyt ${fmt(e.value)} vuodessa`}
-                onChange={(v) => setSpend(e.id, v)}
-              />
-            ))}
-            <button className="more" onClick={() => setAllSpending(!allSpending)}>
-              {allSpending ? "Näytä vähemmän" : "Näytä kaikki menoluokat"}
-            </button>
-          </div>
-
-          <div className="card group">
-            <h3>
-              Oletukset
-              <button className="reset" onClick={() => setAdvanced(!advanced)} style={{ marginLeft: "auto" }}>
-                {advanced ? "Piilota" : "Näytä"}
-              </button>
-            </h3>
-            <p className="gl">Mallin taustaoletukset, joita voit muuttaa.</p>
-            {advanced && (
-              <>
-                <Slider
-                  label="Menojen luontainen kasvu"
-                  value={s.spendingTrend}
-                  min={0}
-                  max={3}
-                  step={0.1}
-                  base={DEFAULT_SCENARIO.spendingTrend}
-                  format={(v) => `${pct(v, 1)}/v`}
-                  hint="Kuinka paljon menot kasvavat hintojen nousun lisäksi esim. väestön ikääntymisen takia."
-                  onChange={(v) => update({ spendingTrend: v })}
-                />
-                <label
-                  style={{ display: "flex", gap: 8, fontSize: 14, padding: "8px 0 12px", alignItems: "flex-start" }}
+          <div className="panel">
+            <div className="panel-tabs" role="tablist" aria-label="Säätimet">
+              {GROUPS.map((g) => (
+                <button
+                  key={g.id}
+                  role="tab"
+                  aria-selected={tab === g.id}
+                  className={tab === g.id ? "on" : ""}
+                  onClick={() => setTab(g.id)}
                 >
-                  <input
-                    type="checkbox"
-                    checked={s.behavioral}
-                    onChange={(e) => update({ behavioral: e.target.checked })}
-                    style={{ marginTop: 4 }}
+                  {g.name}
+                  {changedCount[g.id] > 0 && <span className="badge">{changedCount[g.id]}</span>}
+                </button>
+              ))}
+            </div>
+
+            <div className="panel-body" role="tabpanel">
+              <div className="panel-head">
+                <p className="gl">{lead}</p>
+                <div className="panel-actions">
+                  <button className="reset" aria-pressed={hints} onClick={() => setHints(!hints)}>
+                    {hints ? "Piilota selitykset" : "Näytä selitykset"}
+                  </button>
+                  {changedCount[tab] > 0 && (
+                    <button className="reset" onClick={() => resetGroup(tab)}>
+                      ↺ Palauta {GROUPS.find((g) => g.id === tab)!.name.toLowerCase()}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {tab === "economy" && (
+                <div className="panel-sliders">
+                  <Slider
+                    label="Talouskasvu vuodessa"
+                    value={s.realGrowth}
+                    min={-1}
+                    max={4}
+                    step={0.1}
+                    base={DEFAULT_SCENARIO.realGrowth}
+                    format={(v) => pct(v, 1)}
+                    hint="Kasvu tuo lisää verotuloja, mutta menot eivät kasva samaa tahtia."
+                    showHint={hints}
+                    onChange={(v) => update({ realGrowth: v })}
                   />
-                  <span>
-                    Huomioi käyttäytymisvaikutukset
-                    <br />
-                    <span className="gl" style={{ fontSize: 12, color: "var(--muted)" }}>
-                      Esim. korkeampi vero vähentää hieman työntekoa tai kulutusta, joten osa lisätuotosta jää saamatta.
+                  <Slider
+                    label="Korko uudelle velalle"
+                    value={s.interestRate}
+                    min={0}
+                    max={7}
+                    step={0.1}
+                    base={DEFAULT_SCENARIO.interestRate}
+                    format={(v) => pct(v, 1)}
+                    hint={`Korkomenot ${last.year}: ${fmt(last.interest)}${perYear}. Vanha velka siirtyy uuteen korkoon vähitellen.`}
+                    showHint={hints}
+                    onChange={(v) => update({ interestRate: v })}
+                  />
+                  <Slider
+                    label="Inflaatio"
+                    value={s.inflation}
+                    min={0}
+                    max={6}
+                    step={0.1}
+                    base={DEFAULT_SCENARIO.inflation}
+                    format={(v) => pct(v, 1)}
+                    hint="Hintojen nousu kasvattaa sekä tuloja että menoja."
+                    showHint={hints}
+                    onChange={(v) => update({ inflation: v })}
+                  />
+                </div>
+              )}
+
+              {tab === "taxes" && (
+                <div className="panel-sliders">
+                  <Slider
+                    label="Valtion tuloveroasteikko"
+                    value={s.incomeTaxPp}
+                    min={-3}
+                    max={3}
+                    step={0.5}
+                    base={0}
+                    format={(v) => `${num(v, 1, true)} %-yks.`}
+                    effect={tax.incomeTax}
+                    fmtEffect={fmtEffect}
+                    hint={`Muutos jokaiseen veroasteikon portaaseen. Pienituloisimmat eivät maksa valtion tuloveroa. 1 %-yks. ≈ ${mrd(perPoint.incomeTax)} (VM).`}
+                    showHint={hints}
+                    onChange={(v) => update({ incomeTaxPp: v })}
+                  />
+                  <Slider
+                    label="Arvonlisävero"
+                    value={s.vatPp}
+                    min={-4}
+                    max={4}
+                    step={0.5}
+                    base={0}
+                    format={(v) => `${num(VAT_GENERAL_RATE + v, 1)} %`}
+                    effect={tax.vat}
+                    fmtEffect={fmtEffect}
+                    hint={`Yleinen kanta, nyt 25,5 %. 1 %-yks. ≈ ${mrd(perPoint.vat)} (HE 61/2024). Nostaa useimpien tuotteiden hintoja.`}
+                    showHint={hints}
+                    onChange={(v) => update({ vatPp: v })}
+                  />
+                  <Slider
+                    label="Yhteisövero"
+                    value={s.corporateTaxPp}
+                    min={-5}
+                    max={5}
+                    step={1}
+                    base={0}
+                    format={(v) => `${num(CORPORATE_RATE + v, 0)} %`}
+                    effect={tax.corporateTax}
+                    fmtEffect={fmtEffect}
+                    hint={`Nyt 20 %. 1 %-yks. ≈ ${mrd(perPoint.corporateTax)} ennen dynaamisia vaikutuksia.`}
+                    showHint={hints}
+                    onChange={(v) => update({ corporateTaxPp: v })}
+                  />
+                  <Slider
+                    label="Valmisteverot"
+                    value={s.excisePct}
+                    min={-30}
+                    max={30}
+                    step={5}
+                    base={0}
+                    format={(v) => pct(v, 0, true)}
+                    effect={tax.excise}
+                    fmtEffect={fmtEffect}
+                    hint="Polttoaineet, sähkö, alkoholi, tupakka, makeat juomat."
+                    showHint={hints}
+                    onChange={(v) => update({ excisePct: v })}
+                  />
+                </div>
+              )}
+
+              {tab === "spending" && (
+                <div className="panel-sliders">
+                  {spendList.map((e) => (
+                    <Slider
+                      key={e.id}
+                      label={e.name}
+                      dot={EXPENDITURE_COLORS[e.id]}
+                      value={s.spending[e.id] ?? 0}
+                      min={-25}
+                      max={25}
+                      step={1}
+                      base={0}
+                      format={(v) => pct(v, 0, true)}
+                      effect={-spend[e.id]}
+                      fmtEffect={fmtEffect}
+                      hint={`Nyt ${fmt(e.value)}${perYear}.`}
+                      showHint={hints}
+                      onChange={(v) => setSpend(e.id, v)}
+                    />
+                  ))}
+                  <button className="more" onClick={() => setAllSpending(!allSpending)}>
+                    {allSpending ? "Näytä vain suurimmat" : `Näytä kaikki menoluokat (${allSpendCount})`}
+                  </button>
+                </div>
+              )}
+
+              {tab === "assumptions" && (
+                <div className="panel-sliders">
+                  <Slider
+                    label="Menojen luontainen kasvu"
+                    value={s.spendingTrend}
+                    min={0}
+                    max={3}
+                    step={0.1}
+                    base={DEFAULT_SCENARIO.spendingTrend}
+                    format={(v) => `${pct(v, 1)}/v`}
+                    hint="Kuinka paljon menot kasvavat hintojen nousun lisäksi esim. väestön ikääntymisen takia."
+                    showHint={hints}
+                    onChange={(v) => update({ spendingTrend: v })}
+                  />
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={s.behavioral}
+                      onChange={(e) => update({ behavioral: e.target.checked })}
+                    />
+                    <span>
+                      Huomioi käyttäytymisvaikutukset
+                      <small>
+                        Esim. korkeampi vero vähentää hieman työntekoa tai kulutusta, joten osa lisätuotosta jää
+                        saamatta.
+                      </small>
                     </span>
-                  </span>
-                </label>
-              </>
-            )}
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -464,23 +528,46 @@ interface SliderProps {
   format: (v: number) => string;
   onChange: (v: number) => void;
   hint?: string;
+  showHint?: boolean;
   effect?: number;
   fmtEffect?: (v: number) => string;
   dot?: string;
 }
 
-function Slider({ label, value, min, max, step, base, format, onChange, hint, effect, fmtEffect, dot }: SliderProps) {
+/** Tiivis säädin: nimi, arvo ja vaikutus yhdellä rivillä, liukusäädin alla. */
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  base,
+  format,
+  onChange,
+  hint,
+  showHint,
+  effect,
+  fmtEffect,
+  dot,
+}: SliderProps) {
   const fill = ((value - min) / (max - min)) * 100;
   const from = ((base - min) / (max - min)) * 100;
   const changed = Math.abs(value - base) > 1e-9;
+  const showEffect = changed && effect !== undefined && fmtEffect && Math.abs(effect) > 0.5;
   return (
-    <div className="slider">
+    <div className={`slider ${changed ? "changed" : ""}`} title={showHint ? undefined : hint}>
       <div className="row">
         <label>
           {dot && <span className="dot" style={{ background: dot }} />}
           {label}
         </label>
+        {showEffect && <span className={`effect ${effect > 0 ? "good" : "bad"}`}>{fmtEffect(effect)}</span>}
         <span className="val">{format(value)}</span>
+        {changed && (
+          <button className="undo" onClick={() => onChange(base)} aria-label={`Palauta ${label}`} title="Palauta">
+            ↺
+          </button>
+        )}
       </div>
       <input
         type="range"
@@ -493,16 +580,7 @@ function Slider({ label, value, min, max, step, base, format, onChange, hint, ef
         onDoubleClick={() => onChange(base)}
         style={{ ["--fill" as string]: `${fill}%`, ["--from" as string]: `${from}%` }}
       />
-      <div className="meta">
-        <span>{hint}</span>
-        {changed && effect !== undefined && fmtEffect && Math.abs(effect) > 0.5 ? (
-          <span className={`effect ${effect > 0 ? "good" : "bad"}`}>{fmtEffect(effect)}</span>
-        ) : changed ? (
-          <button className="reset" onClick={() => onChange(base)}>
-            ↺ palauta
-          </button>
-        ) : null}
-      </div>
+      {showHint && hint && <p className="slider-hint">{hint}</p>}
     </div>
   );
 }

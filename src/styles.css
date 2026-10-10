@@ -510,13 +510,13 @@ section {
   align-items: start;
 }
 .controls {
+  position: sticky;
+  top: 16px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 .results {
-  position: sticky;
-  top: 72px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -563,20 +563,82 @@ section {
   color: var(--bg);
 }
 
-.slider {
-  padding: 10px 0 12px;
-  border-top: 1px solid var(--border);
+/* Säädinpaneeli: välilehdet ryhmille, tiiviit säätimet */
+.panel {
+  border-top: 3px solid var(--rule);
 }
-.slider:first-of-type {
-  border-top: 0;
+.panel-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--rule);
+}
+.panel-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.panel-tabs button:hover {
+  color: var(--text);
+}
+.panel-tabs button.on {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border-radius: 10px;
+}
+.panel-body {
+  padding: 10px 0 4px;
+}
+.panel-head .gl {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+.panel-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.panel-actions .reset {
+  min-height: 32px;
+  font-size: 13px;
+}
+
+.slider {
+  padding: 6px 0 2px;
+  border-top: 1px solid var(--border);
 }
 .slider .row {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
+  min-height: 24px;
 }
 .slider label {
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   font-weight: 500;
 }
@@ -586,13 +648,54 @@ section {
   font-size: 14px;
   white-space: nowrap;
 }
-.slider .meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
+.slider.changed .val {
+  color: var(--accent);
+}
+.slider .effect {
+  font-size: 12px;
+}
+.slider .undo {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -2px -4px -2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.slider .slider-hint {
+  margin: -2px 0 6px;
   font-size: 12px;
   color: var(--muted);
-  min-height: 18px;
+}
+.panel-sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  column-gap: 28px;
+}
+.panel-sliders .more,
+.panel-sliders .check {
+  grid-column: 1 / -1;
+}
+.check {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+}
+.check input {
+  margin-top: 4px;
+}
+.check small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
 }
 .slider .effect {
   font-weight: 600;
@@ -619,7 +722,7 @@ input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 28px;
+  height: 26px;
   background: transparent;
   margin: 2px 0;
   --fill: 50%;
@@ -824,8 +927,10 @@ svg text {
   .sim {
     grid-template-columns: minmax(0, 1fr);
   }
-  .results {
+  .controls {
     position: static;
+  }
+  .results {
     order: -1;
   }
   .debt-strip {
