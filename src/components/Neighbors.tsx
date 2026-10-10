@@ -2,6 +2,7 @@ import type { ByCountry, CountryCode, NeighborData } from "../types";
 import { num } from "../format";
 import { LineChart } from "./charts";
 import CompareTool from "./CompareTool";
+import Cite from "./Cite";
 
 // Naapurit-luku: Suomi verrattuna Ruotsiin ja Viroon Eurostatin datalla.
 // Kaikki luvut ovat prosentteja BKT:stä, jotta eri kokoiset taloudet ovat vertailukelpoisia.
@@ -106,15 +107,18 @@ export default function Neighbors({ n }: { n: NeighborData }) {
           <b>Sama veroaste, eri menot.</b> Suomessa ja Ruotsissa verojen ja maksujen osuus on lähes sama ({p1(m.tax.FI)}{" "}
           ja {p1(m.tax.SE)} BKT:stä vuonna {n.taxYear}), mutta Suomen julkiset menot ovat {num(spendGap, 1)} %-yksikköä
           suuremmat.
+          <Cite ids={["gov_10a_taxag", "gov_10a_main"]} />
         </li>
         <li>
           <b>Ero on sosiaaliturvassa.</b> Suomi käyttää sosiaaliturvaan {num(socialGap, 1)} %-yksikköä BKT:stä enemmän
           kuin Ruotsi. Siitä {num(oldAgeGap, 1)} %-yksikköä on vanhuuden menoja eli eläkkeitä ja vanhuspalveluja.
+          <Cite ids={["gov_10a_exp"]} />
         </li>
         <li>
           <b>Velka kääntyi eri suuntiin.</b> Vuonna {firstDebt.year} Suomen velka oli {p1(firstDebt.FI)} ja Ruotsin{" "}
           {p1(firstDebt.SE)} BKT:stä. Vuonna {lastDebt.year} Suomen velka on {num(debtTimes, 1)}-kertainen Ruotsiin
           verrattuna.
+          <Cite ids={["gov_10dd_edpt1"]} />
         </li>
       </ul>
 
@@ -132,7 +136,10 @@ export default function Neighbors({ n }: { n: NeighborData }) {
       <CompareTool data={n.compare} codes={codes} names={names} colors={COLORS} />
 
       <div className="card chart-card neighbor-chart">
-        <h4>Julkinen velka suhteessa BKT:hen</h4>
+        <h4>
+          Julkinen velka suhteessa BKT:hen
+          <Cite ids={["gov_10dd_edpt1"]} />
+        </h4>
         <div className="legend">
           {codes.map((c) => (
             <span key={c}>

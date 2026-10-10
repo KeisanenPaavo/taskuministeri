@@ -10,6 +10,7 @@ import DailyChallenge from "./components/DailyChallenge";
 import { EXPENDITURE_COLORS, REVENUE_COLORS } from "./colors";
 import MuchOrLittle from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
+import Cite, { SourcesContext } from "./components/Cite";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -177,279 +178,289 @@ export default function App() {
       ? "enemmän kuin puolustukseen"
       : `${pct((data.interest / defence) * 100, 0)} puolustusmenoista`;
 
+  const sources = [...data.sources, ...data.neighbors.sources];
+
   return (
-    <div className="has-mobile-bar">
-      <header className="masthead-wrap">
-        <div className="wrap">
-          <div className="masthead-top">
-            <span>{dateline}</span>
-            <span className="masthead-motto">Suomen julkisen talouden lehti</span>
-            <span>Lähde: Tilastokeskus</span>
+    <SourcesContext.Provider value={sources}>
+      <div className="has-mobile-bar">
+        <header className="masthead-wrap">
+          <div className="wrap">
+            <div className="masthead-top">
+              <span>{dateline}</span>
+              <span className="masthead-motto">Miljardit taskukoossa</span>
+              <a href="#lahteet">Lähteet: Tilastokeskus, Eurostat</a>
+            </div>
+            <a className="nameplate" href="#">
+              Taskuministeri
+            </a>
+            <nav className="sections" aria-label="Osastot">
+              <a href="#arvaa">Arvaa</a>
+              <a href="#luvut">Paljon vai vähän</a>
+              <a href="#rahat">Tulot ja menot</a>
+              <a href="#velka">Velka</a>
+              <a href="#naapurit">Naapurit</a>
+              <a href="#kokeile">Kokeile itse</a>
+              <a href="#pelit">Pelit</a>
+            </nav>
           </div>
-          <a className="nameplate" href="#">
-            Taskuministeri
-          </a>
-          <nav className="sections" aria-label="Osastot">
-            <a href="#arvaa">Arvaa</a>
-            <a href="#luvut">Paljon vai vähän</a>
-            <a href="#rahat">Tulot ja menot</a>
-            <a href="#velka">Velka</a>
-            <a href="#naapurit">Naapurit</a>
-            <a href="#kokeile">Kokeile itse</a>
-            <a href="#pelit">Pelit</a>
-          </nav>
-        </div>
-        <Ticker data={data} />
-      </header>
+          <Ticker data={data} />
+        </header>
 
-      <main className="wrap">
-        <div className="hero" id="arvaa">
-          <p className="kicker">Julkinen talous {data.baseYear}</p>
-          <h1>Onko miljardi paljon vai vähän?</h1>
-          <p className="byline">
-            Taskuministerin toimitus · Lähteet: Tilastokeskus, valtiovarainministeriö · Päivitetty{" "}
-            {new Date(data.generated).toLocaleDateString("fi-FI")}
-          </p>
-          <p className="lead dropcap">
-            Miljardeista väitellään joka päivä, mutta harva osaa sanoa, mikä niistä on paljon. Aloitetaan pelillä:
-            arvaa, kumpi on isompi.
-          </p>
-          <p className="chapter">Luku 1 · Arvaa</p>
-          <BiggerGame data={data} />
-        </div>
-
-        <section id="luvut">
-          <p className="chapter">Luku 2</p>
-          <h2 className="section-title">Paljon vai vähän?</h2>
-          <p className="section-lead">
-            Julkinen sektori käytti vuonna {data.baseYear} yhteensä {Math.round(data.expenditureTotal / 1000)} miljardia
-            euroa. Se on {perDay(data.expenditureTotal, data.population).replace(" €/pv", "")} euroa päivässä jokaista
-            suomalaista kohden, ja siitä {perDay(deficit, data.population).replace(" €/pv", "")} euroa otettiin velaksi.
-            Vastaus riippuu siitä, mihin vertaa.
-          </p>
-          <MuchOrLittle data={data} />
-        </section>
-
-        <section id="rahat">
-          <p className="chapter">Luku 3</p>
-          <div className="section-head">
-            <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
-            {unitPicker}
+        <main className="wrap">
+          <div className="hero" id="arvaa">
+            <p className="kicker">Julkinen talous {data.baseYear}</p>
+            <h1>Onko miljardi paljon vai vähän?</h1>
+            <p className="byline">
+              Taskuministerin toimitus · <a href="#lahteet">Lähteet</a>: Tilastokeskus, Eurostat, Verohallinto,
+              valtiovarainministeriö · Päivitetty {new Date(data.generated).toLocaleDateString("fi-FI")}
+            </p>
+            <p className="lead dropcap">
+              Miljardeista väitellään joka päivä, mutta harva osaa sanoa, mikä niistä on paljon. Aloitetaan pelillä:
+              arvaa, kumpi on isompi.
+            </p>
+            <p className="chapter">Luku 1 · Arvaa</p>
+            <BiggerGame data={data} />
           </div>
-          <p className="section-lead">
-            Valtio, kunnat, hyvinvointialueet ja eläkelaitokset käyttivät vuonna {data.baseYear} yhteensä{" "}
-            {money(data.expenditureTotal, data.population, "total")}. Tuloja kertyi{" "}
-            {money(deficit, data.population, "total")} vähemmän, ja erotus otettiin velaksi.
-          </p>
-          <div className="kpis">
-            <div className="card kpi">
-              <div className="label">
-                <span className="dot" style={{ background: REVENUE_COLORS.socialContrib }} />
-                Tulot {data.baseYear}
+
+          <section id="luvut">
+            <p className="chapter">Luku 2</p>
+            <h2 className="section-title">Paljon vai vähän?</h2>
+            <p className="section-lead">
+              Julkinen sektori käytti vuonna {data.baseYear} yhteensä {Math.round(data.expenditureTotal / 1000)}{" "}
+              miljardia euroa. Se on {perDay(data.expenditureTotal, data.population).replace(" €/pv", "")} euroa
+              päivässä jokaista suomalaista kohden, ja siitä {perDay(deficit, data.population).replace(" €/pv", "")}{" "}
+              euroa otettiin velaksi.
+              <Cite ids={["15ah"]} /> Vastaus riippuu siitä, mihin vertaa.
+            </p>
+            <MuchOrLittle data={data} />
+          </section>
+
+          <section id="rahat">
+            <p className="chapter">Luku 3</p>
+            <div className="section-head">
+              <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
+              {unitPicker}
+            </div>
+            <p className="section-lead">
+              Valtio, kunnat, hyvinvointialueet ja eläkelaitokset käyttivät vuonna {data.baseYear} yhteensä{" "}
+              {money(data.expenditureTotal, data.population, "total")}. Tuloja kertyi{" "}
+              {money(deficit, data.population, "total")} vähemmän, ja erotus otettiin velaksi.
+              <Cite ids={["15ah", "15aj", "12a6", "vero"]} />
+            </p>
+            <div className="kpis">
+              <div className="card kpi">
+                <div className="label">
+                  <span className="dot" style={{ background: REVENUE_COLORS.socialContrib }} />
+                  Tulot {data.baseYear}
+                </div>
+                <div className="value">{fmt(data.revenueTotal)}</div>
+                <div className="sub">{pct((data.revenueTotal / data.gdp) * 100)} BKT:stä</div>
               </div>
-              <div className="value">{fmt(data.revenueTotal)}</div>
-              <div className="sub">{pct((data.revenueTotal / data.gdp) * 100)} BKT:stä</div>
-            </div>
-            <div className="card kpi">
-              <div className="label">
-                <span className="dot" style={{ background: EXPENDITURE_COLORS.health }} />
-                Menot {data.baseYear}
+              <div className="card kpi">
+                <div className="label">
+                  <span className="dot" style={{ background: EXPENDITURE_COLORS.health }} />
+                  Menot {data.baseYear}
+                </div>
+                <div className="value">{fmt(data.expenditureTotal)}</div>
+                <div className="sub">{pct((data.expenditureTotal / data.gdp) * 100)} BKT:stä</div>
               </div>
-              <div className="value">{fmt(data.expenditureTotal)}</div>
-              <div className="sub">{pct((data.expenditureTotal / data.gdp) * 100)} BKT:stä</div>
-            </div>
-            <div className="card kpi bad">
-              <div className="label">
-                <span className="dot" style={{ background: "var(--deficit)" }} />
-                Alijäämä eli otettiin velaksi
+              <div className="card kpi bad">
+                <div className="label">
+                  <span className="dot" style={{ background: "var(--deficit)" }} />
+                  Alijäämä eli otettiin velaksi
+                </div>
+                <div className="value">{fmt(deficit)}</div>
+                <div className="sub">
+                  {pct((deficit / data.expenditureTotal) * 100, 0)} menoista rahoitettiin velalla
+                </div>
               </div>
-              <div className="value">{fmt(deficit)}</div>
-              <div className="sub">{pct((deficit / data.expenditureTotal) * 100, 0)} menoista rahoitettiin velalla</div>
             </div>
-          </div>
-          <BudgetColumns data={data} unit={unit} />
-        </section>
+            <BudgetColumns data={data} unit={unit} />
+          </section>
 
-        <section id="velka">
-          <p className="chapter">Luku 4</p>
-          <h2 className="section-title">Velka kasvaa</h2>
-          <p className="section-lead">
-            Kun menot ovat tuloja suuremmat, erotus otetaan velaksi. Velasta maksetaan korkoa, joka on pois muista
-            menoista.
-          </p>
-          <div className="debt-strip">
-            <div className="card kpi">
-              <div className="label">Julkinen velka</div>
-              {/* Velka on kertynyt määrä, ei vuotuinen virta, joten sitä ei muuteta päivä- tai vuosisummaksi. */}
-              <div className="value">{money(data.debt, data.population, "total")}</div>
-              <div className="sub">vuoden {data.baseYear} lopussa</div>
+          <section id="velka">
+            <p className="chapter">Luku 4</p>
+            <h2 className="section-title">Velka kasvaa</h2>
+            <p className="section-lead">
+              Kun menot ovat tuloja suuremmat, erotus otetaan velaksi. Velasta maksetaan korkoa, joka on pois muista
+              menoista.
+              <Cite ids={["122g", "15a9"]} />
+            </p>
+            <div className="debt-strip">
+              <div className="card kpi">
+                <div className="label">Julkinen velka</div>
+                {/* Velka on kertynyt määrä, ei vuotuinen virta, joten sitä ei muuteta päivä- tai vuosisummaksi. */}
+                <div className="value">{money(data.debt, data.population, "total")}</div>
+                <div className="sub">vuoden {data.baseYear} lopussa</div>
+              </div>
+              <div className="card kpi">
+                <div className="label">Suhteessa BKT:hen</div>
+                <div className="value">{pct(data.debtRatio, 1)}</div>
+                <div className="sub">EU:n viitearvo 60 %</div>
+              </div>
+              <div className="card kpi">
+                <div className="label">Velkaa per asukas</div>
+                <div className="value">{perCapita(data.debt, data.population)}</div>
+                <div className="sub">jokaista suomalaista kohden</div>
+              </div>
+              <div className="card kpi">
+                <div className="label">Korkomenot</div>
+                <div className="value">{fmt(data.interest)}</div>
+                <div className="sub">vuodessa, {interestVsDefence}</div>
+              </div>
             </div>
-            <div className="card kpi">
-              <div className="label">Suhteessa BKT:hen</div>
-              <div className="value">{pct(data.debtRatio, 1)}</div>
-              <div className="sub">EU:n viitearvo 60 %</div>
-            </div>
-            <div className="card kpi">
-              <div className="label">Velkaa per asukas</div>
-              <div className="value">{perCapita(data.debt, data.population)}</div>
-              <div className="sub">jokaista suomalaista kohden</div>
-            </div>
-            <div className="card kpi">
-              <div className="label">Korkomenot</div>
-              <div className="value">{fmt(data.interest)}</div>
-              <div className="sub">vuodessa, {interestVsDefence}</div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="naapurit">
-          <p className="chapter">Luku 5</p>
-          <h2 className="section-title">Naapurit: Suomi, Ruotsi ja Viro</h2>
-          <p className="section-lead">
-            Onko Suomen julkinen talous iso vai pieni? Vertailu naapureihin antaa mittakaavan. Luvut ovat prosentteja
-            bruttokansantuotteesta, jotta eri kokoiset maat ovat vertailukelpoisia.
-          </p>
-          <Neighbors n={data.neighbors} />
-        </section>
+          <section id="naapurit">
+            <p className="chapter">Luku 5</p>
+            <h2 className="section-title">Naapurit: Suomi, Ruotsi ja Viro</h2>
+            <p className="section-lead">
+              Onko Suomen julkinen talous iso vai pieni? Vertailu naapureihin antaa mittakaavan. Luvut ovat prosentteja
+              bruttokansantuotteesta, jotta eri kokoiset maat ovat vertailukelpoisia. Kaikki luvut ovat Eurostatista.
+              <Cite ids={["gov_10a_main", "gov_10a_exp", "gov_10a_taxag", "gov_10dd_edpt1", "nama"]} />
+            </p>
+            <Neighbors n={data.neighbors} />
+          </section>
 
-        <section id="kokeile">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              gap: 12,
-              flexWrap: "wrap",
-            }}
-          >
+          <section id="kokeile">
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+                gap: 12,
+                flexWrap: "wrap",
+              }}
+            >
+              <div>
+                <p className="chapter">Luku 6</p>
+                <h2 className="section-title">Kokeile itse: miten velka kehittyy?</h2>
+                <p className="section-lead" style={{ marginBottom: 16 }}>
+                  Liikuta säätimiä ja näe heti, miten talouskasvu, korot, verot ja menot vaikuttavat alijäämään ja
+                  velkaan seuraavan kymmenen vuoden aikana.
+                </p>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+                {unitPicker}
+                <button className="chip" onClick={share}>
+                  {copied ? "Linkki kopioitu" : "Jaa skenaario"}
+                </button>
+                <button className="chip" onClick={() => setScenario(DEFAULT_SCENARIO)}>
+                  ↺ Aloita alusta
+                </button>
+              </div>
+            </div>
+            <Simulator data={data} unit={unit} scenario={scenario} setScenario={setScenario} />
+          </section>
+
+          <section id="pelit">
+            <p className="chapter">Luku 7</p>
+            <h2 className="section-title">Pelaa lisää</h2>
+            <p className="section-lead">
+              Nyt tiedät mittasuhteet. Ratkaise päivän talouspulma tai jaa itse sata euroa ja vertaa Suomeen.
+            </p>
+            <div className="game-tabs" role="tablist">
+              {GAMES.map((g) => (
+                <button
+                  key={g.id}
+                  role="tab"
+                  aria-selected={game === g.id}
+                  className={game === g.id ? "on" : ""}
+                  onClick={() => setGame(g.id)}
+                >
+                  <span>
+                    <b>{g.name}</b>
+                    <small>{g.desc}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+            {game === "daily" && <DailyChallenge data={data} />}
+            {game === "hundred" && <HundredEuros data={data} />}
+          </section>
+        </main>
+
+        <footer className="footer" id="lahteet">
+          <div className="wrap cols">
             <div>
-              <p className="chapter">Luku 6</p>
-              <h2 className="section-title">Kokeile itse: miten velka kehittyy?</h2>
-              <p className="section-lead" style={{ marginBottom: 16 }}>
-                Liikuta säätimiä ja näe heti, miten talouskasvu, korot, verot ja menot vaikuttavat alijäämään ja velkaan
-                seuraavan kymmenen vuoden aikana.
+              <h3>Miten simulaattori laskee?</h3>
+              <ul>
+                <li>Verotulot kasvavat samaa tahtia kuin talous (reaalikasvu + inflaatio).</li>
+                <li>
+                  Menot kasvavat hintojen nousun verran ja lisäksi luontaisen menokasvun verran (oletus 1,2 % vuodessa,
+                  mm. ikääntyminen). Jos talous kasvaa oletusta nopeammin, menot seuraavat erotusta puoliksi vuoden
+                  viiveellä, koska palkat ja osin eläkkeet seuraavat ansiokehitystä. Lisätyöllisyydestä syntyvää kasvua
+                  menot eivät seuraa.
+                </li>
+                <li>
+                  Velasta uusitaan noin {pct(ROLLOVER * 100, 0)} vuodessa, joten korkojen nousu näkyy korkomenoissa
+                  vähitellen.
+                </li>
+                <li>
+                  Veromuutosten tuotot perustuvat valtiovarainministeriön vaikutusarvioihin. Osa tuotosta menetetään
+                  käyttäytymisvaikutusten takia (tulovero {pct(BEHAVIOR.incomeTax * 100, 0)}, ALV{" "}
+                  {pct(BEHAVIOR.vat * 100, 0)}, yhteisövero {pct(BEHAVIOR.corporateTax * 100, 0)}, valmisteverot{" "}
+                  {pct(BEHAVIOR.excise * 100, 0)}).
+                </li>
+                <li>
+                  Malli on tarkoituksella yksinkertainen. Se ei huomioi esim. menoleikkausten vaikutusta talouskasvuun,
+                  työllisyysvaikutuksia tai suhdanteiden heilahteluja. Virallisia ennusteita tekevät
+                  valtiovarainministeriö ja Suomen Pankki.
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3>Lähteet</h3>
+              <ol className="source-list">
+                {sources.map((s) => (
+                  <li key={s.id} id={`lahde-${s.id}`}>
+                    <a href={s.url} target="_blank" rel="noreferrer">
+                      {s.name}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+              <p>
+                Luvut kattavat koko julkisen talouden (julkisyhteisöt, S13). Vuoden {data.baseYear} tiedot ovat
+                ennakkotietoja. Alijäämä on tulojen ja menojen erotus, ja se voi poiketa hieman virallisesta
+                EDP-alijäämästä. Data päivitetty {data.generated}.
               </p>
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-              {unitPicker}
-              <button className="chip" onClick={share}>
-                {copied ? "Linkki kopioitu" : "Jaa skenaario"}
-              </button>
-              <button className="chip" onClick={() => setScenario(DEFAULT_SCENARIO)}>
-                ↺ Aloita alusta
-              </button>
+          </div>
+          <div className="wrap">
+            <h3 style={{ marginTop: 24 }}>Kertoimet ja niiden lähteet</h3>
+            <div className="coef-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Kerroin</th>
+                    <th>Arvo</th>
+                    <th>Lähde</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {COEFFICIENTS.map((c) => (
+                    <tr key={c.name}>
+                      <td>{c.name}</td>
+                      <td>{c.value}</td>
+                      <td>
+                        {c.own && <span className="tag">oma arvio</span>}
+                        {c.url ? (
+                          <a href={c.url} target="_blank" rel="noreferrer">
+                            {c.source}
+                          </a>
+                        ) : (
+                          c.source
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          <Simulator data={data} unit={unit} scenario={scenario} setScenario={setScenario} />
-        </section>
-
-        <section id="pelit">
-          <p className="chapter">Luku 7</p>
-          <h2 className="section-title">Pelaa lisää</h2>
-          <p className="section-lead">
-            Nyt tiedät mittasuhteet. Ratkaise päivän talouspulma tai jaa itse sata euroa ja vertaa Suomeen.
-          </p>
-          <div className="game-tabs" role="tablist">
-            {GAMES.map((g) => (
-              <button
-                key={g.id}
-                role="tab"
-                aria-selected={game === g.id}
-                className={game === g.id ? "on" : ""}
-                onClick={() => setGame(g.id)}
-              >
-                <span>
-                  <b>{g.name}</b>
-                  <small>{g.desc}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-          {game === "daily" && <DailyChallenge data={data} />}
-          {game === "hundred" && <HundredEuros data={data} />}
-        </section>
-      </main>
-
-      <footer className="footer" id="lahteet">
-        <div className="wrap cols">
-          <div>
-            <h3>Miten simulaattori laskee?</h3>
-            <ul>
-              <li>Verotulot kasvavat samaa tahtia kuin talous (reaalikasvu + inflaatio).</li>
-              <li>
-                Menot kasvavat hintojen nousun verran ja lisäksi luontaisen menokasvun verran (oletus 1,2 % vuodessa,
-                mm. ikääntyminen). Jos talous kasvaa oletusta nopeammin, menot seuraavat erotusta puoliksi vuoden
-                viiveellä, koska palkat ja osin eläkkeet seuraavat ansiokehitystä. Lisätyöllisyydestä syntyvää kasvua
-                menot eivät seuraa.
-              </li>
-              <li>
-                Velasta uusitaan noin {pct(ROLLOVER * 100, 0)} vuodessa, joten korkojen nousu näkyy korkomenoissa
-                vähitellen.
-              </li>
-              <li>
-                Veromuutosten tuotot perustuvat valtiovarainministeriön vaikutusarvioihin. Osa tuotosta menetetään
-                käyttäytymisvaikutusten takia (tulovero {pct(BEHAVIOR.incomeTax * 100, 0)}, ALV{" "}
-                {pct(BEHAVIOR.vat * 100, 0)}, yhteisövero {pct(BEHAVIOR.corporateTax * 100, 0)}, valmisteverot{" "}
-                {pct(BEHAVIOR.excise * 100, 0)}).
-              </li>
-              <li>
-                Malli on tarkoituksella yksinkertainen. Se ei huomioi esim. menoleikkausten vaikutusta talouskasvuun,
-                työllisyysvaikutuksia tai suhdanteiden heilahteluja. Virallisia ennusteita tekevät
-                valtiovarainministeriö ja Suomen Pankki.
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3>Lähteet</h3>
-            <ul>
-              {[...data.sources, ...data.neighbors.sources].map((s) => (
-                <li key={s.url}>
-                  <a href={s.url} target="_blank" rel="noreferrer">
-                    {s.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <p>
-              Luvut kattavat koko julkisen talouden (julkisyhteisöt, S13). Vuoden {data.baseYear} tiedot ovat
-              ennakkotietoja. Alijäämä on tulojen ja menojen erotus, ja se voi poiketa hieman virallisesta
-              EDP-alijäämästä. Data päivitetty {data.generated}.
-            </p>
-          </div>
-        </div>
-        <div className="wrap">
-          <h3 style={{ marginTop: 24 }}>Kertoimet ja niiden lähteet</h3>
-          <div className="coef-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Kerroin</th>
-                  <th>Arvo</th>
-                  <th>Lähde</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COEFFICIENTS.map((c) => (
-                  <tr key={c.name}>
-                    <td>{c.name}</td>
-                    <td>{c.value}</td>
-                    <td>
-                      {c.own && <span className="tag">oma arvio</span>}
-                      {c.url ? (
-                        <a href={c.url} target="_blank" rel="noreferrer">
-                          {c.source}
-                        </a>
-                      ) : (
-                        c.source
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </SourcesContext.Provider>
   );
 }

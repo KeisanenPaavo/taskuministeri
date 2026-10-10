@@ -461,11 +461,11 @@ async function fetchNeighbors() {
       .filter((r) => COUNTRIES.every((c) => r[c.code] !== undefined)),
     compare: await fetchCompare(),
     sources: [
-      { name: "Eurostat: Julkisyhteisöjen tulot ja menot (gov_10a_main)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table" },
-      { name: "Eurostat: Menot tehtävittäin, COFOG (gov_10a_exp)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" },
-      { name: "Eurostat: Julkinen velka (gov_10dd_edpt1)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table" },
-      { name: "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table" },
-      { name: "Eurostat: BKT (nama_10_gdp) ja väkiluku (nama_10_pe)", url: "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table" },
+      { id: "gov_10a_main", name: "Eurostat: Julkisyhteisöjen tulot ja menot (gov_10a_main)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table" },
+      { id: "gov_10a_exp", name: "Eurostat: Menot tehtävittäin, COFOG (gov_10a_exp)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" },
+      { id: "gov_10dd_edpt1", name: "Eurostat: Julkinen velka (gov_10dd_edpt1)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table" },
+      { id: "gov_10a_taxag", name: "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table" },
+      { id: "nama", name: "Eurostat: BKT (nama_10_gdp) ja väkiluku (nama_10_pe)", url: "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table" },
     ],
   };
 }
@@ -808,12 +808,12 @@ async function main() {
     history,
     neighbors,
     sources: [
-      { name: "Tilastokeskus: Julkisyhteisöjen tulot ja menot (15ah)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15ah.px/" },
-      { name: "Tilastokeskus: Verot ja veronluonteiset maksut (15aj)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15aj.px/" },
-      { name: "Tilastokeskus: Julkisyhteisöjen menot tehtävittäin (12a6)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jmete/statfin_jmete_pxt_12a6.px/" },
-      { name: "Tilastokeskus: Julkisyhteisöjen alijäämä ja velka (122g)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jali/statfin_jali_pxt_122g.px/" },
-      { name: "Verohallinto: Henkilöasiakkaiden tuloverot (ansio- ja pääomatuloveron jako)", url: "https://vero2.stat.fi/PXWeb/pxweb/fi/Vero/Vero__Henkiloasiakkaiden_tuloverot__lopulliset__verot_maksut/verot_maksut_105.px/" },
-      { name: "Tilastokeskus: BKT (15a9)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15a9.px/" },
+      { id: "15ah", name: "Tilastokeskus: Julkisyhteisöjen tulot ja menot (15ah)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15ah.px/" },
+      { id: "15aj", name: "Tilastokeskus: Verot ja veronluonteiset maksut (15aj)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15aj.px/" },
+      { id: "12a6", name: "Tilastokeskus: Julkisyhteisöjen menot tehtävittäin (12a6)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jmete/statfin_jmete_pxt_12a6.px/" },
+      { id: "122g", name: "Tilastokeskus: Julkisyhteisöjen alijäämä ja velka (122g)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jali/statfin_jali_pxt_122g.px/" },
+      { id: "vero", name: "Verohallinto: Henkilöasiakkaiden tuloverot (ansio- ja pääomatuloveron jako)", url: "https://vero2.stat.fi/PXWeb/pxweb/fi/Vero/Vero__Henkiloasiakkaiden_tuloverot__lopulliset__verot_maksut/verot_maksut_105.px/" },
+      { id: "15a9", name: "Tilastokeskus: BKT (15a9)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15a9.px/" },
     ],
   };
 

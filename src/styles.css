@@ -2521,3 +2521,40 @@ svg text {
 .compare-row.picked .dot-name {
   font-weight: 700;
 }
+
+/* Lähdeviitteet */
+.cite {
+  font-family: var(--font-mono);
+  font-size: 0.6em;
+  font-weight: 500;
+  line-height: 0;
+  margin-left: 2px;
+  color: var(--muted);
+}
+.cite a {
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0 1px;
+}
+.cite a:hover {
+  text-decoration: underline;
+}
+.source-list {
+  padding-left: 1.6em;
+}
+.source-list li {
+  scroll-margin-top: 80px;
+}
+.source-list li:target {
+  background: var(--surface-2);
+  outline: 4px solid var(--surface-2);
+}
+.source-list li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--muted);
+}
+.masthead-top a,
+.byline a {
+  color: inherit;
+}

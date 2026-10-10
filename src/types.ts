@@ -19,6 +19,12 @@ export interface HistoryPoint {
   debtRatio: number;
 }
 
+export interface Source {
+  id: string;
+  name: string;
+  url: string;
+}
+
 export type CountryCode = "FI" | "SE" | "EE";
 export type ByCountry = Record<CountryCode, number>;
 
@@ -61,7 +67,7 @@ export interface NeighborData {
   social: { id: string; name: string; values: ByCountry }[];
   debt: ({ year: number } & ByCountry)[];
   compare: CompareData;
-  sources: { name: string; url: string }[];
+  sources: Source[];
 }
 
 export interface FinanceData {
@@ -82,5 +88,5 @@ export interface FinanceData {
   expenditure: Item[];
   history: HistoryPoint[];
   neighbors: NeighborData;
-  sources: { name: string; url: string }[];
+  sources: Source[];
 }
