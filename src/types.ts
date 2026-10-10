@@ -38,6 +38,8 @@ export interface CompareRow {
   /** Aikasarja vuodesta CompareData.from vertailuvuoteen asti. */
   hist: Record<CountryCode, (number | null)[]>;
   parts: CompareRow[];
+  /** Vertailuvuosi, jos se poikkeaa ryhmän vuodesta (esim. veroerittely valmistuu myöhemmin). */
+  year?: number;
 }
 
 export interface CompareGroup {

@@ -121,7 +121,7 @@ export default function WorkWeek({ data }: { data: FinanceData }) {
           Muut julkiset tulot, kuten myyntitulot, asiakasmaksut sekä eläkerahastojen korko- ja osinkotulot (
           {num((data.revenue.find((r) => r.id === "otherRevenue")?.value ?? 0) / 1000, 1)} mrd €), eivät ole veroja.
           Siksi ne näkyvät viikolla erikseen pisteviivaan asti. Eurostat saa Suomen veroasteeksi saman 42 %, ja se on
-          Ruotsin tasolla (luku 5).
+          Ruotsin tasolla (luku 4).
         </p>
       </details>
 

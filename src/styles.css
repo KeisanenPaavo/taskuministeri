@@ -2943,3 +2943,76 @@ svg text {
     display: none;
   }
 }
+
+/* Tarina: lehtijutun ingressit, leipäteksti ja siirtymät lukujen välillä */
+.story .section-lead {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.story-text {
+  max-width: 720px;
+  margin: 0 0 20px;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.story-head {
+  font-family: var(--font-serif);
+  font-size: clamp(22px, 2.6vw, 28px);
+  line-height: 1.15;
+  margin: 0;
+}
+.story-block {
+  margin-top: 40px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+.story-block .section-head {
+  margin-bottom: 10px;
+}
+.story-bridge {
+  margin: 36px 0 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--muted);
+}
+.sim-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.more-info {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.more-info > summary {
+  cursor: pointer;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--accent);
+}
+.more-info[open] > summary {
+  margin-bottom: 8px;
+}
+.sim-notes {
+  font-size: 14px;
+  color: var(--muted);
+}
+.sim-notes ul {
+  padding-left: 18px;
+  max-width: 820px;
+}
+.sim-notes h4 {
+  color: var(--text);
+  margin: 16px 0 8px;
+}
+.game-tabs {
+  max-width: none;
+}

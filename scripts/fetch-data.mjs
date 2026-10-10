@@ -317,6 +317,7 @@ async function fetchCompare() {
   const mainCodes = [
     "TE",
     "TR",
+    "B9",
     ...ECON_TREE.flatMap(([, , c, p]) => [...c, ...p.flatMap((x) => x[1])]),
     ...NONTAX.flatMap((x) => x[1]),
   ];
@@ -374,10 +375,47 @@ async function fetchCompare() {
     ),
   );
 
+  // Yleiskuva: menot, tulot, verot, alijäämä, korot ja velka (velka on kanta, muut vuosivirtoja).
+  const debt = await eurostat("gov_10dd_edpt1", { na_item: "GD", sector: "S13", unit: "MIO_EUR", ...since }, "na_item");
+  // Veroaste lasketaan tavalliseen tapaan EU:lle maksetut verot mukaan lukien (S13_S212); se valmistuu aiemmin.
+  const taxRatio = await eurostat(
+    "gov_10a_taxag",
+    { na_item: TAX_TOTAL, sector: "S13_S212", unit: "MIO_EUR", ...since },
+    "na_item",
+  );
+  const overviewFns = [
+    ["expenditure", "Julkiset menot", (g, t) => main.get(g, "TE", t)],
+    ["revenue", "Julkiset tulot", (g, t) => main.get(g, "TR", t)],
+    ["tax", "Verot ja sosiaaliturvamaksut", (g, t) => taxRatio.get(g, TAX_TOTAL, t)],
+    ["deficit", "Alijäämä", (g, t) => (main.get(g, "B9", t) === undefined ? undefined : -main.get(g, "B9", t))],
+    ["interest", "Velan korot", (g, t) => main.get(g, "D41PAY", t)],
+    ["debt", "Julkinen velka", (g, t) => debt.get(g, "GD", t)],
+  ];
+  const oy = [...main.times]
+    .reverse()
+    // Veroerittely valmistuu muita myöhemmin, joten sitä ei vaadita uusimmalta vuodelta.
+    .find((t) =>
+      COUNTRIES.every((c) => overviewFns.every(([id, , fn]) => id === "tax" || fn(c.code, t) !== undefined)),
+    );
+  addScale(oy);
+  // Jos veroerittely puuttuu uusimmalta vuodelta, verorivi näytetään edelliseltä vuodelta ja vuosi kerrotaan nimessä.
+  const ty = latestCommonYear(taxRatio, [TAX_TOTAL]);
+  addScale(ty);
+  const overview = overviewFns.map(([id, name, fn]) =>
+    id === "tax" && ty !== oy ? { ...mkRow(ty, id, `${name} (${ty})`, fn), year: Number(ty) } : mkRow(oy, id, name, fn),
+  );
+
   return {
     from: COMPARE_FROM,
     scale,
     groups: [
+      {
+        id: "overview",
+        title: "Yleiskuva",
+        year: Number(oy),
+        rows: overview,
+        hint: "Kuinka suuri julkinen talous on ja kuinka paljon sillä on velkaa.",
+      },
       {
         id: "cofog",
         title: "Menot tehtävittäin",
@@ -839,10 +877,14 @@ async function main() {
   console.table(neighbors.social.map((c) => ({ nimi: c.name, ...c.values })));
   console.log("velka", neighbors.debt[0], neighbors.debt.at(-1));
   for (const gr of neighbors.compare.groups) {
+    const pcRow = (r, v) => {
+      const sc = neighbors.compare.scale[r.year ?? gr.year];
+      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, x === null ? null : Math.round((x / sc.gdp[k]) * 1000) / 10]));
+    };
     const sc = neighbors.compare.scale[gr.year];
     const pc = (v) => Object.fromEntries(Object.entries(v).map(([k, x]) => [k, x === null ? null : Math.round((x / sc.gdp[k]) * 1000) / 10]));
     console.log(`\n${gr.title} ${gr.year}`);
-    console.table(gr.rows.flatMap((r) => [{ nimi: r.name, ...pc(r.values) }, ...r.parts.map((p) => ({ nimi: "  " + p.name, ...pc(p.values) }))]));
+    console.table(gr.rows.flatMap((r) => [{ nimi: r.name, ...pcRow(r, r.values) }, ...r.parts.map((p) => ({ nimi: "  " + p.name, ...pc(p.values) }))]));
   }
 }
 

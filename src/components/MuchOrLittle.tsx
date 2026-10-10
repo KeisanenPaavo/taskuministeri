@@ -102,7 +102,7 @@ const YARDSTICKS: Yardstick[] = [
 // Pienimmät menoerät, joita on hauska verrata arkisiin hintoihin.
 const SUB_ROWS = ["environment", "order", "defence", "interest", "unemployment", "culture"];
 
-function SubscriptionCompare({ data }: { data: FinanceData }) {
+export function SubscriptionCompare({ data }: { data: FinanceData }) {
   const [ysId, setYsId] = useState(YARDSTICKS[0].id);
   const ys = YARDSTICKS.find((x) => x.id === ysId)!;
   const monthly = ys.period === "month";
@@ -241,8 +241,6 @@ export default function MuchOrLittle({ data }: { data: FinanceData }) {
           </ul>
         </div>
       </div>
-
-      <SubscriptionCompare data={data} />
 
       <p className="much-ticker" aria-live="off">
         Sivulla {mins}:{String(secs).padStart(2, "0")} · julkinen sektori on sillä aikaa käyttänyt{" "}

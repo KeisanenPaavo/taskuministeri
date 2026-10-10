@@ -194,7 +194,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
         <h3>{rank.title}</h3>
         <p>{rank.text}</p>
         <div className="game-actions">
-          <a className="btn primary" href="#luvut">
+          <a className="btn primary" href="#paljon">
             Jatka: paljon vai vähän? →
           </a>
           <button className="btn" onClick={share}>

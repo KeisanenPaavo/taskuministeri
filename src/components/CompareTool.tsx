@@ -1,28 +1,27 @@
 import { useState } from "react";
-import type { CompareData, CompareRow, CountryCode, MaybeByCountry } from "../types";
+import type { CompareData, CompareRow, CountryCode } from "../types";
 import { num } from "../format";
 import { LineChart } from "./charts";
 
-// Vertailu osa-alueittain: menot tehtävittäin ja lajeittain sekä tulot lajeittain.
-// Data on miljoonina euroina, ja se muunnetaan valinnan mukaan % BKT:stä tai euroiksi asukasta kohden päivässä.
-
-type CUnit = "pct" | "day";
-
-const C_UNITS: { id: CUnit; label: string; axis: string }[] = [
-  { id: "pct", label: "% BKT:stä", axis: "% BKT:stä" },
-  { id: "day", label: "€ / asukas / päivä", axis: "€ asukasta kohden päivässä" },
-];
+// Vertailu osa-alueittain: yleiskuva, menot tehtävittäin ja lajeittain sekä tulot lajeittain.
+// Data on miljoonina euroina, ja se muunnetaan prosenteiksi kyseisen vuoden BKT:stä.
 
 const IN: Record<CountryCode, string> = { FI: "Suomessa", SE: "Ruotsissa", EE: "Virossa" };
 
-const daysIn = (year: number) => (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 366 : 365);
+const fmt = (v: number, signed = false) => num(v, 1, signed);
 
-/** Luvun muotoilu: alle 10 kahdella desimaalilla, alle 100 yhdellä, muuten kokonaislukuna. */
-function fmt(v: number, unit: CUnit, signed = false) {
-  if (unit === "pct") return num(v, 1, signed);
-  const a = Math.abs(v);
-  return num(v, a < 10 ? 2 : a < 100 ? 1 : 0, signed);
-}
+// Aikajanan viitearvot.
+const REF_LINES: Record<string, { value: number; label: string }> = {
+  debt: { value: 60, label: "EU:n viitearvo 60 %" },
+  deficit: { value: 3, label: "EU:n alijäämäraja 3 %" },
+};
+
+/** Oletuksena aikajanalla velka, jos ryhmässä on velkarivi. */
+const defaultPick = (rows: CompareRow[]) =>
+  Math.max(
+    0,
+    rows.findIndex((r) => r.id === "debt"),
+  );
 
 export default function CompareTool({
   data,
@@ -36,24 +35,20 @@ export default function CompareTool({
   colors: Record<CountryCode, string>;
 }) {
   const [groupId, setGroupId] = useState(data.groups[0].id);
-  const [unit, setUnit] = useState<CUnit>("pct");
   const [open, setOpen] = useState<Set<string>>(new Set());
   const group = data.groups.find((g) => g.id === groupId)!;
-  const [pick, setPick] = useState(0);
+  const [pick, setPick] = useState(() => defaultPick(data.groups[0].rows));
 
-  /** Milj. € → valittu yksikkö annetun vuoden BKT:n tai väkiluvun mukaan. */
-  const convAt = (v: number | null, c: CountryCode, year: number) => {
-    if (v === null) return null;
-    const sc = data.scale[year];
-    return unit === "pct" ? (v / sc.gdp[c]) * 100 : (v * 1e6) / sc.pop[c] / daysIn(year);
-  };
-  const conv = (vals: MaybeByCountry, c: CountryCode) => convAt(vals[c], c, group.year);
+  /** Milj. € → % kyseisen vuoden BKT:stä. */
+  const convAt = (v: number | null, c: CountryCode, year: number) =>
+    v === null ? null : (v / data.scale[year].gdp[c]) * 100;
+  const convRow = (r: CompareRow, c: CountryCode) => convAt(r.values[c], c, r.year ?? group.year);
 
   // Aikajanalle valittavat erät: pääluokat ja niiden alaerät.
   const options = group.rows.flatMap((r) => [{ row: r, sub: false }, ...r.parts.map((p) => ({ row: p, sub: true }))]);
   const picked = options[Math.min(pick, options.length - 1)].row;
 
-  const max = Math.max(...group.rows.flatMap((r) => codes.map((c) => conv(r.values, c) ?? 0))) * 1.08;
+  const max = Math.max(...group.rows.flatMap((r) => codes.map((c) => convRow(r, c) ?? 0))) * 1.08;
 
   // Suurimmat erot Suomen ja naapurin välillä pääluokittain. Alaerissä maiden kirjaustavat eroavat enemmän.
   const leaves = group.rows;
@@ -61,7 +56,7 @@ export default function CompareTool({
     .filter((c) => c !== "FI")
     .map((c) => {
       const diffs = leaves
-        .map((r) => ({ name: r.name, d: (conv(r.values, "FI") ?? NaN) - (conv(r.values, c) ?? NaN) }))
+        .map((r) => ({ name: r.name, d: (convRow(r, "FI") ?? NaN) - (convRow(r, c) ?? NaN) }))
         .filter((x) => Number.isFinite(x.d));
       const more = diffs.reduce((a, b) => (b.d > a.d ? b : a));
       const less = diffs.reduce((a, b) => (b.d < a.d ? b : a));
@@ -78,7 +73,7 @@ export default function CompareTool({
   const expandable = group.rows.filter((r) => r.parts.length > 0).map((r) => `${group.id}:${r.name}`);
   const allOpen = expandable.length > 0 && expandable.every((k) => open.has(k));
 
-  const unitShort = unit === "pct" ? "%-yks." : "€/pv";
+  const unitShort = "%-yks.";
   const lower = (s: string) => (s.charAt(0).toLowerCase() + s.slice(1)).replace(/ \(.*\)$/, "");
 
   const renderRow = (r: CompareRow, sub: boolean) => {
@@ -115,7 +110,7 @@ export default function CompareTool({
         {name}
         <span className="dot-track" aria-hidden="true">
           {codes.map((c) => {
-            const v = conv(r.values, c);
+            const v = convRow(r, c);
             return v === null ? null : (
               <span
                 key={c}
@@ -126,10 +121,10 @@ export default function CompareTool({
           })}
         </span>
         {codes.map((c) => {
-          const v = conv(r.values, c);
+          const v = convRow(r, c);
           return (
             <span key={c} className={`dot-val ${c === "FI" ? "fi" : ""}`}>
-              {v === null ? "–" : fmt(v, unit)}
+              {v === null ? "–" : fmt(v)}
             </span>
           );
         })}
@@ -139,7 +134,7 @@ export default function CompareTool({
 
   return (
     <div className="compare">
-      <h3 className="compare-title">Vertaile osa-alueittain</h3>
+      <h3 className="compare-title">Vertaile itse</h3>
       <div className="compare-controls">
         <div className="toggle compare-groups" role="tablist" aria-label="Vertailtava asia">
           {data.groups.map((g) => (
@@ -150,29 +145,12 @@ export default function CompareTool({
               className={g.id === groupId ? "on" : ""}
               onClick={() => {
                 setGroupId(g.id);
-                setPick(0);
+                setPick(defaultPick(g.rows));
               }}
             >
               {g.title}
             </button>
           ))}
-        </div>
-        <div className="unit-picker">
-          <span className="unit-label" id="compare-unit">
-            Näytä
-          </span>
-          <div className="toggle" role="group" aria-labelledby="compare-unit">
-            {C_UNITS.map((u) => (
-              <button
-                key={u.id}
-                className={unit === u.id ? "on" : ""}
-                aria-pressed={unit === u.id}
-                onClick={() => setUnit(u.id)}
-              >
-                {u.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -187,12 +165,12 @@ export default function CompareTool({
             <b>Suomi vs. {names[c]}:</b>{" "}
             {more.d > 0 && (
               <>
-                Suomessa isompi: {lower(more.name)} ({fmt(more.d, unit, true)} {unitShort}).{" "}
+                Suomessa isompi: {lower(more.name)} ({fmt(more.d, true)} {unitShort}).{" "}
               </>
             )}
             {less.d < 0 && (
               <>
-                {IN[c]} isompi: {lower(less.name)} ({fmt(-less.d, unit, true)} {unitShort}).
+                {IN[c]} isompi: {lower(less.name)} ({fmt(-less.d, true)} {unitShort}).
               </>
             )}
           </li>
@@ -204,7 +182,7 @@ export default function CompareTool({
           <span className="dot-name">
             {group.title} {group.year}
           </span>
-          <span className="dot-track-head">{C_UNITS.find((u) => u.id === unit)!.axis}</span>
+          <span className="dot-track-head">% BKT:stä</span>
           {codes.map((c) => (
             <span key={c} className="dot-val head" style={{ color: colors[c] }}>
               {names[c]}
@@ -262,7 +240,8 @@ export default function CompareTool({
         <LineChart
           height={240}
           minY={0}
-          unit={unit === "pct" ? "%" : "€/pv"}
+          unit="%"
+          refLine={picked.id ? REF_LINES[picked.id] : undefined}
           series={codes.map((c) => ({
             label: names[c],
             color: colors[c],
@@ -273,18 +252,10 @@ export default function CompareTool({
           }))}
         />
         <p className="compare-hint">
-          {unit === "pct"
-            ? "Osuus BKT:stä kasvaa myös silloin, kun talous supistuu: vuosien 2009 ja 2020 piikit johtuvat osin BKT:n pudotuksesta."
-            : "Euromäärät ovat käyvin hinnoin, joten nousuun sisältyy myös inflaatio."}
+          Osuus BKT:stä kasvaa myös silloin, kun talous supistuu: vuosien 2009 ja 2020 piikit johtuvat osin BKT:n
+          pudotuksesta.
         </p>
       </div>
-
-      {unit === "day" && (
-        <p className="compare-hint">
-          Ruotsin kruunut on muunnettu euroiksi vuoden keskikurssilla. Hintatasot eroavat maiden välillä, ja esimerkiksi
-          Virossa hintataso on selvästi Suomea matalampi, joten sama euromäärä ei osta joka maassa yhtä paljon.
-        </p>
-      )}
     </div>
   );
 }
