@@ -9,7 +9,7 @@ import HundredEuros from "./components/HundredEuros";
 import DailyChallenge from "./components/DailyChallenge";
 import MuchOrLittle, { SubscriptionCompare } from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
-import CanTower from "./components/CanTower";
+import DebtMetaphors from "./components/DebtMetaphors";
 import DebtChart from "./components/DebtChart";
 import WorkWeek from "./components/WorkWeek";
 import Cite, { SourcesContext } from "./components/Cite";
@@ -342,7 +342,7 @@ export default function App() {
               {data.interest > defence ? "enemmän kuin koko puolustukseen" : "lähes yhtä paljon kuin puolustukseen"}{" "}
               käytetty summa, ja korkoihin menevä raha on pois muista menoista.
             </p>
-            <CanTower data={data} />
+            <DebtMetaphors data={data} />
             <p className="story-text story-bridge">
               Onko Suomen velka poikkeuksellinen? Katsotaan, miltä naapureissa näyttää.
             </p>
