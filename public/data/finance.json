@@ -19,43 +19,168 @@
       "id": "incomeTax",
       "name": "Ansio- ja pääomatulovero",
       "value": 36653,
-      "desc": "Palkoista, eläkkeistä, etuuksista ja pääomatuloista maksettavat verot (valtio + kunnat)."
+      "desc": "Verot, jotka maksetaan palkoista, eläkkeistä, verotettavista etuuksista (esim. työttömyyspäiväraha) sekä pääomatuloista kuten osingoista, vuokrista ja myyntivoitoista. Valtion tulovero on progressiivinen: pienituloisimmat eivät maksa sitä lainkaan. Kunnallisvero on kaikille saman suuruinen prosentti, joka vaihtelee kunnittain.",
+      "parts": [
+        {
+          "name": "Valtion ansio- ja pääomatulovero",
+          "value": 26595
+        },
+        {
+          "name": "Kunnallisvero",
+          "value": 10058
+        }
+      ]
     },
     {
       "id": "socialContrib",
       "name": "Sosiaaliturvamaksut",
       "value": 33887,
-      "desc": "Työeläke-, työttömyys- ja sairausvakuutusmaksut. Suurin osa menee työeläkkeisiin."
+      "desc": "Palkasta maksettavat vakuutusmaksut, joilla rahoitetaan työeläkkeet sekä työttömyys- ja sairausvakuutus. Osan maksaa työnantaja palkan päälle, osan palkansaaja tai yrittäjä itse. Valtaosa menee työeläkelaitoksille tulevia eläkkeitä varten.",
+      "parts": [
+        {
+          "name": "Työnantajien työeläkemaksut",
+          "value": 18986
+        },
+        {
+          "name": "Palkansaajien ja yrittäjien työeläkemaksut",
+          "value": 9201
+        },
+        {
+          "name": "Palkansaajien muut maksut (sairaus- ja työttömyysvakuutus)",
+          "value": 3051
+        },
+        {
+          "name": "Työnantajien muut maksut (sairaus- ja työttömyysvakuutus)",
+          "value": 2649
+        }
+      ]
     },
     {
       "id": "vat",
       "name": "Arvonlisävero",
       "value": 27108,
-      "desc": "Lähes kaikkien tavaroiden ja palvelujen hintaan sisältyvä vero. Yleinen verokanta 25,5 %."
+      "desc": "Vero, joka sisältyy lähes kaikkien tavaroiden ja palvelujen hintaan. Yleinen verokanta on 25,5 %. Elintarvikkeissa ja ravintolaruoassa kanta on 14 %, ja esimerkiksi kirjoissa, lääkkeissä, joukkoliikenteessä ja kulttuuri- ja liikuntapalveluissa alempi. Yritykset tilittävät veron, mutta sen maksaa lopulta kuluttaja.",
+      "parts": []
     },
     {
       "id": "excise",
       "name": "Valmisteverot",
       "value": 7078,
-      "desc": "Energia-, alkoholi-, tupakka-, auto- ja virvoitusjuomaverot."
+      "desc": "Tiettyjen tuotteiden hintaan sisältyvät erityisverot. Niillä kerätään tuloja ja ohjataan kulutusta: esimerkiksi polttoaineiden ja sähkön energiaverot, alkoholi- ja tupakkavero sekä virvoitusjuomavero.",
+      "parts": [
+        {
+          "name": "Energiaverot (polttoaineet ja sähkö)",
+          "value": 3736
+        },
+        {
+          "name": "Alkoholijuomavero",
+          "value": 1387
+        },
+        {
+          "name": "Tupakkavero",
+          "value": 1201
+        },
+        {
+          "name": "Autovero",
+          "value": 258
+        },
+        {
+          "name": "Virvoitusjuomavero",
+          "value": 218
+        },
+        {
+          "name": "Muut",
+          "value": 278
+        }
+      ]
     },
     {
       "id": "corporateTax",
       "name": "Yhteisövero",
       "value": 7070,
-      "desc": "Yritysten voitoista maksettava vero. Verokanta 20 %."
+      "desc": "Osakeyhtiöiden ja muiden yhteisöjen voitoistaan maksama vero. Verokanta on 20 %. Tuotto vaihtelee paljon suhdanteiden mukaan, koska se riippuu yritysten tuloksista. Tuotto jaetaan valtion, kuntien ja seurakuntien kesken.",
+      "parts": [
+        {
+          "name": "Valtion osuus",
+          "value": 5375
+        },
+        {
+          "name": "Kuntien osuus",
+          "value": 1695
+        }
+      ]
     },
     {
       "id": "otherTax",
       "name": "Muut verot",
       "value": 7406,
-      "desc": "Mm. kiinteistövero, varainsiirtovero, perintövero ja ajoneuvovero."
+      "desc": "Pienemmät verot, kuten kunnille menevä kiinteistövero, perintö- ja lahjavero, asunto- ja osakekaupoista maksettava varainsiirtovero, vakuutusmaksuvero sekä autoilijoiden ajoneuvovero.",
+      "parts": [
+        {
+          "name": "Kiinteistövero",
+          "value": 2302
+        },
+        {
+          "name": "Perintö- ja lahjavero",
+          "value": 1057
+        },
+        {
+          "name": "Vakuutusmaksuvero",
+          "value": 1063
+        },
+        {
+          "name": "Ajoneuvovero",
+          "value": 1012
+        },
+        {
+          "name": "Varainsiirtovero",
+          "value": 661
+        },
+        {
+          "name": "Eräiden palvelujen verot (mm. rahapelit)",
+          "value": 516
+        },
+        {
+          "name": "Muut",
+          "value": 795
+        }
+      ]
     },
     {
       "id": "otherRevenue",
       "name": "Muut tulot",
       "value": 32019,
-      "desc": "Maksutulot (esim. asiakasmaksut), korko- ja osinkotulot sekä myyntitulot."
+      "desc": "Tulot, jotka eivät ole veroja: julkisten yksiköiden myyntitulot, palveluista perittävät asiakasmaksut (esim. terveyskeskus- ja päivähoitomaksut) sekä korko- ja osinkotulot. Suurin osa korko- ja osinkotuloista kertyy työeläkerahastoille. Mukana on myös kansantalouden tilinpidon laskennallisia eriä, kuten itse tehtyjen ohjelmistojen ja tutkimuksen arvo.",
+      "parts": [
+        {
+          "name": "Myyntitulot (esim. liikelaitokset, vuokrat, palvelujen myynti)",
+          "value": 12646
+        },
+        {
+          "name": "Korko- ja osinkotulot (pääosin työeläkerahastot)",
+          "value": 11243
+        },
+        {
+          "name": "Asiakasmaksut (esim. terveys- ja sosiaalipalvelut)",
+          "value": 2813
+        },
+        {
+          "name": "Oma tuotanto omaan käyttöön (laskennallinen)",
+          "value": 2651
+        },
+        {
+          "name": "Muut tulonsiirrot (esim. EU-rahoitus, sakot)",
+          "value": 1968
+        },
+        {
+          "name": "Pääomansiirrot (esim. investointiavustukset)",
+          "value": 465
+        },
+        {
+          "name": "Muut",
+          "value": 233
+        }
+      ]
     }
   ],
   "expenditure": [
@@ -63,85 +188,316 @@
       "id": "pensions",
       "name": "Eläkkeet ja vanhuspalvelut",
       "value": 43443,
-      "desc": "Vanhuuseläkkeet ja ikääntyneiden hoivapalvelut."
+      "desc": "Vanhuuseläkkeet (työeläkkeet, kansaneläke ja takuueläke) sekä ikääntyneiden palvelut, kuten kotihoito, palveluasuminen ja hoivakodit. Tämä on julkisen talouden suurin yksittäinen menoerä, ja se kasvaa väestön ikääntyessä.",
+      "parts": [
+        {
+          "name": "Eläkkeet (rahana maksettavat)",
+          "value": 35705
+        },
+        {
+          "name": "Vanhuspalvelut (kotihoito, palveluasuminen, hoiva)",
+          "value": 7738
+        }
+      ]
     },
     {
       "id": "health",
       "name": "Terveydenhuolto",
       "value": 21691,
-      "desc": "Sairaalat, terveyskeskukset, lääkekorvaukset."
+      "desc": "Sairaalat, terveyskeskukset ja muu avohoito, lääkkeiden ja apuvälineiden korvaukset sekä ehkäisevä terveydenhuolto. Suurimman osan järjestävät hyvinvointialueet, ja Kela korvaa osan yksityisistä palveluista ja lääkkeistä.",
+      "parts": [
+        {
+          "name": "Sairaalahoito",
+          "value": 8900
+        },
+        {
+          "name": "Avohoito (terveyskeskukset, lääkärikäynnit, hammashoito)",
+          "value": 9836
+        },
+        {
+          "name": "Lääkkeet ja apuvälineet",
+          "value": 1996
+        },
+        {
+          "name": "Kansanterveystyö (esim. rokotukset, seulonnat)",
+          "value": 427
+        },
+        {
+          "name": "Terveysalan tutkimus ja kehitys",
+          "value": 308
+        },
+        {
+          "name": "Muu terveydenhuolto",
+          "value": 224
+        }
+      ]
     },
     {
       "id": "education",
       "name": "Koulutus",
       "value": 17562,
-      "desc": "Varhaiskasvatus, esiopetus, peruskoulu, lukiot, ammattikoulut ja yliopistot."
+      "desc": "Esiopetus, peruskoulu, lukiot, ammatillinen koulutus, ammattikorkeakoulut ja yliopistot sekä aikuiskoulutus. Varhaiskasvatus (päiväkodit) ei tilastoissa kuulu tänne, vaan Perheet ja lapset -menoihin.",
+      "parts": [
+        {
+          "name": "Esiopetus ja alakoulu",
+          "value": 4100
+        },
+        {
+          "name": "Yläkoulu, lukio ja ammatillinen koulutus",
+          "value": 7629
+        },
+        {
+          "name": "Yliopistot ja ammattikorkeakoulut",
+          "value": 4828
+        },
+        {
+          "name": "Aikuiskoulutus ja muu tutkintoon johtamaton koulutus",
+          "value": 678
+        },
+        {
+          "name": "Muut",
+          "value": 326
+        }
+      ]
     },
     {
       "id": "sickness",
       "name": "Sairaus ja työkyvyttömyys",
       "value": 9215,
-      "desc": "Työkyvyttömyyseläkkeet, sairauspäivärahat ja vammaispalvelut."
+      "desc": "Toimeentulo ja palvelut niille, jotka eivät sairauden tai vamman vuoksi voi tehdä töitä: työkyvyttömyyseläkkeet, sairauspäivärahat, vammaisetuudet sekä vammaispalvelut, kuten henkilökohtainen apu ja asumispalvelut.",
+      "parts": [
+        {
+          "name": "Työkyvyttömyyseläkkeet ja sairauspäivärahat",
+          "value": 5079
+        },
+        {
+          "name": "Vammaispalvelut ja kuntoutus",
+          "value": 4137
+        }
+      ]
     },
     {
       "id": "family",
       "name": "Perheet ja lapset",
       "value": 9824,
-      "desc": "Lapsilisät, vanhempainpäivärahat, lastensuojelu ja päivähoito."
+      "desc": "Lapsiperheiden tuet ja palvelut: varhaiskasvatus eli päiväkodit, lapsilisät, vanhempainpäivärahat, kotihoidon tuki sekä lastensuojelu ja muut perhepalvelut.",
+      "parts": [
+        {
+          "name": "Lapsilisät, vanhempainpäivärahat ja muut rahana maksettavat tuet",
+          "value": 3073
+        },
+        {
+          "name": "Palvelut (varhaiskasvatus, lastensuojelu ym.)",
+          "value": 6750
+        }
+      ]
     },
     {
       "id": "unemployment",
       "name": "Työttömyys",
       "value": 4558,
-      "desc": "Työttömyysturva ja työllisyyspalvelut."
+      "desc": "Työttömien toimeentulo: ansiosidonnainen päiväraha, peruspäiväraha ja työmarkkinatuki. Tämä erä kasvaa nopeasti taantumassa, kun työttömyys lisääntyy.",
+      "parts": [
+        {
+          "name": "Työttömyyspäivärahat ja työmarkkinatuki",
+          "value": 4071
+        },
+        {
+          "name": "Muut menot",
+          "value": 487
+        }
+      ]
     },
     {
       "id": "otherSocial",
       "name": "Muu sosiaaliturva",
       "value": 7202,
-      "desc": "Asumistuki, toimeentulotuki, leskeneläkkeet ym."
+      "desc": "Muut sosiaaliturvan menot, kuten yleinen asumistuki, toimeentulotuki, leskeneläkkeet sekä syrjäytymistä ehkäisevät palvelut, esimerkiksi päihde- ja asunnottomuustyö.",
+      "parts": [
+        {
+          "name": "Asumistuki",
+          "value": 1705
+        },
+        {
+          "name": "Toimeentulotuki ja syrjäytymisen ehkäisy",
+          "value": 2607
+        },
+        {
+          "name": "Leskeneläkkeet ja muut edunsaajat",
+          "value": 1989
+        },
+        {
+          "name": "Muut",
+          "value": 900
+        }
+      ]
     },
     {
       "id": "economy",
       "name": "Elinkeinot ja liikenne",
       "value": 13700,
-      "desc": "Tiet ja raiteet, elinkeinotuet, maa- ja metsätalous, työvoimapalvelut."
+      "desc": "Liikenneverkot (tiet, rautatiet, joukkoliikenne), maa- ja metsätalouden tuet, energia, yritystuet, työvoimapalvelut sekä elinkeinoelämän tutkimus ja kehitys, kuten Business Finlandin rahoitus.",
+      "parts": [
+        {
+          "name": "Liikenne (tiet, raiteet, joukkoliikenne)",
+          "value": 7828
+        },
+        {
+          "name": "Yleinen elinkeino- ja työvoimahallinto",
+          "value": 2082
+        },
+        {
+          "name": "Maa-, metsä- ja kalatalous",
+          "value": 1738
+        },
+        {
+          "name": "Elinkeinojen tutkimus ja kehitys",
+          "value": 1668
+        },
+        {
+          "name": "Energia",
+          "value": 256
+        },
+        {
+          "name": "Muut",
+          "value": 128
+        }
+      ]
     },
     {
       "id": "admin",
       "name": "Yleinen hallinto",
       "value": 15449,
-      "desc": "Ministeriöt, verohallinto, ulkoasiainhallinto, perustutkimus, kehitysapu."
+      "desc": "Valtion ja kuntien yleinen hallinto: eduskunta, ministeriöt, verohallinto, ulkoasiainhallinto, kuntien keskushallinto ja tilastotoimi. Mukana ovat myös perustutkimus ja kehitysyhteistyö.",
+      "parts": [
+        {
+          "name": "Päätöksenteko, talous- ja verohallinto, ulkoasiat",
+          "value": 3844
+        },
+        {
+          "name": "Yleiset hallintopalvelut",
+          "value": 8257
+        },
+        {
+          "name": "Perustutkimus",
+          "value": 2514
+        },
+        {
+          "name": "Kehitysyhteistyö",
+          "value": 656
+        },
+        {
+          "name": "Muut",
+          "value": 178
+        }
+      ]
     },
     {
       "id": "defence",
       "name": "Puolustus",
       "value": 4349,
-      "desc": "Puolustusvoimat ja hävittäjähankinnat."
+      "desc": "Puolustusvoimat: henkilöstö, varusmieskoulutus, kalusto ja hankinnat, kuten F-35-hävittäjät. Lisäksi siviilipuolustus ja sotilaallinen apu ulkomaille.",
+      "parts": [
+        {
+          "name": "Sotilaallinen puolustus",
+          "value": 3562
+        },
+        {
+          "name": "Sotilaallinen apu ulkomaille",
+          "value": 534
+        },
+        {
+          "name": "Siviilipuolustus",
+          "value": 167
+        },
+        {
+          "name": "Muut",
+          "value": 86
+        }
+      ]
     },
     {
       "id": "order",
       "name": "Järjestys ja turvallisuus",
       "value": 3705,
-      "desc": "Poliisi, pelastustoimi, tuomioistuimet ja vankilat."
+      "desc": "Poliisi, pelastustoimi ja palokunnat, tuomioistuimet ja oikeusapu sekä vankilat.",
+      "parts": [
+        {
+          "name": "Poliisi",
+          "value": 1792
+        },
+        {
+          "name": "Pelastustoimi",
+          "value": 783
+        },
+        {
+          "name": "Tuomioistuimet ja oikeusapu",
+          "value": 671
+        },
+        {
+          "name": "Vankilat",
+          "value": 293
+        },
+        {
+          "name": "Muut",
+          "value": 166
+        }
+      ]
     },
     {
       "id": "culture",
       "name": "Kulttuuri ja vapaa-aika",
       "value": 4659,
-      "desc": "Kirjastot, liikunta, kulttuuri, Yle."
+      "desc": "Liikuntapaikat ja urheilun tuki, kirjastot, museot, teatterit ja orkesterit, nuorisotyö, Yle sekä uskonnollisten ja muiden yhteisöjen tuki.",
+      "parts": [
+        {
+          "name": "Liikunta ja virkistys (liikuntapaikat, nuorisotyö)",
+          "value": 1764
+        },
+        {
+          "name": "Kulttuuripalvelut (kirjastot, museot, teatterit)",
+          "value": 1684
+        },
+        {
+          "name": "Radio, tv ja julkaisutoiminta (mm. Yle)",
+          "value": 687
+        },
+        {
+          "name": "Uskonnollisten ja muiden yhteisöjen tuki",
+          "value": 514
+        }
+      ]
     },
     {
       "id": "environment",
       "name": "Ympäristö ja asuminen",
       "value": 2085,
-      "desc": "Jätehuolto, vesihuolto, ympäristönsuojelu ja asumisen tuet."
+      "desc": "Jäte- ja jätevesihuolto, ympäristönsuojelu ja luonnonsuojelu sekä asuinalueiden ja yhdyskuntien kehittäminen, vesihuolto ja katuvalaistus. Asumistuki ei kuulu tänne vaan sosiaaliturvaan.",
+      "parts": [
+        {
+          "name": "Yhdyskuntakehitys ja asuinolot",
+          "value": 1448
+        },
+        {
+          "name": "Jäte- ja jätevesihuolto",
+          "value": 60
+        },
+        {
+          "name": "Luonnon- ja ympäristönsuojelu",
+          "value": 550
+        },
+        {
+          "name": "Vesihuolto ja katuvalaistus",
+          "value": 26
+        }
+      ]
     },
     {
       "id": "interest",
       "name": "Velan korot",
       "value": 4524,
-      "desc": "Julkisen velan korkomenot."
+      "parts": [],
+      "desc": "Korot, jotka julkinen sektori maksaa velastaan. Kun korot nousivat vuodesta 2022 alkaen, korkomenot alkoivat kasvaa nopeasti, ja ne kasvavat edelleen sitä mukaa kuin vanhaa halpaa velkaa uusitaan kalliimpaan korkoon."
     }
   ],
   "history": [

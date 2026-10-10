@@ -170,6 +170,27 @@ function Detail({
         <div className="muted">{pct((item.value / data.gdp) * 100)} bruttokansantuotteesta</div>
       )}
       <p>{item.desc}</p>
+      {item.parts && item.parts.length > 1 && (
+        <div className="parts">
+          <div className="parts-title">Mitä tähän kuuluu?</div>
+          <ul>
+            {[...item.parts]
+              // Suurin ensin, "Muut" aina viimeisenä
+              .sort((a, b) => Number(a.name === "Muut") - Number(b.name === "Muut") || b.value - a.value)
+              .map((p) => (
+                <li key={p.name}>
+                  <div className="part-row">
+                    <span>{p.name}</span>
+                    <b>{money(p.value, data.population, unit)}</b>
+                  </div>
+                  <div className="part-bar">
+                    <div style={{ width: `${(p.value / item.value) * 100}%`, background: color }} />
+                  </div>
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
       {kind === "expenditure" && item.id !== "interest" && data.cofogYear !== data.baseYear && (
         <p className="muted">
           Menojen jakauma perustuu vuoden {data.cofogYear} tietoihin, skaalattuna vuoden{" "}

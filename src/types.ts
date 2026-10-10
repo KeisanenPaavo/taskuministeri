@@ -1,8 +1,14 @@
+export interface Part {
+  name: string;
+  value: number; // milj. €
+}
+
 export interface Item {
   id: string;
   name: string;
   value: number; // milj. €
   desc: string;
+  parts?: Part[];
 }
 
 export interface HistoryPoint {
