@@ -38,6 +38,10 @@ Kaikki kertoimet lähteineen ovat `COEFFICIENTS`-listassa tiedostossa `src/model
 
 Rajoitukset: malli ei huomioi finanssipolitiikan kerroinvaikutuksia, työllisyysvaikutuksia eikä suhdannevaihtelua.
 
+## Julkaisu
+
+Sivu julkaistaan automaattisesti GitHub Pagesiin jokaisesta `main`-haaran pushista ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)).
+
 ## Rakentaminen
 
 ```bash
