@@ -32,9 +32,9 @@ function writeScenario(s: Scenario) {
 }
 
 const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
-  { id: "total", long: "Miljardeina", short: "mrd €", title: "Koko Suomen luvut miljardeina euroina" },
-  { id: "year", long: "Per asukas vuodessa", short: "€ / v", title: "Euroa jokaista suomalaista kohden vuodessa" },
   { id: "day", long: "Per asukas päivässä", short: "€ / pv", title: "Euroa jokaista suomalaista kohden päivässä" },
+  { id: "year", long: "Per asukas vuodessa", short: "€ / v", title: "Euroa jokaista suomalaista kohden vuodessa" },
+  { id: "total", long: "Miljardeina", short: "mrd €", title: "Koko Suomen luvut miljardeina euroina" },
 ];
 
 // Lisäpelit sivun lopussa. Kumpi on isompi? on sivun alussa tarinan ensimmäisenä lukuna.
@@ -72,7 +72,7 @@ function UnitPicker({ unit, setUnit }: { unit: Unit; setUnit: (u: Unit) => void 
 export default function App() {
   const [data, setData] = useState<FinanceData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [unit, setUnit] = useState<Unit>("total");
+  const [unit, setUnit] = useState<Unit>("day");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [copied, setCopied] = useState(false);
   const [game, setGame] = useState<GameId>("daily");
@@ -218,7 +218,8 @@ export default function App() {
           <div className="debt-strip">
             <div className="card kpi">
               <div className="label">Julkinen velka</div>
-              <div className="value">{fmt(data.debt)}</div>
+              {/* Velka on kertynyt määrä, ei vuotuinen virta, joten sitä ei muuteta päivä- tai vuosisummaksi. */}
+              <div className="value">{money(data.debt, data.population, "total")}</div>
               <div className="sub">vuoden {data.baseYear} lopussa</div>
             </div>
             <div className="card kpi">
