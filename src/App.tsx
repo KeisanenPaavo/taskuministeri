@@ -110,7 +110,7 @@ export default function App() {
 
       <main className="wrap">
         <div className="hero">
-          <div className="eyebrow">Avoin työkalu jokaiselle suomalaiselle</div>
+          <div className="eyebrow">♠ Taskuministeri. Ässät on nyt sun hihassa.</div>
           <h1>
             Julkinen talous on yhteinen taloutemme. <span className="grad">Nyt voit nähdä sen ja kokeilla itse.</span>
           </h1>
