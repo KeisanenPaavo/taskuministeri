@@ -13,6 +13,7 @@ import {
 import { EXPENDITURE_COLORS } from "../colors";
 import { money, mrd, num, pct, perDay, type Unit } from "../format";
 import { BarChart, LineChart } from "./charts";
+import { verdict } from "../verdict";
 
 interface Props {
   data: FinanceData;
@@ -148,9 +149,11 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
       ? `Velka ${last.year}: ${pct(last.debtRatio, 0)} BKT:stä. Uskallatko jakaa?`
       : `Pääsit ${num(Math.max(0, progress) * 100, 0)} % tavoitteesta: velka ${last.year} on ${pct(last.debtRatio, 0)}.`;
   const shareScenario = async () => {
-    const text = reached
-      ? `Pysäytin Suomen velan kasvun Taskuministerissä: velka ${last.year} ${pct(last.debtRatio, 0)} BKT:stä (ilman muutoksia ${pct(lastBase.debtRatio, 0)}). Pystytkö parempaan?`
-      : `Taskuministerissä pääsin ${num(Math.max(0, progress) * 100, 0)} % tavoitteesta: velka ${last.year} ${pct(last.debtRatio, 0)} BKT:stä. Pystytkö parempaan?`;
+    const text =
+      `Olen ${told.title}. ` +
+      (reached
+        ? `Pysäytin Suomen velan kasvun Taskuministerissä: velka ${last.year} ${pct(last.debtRatio, 0)} BKT:stä (ilman muutoksia ${pct(lastBase.debtRatio, 0)}). Pystytkö parempaan?`
+        : `Taskuministerissä pääsin ${num(Math.max(0, progress) * 100, 0)} % tavoitteesta: velka ${last.year} ${pct(last.debtRatio, 0)} BKT:stä. Pystytkö parempaan?`);
     const url = location.href;
     try {
       if (navigator.share && matchMedia("(pointer: coarse)").matches) {
@@ -196,13 +199,24 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
     .filter((e) => allSpending || MAIN_SPENDING.includes(e.id) || (s.spending[e.id] ?? 0) !== 0);
 
   const effects = [
-    { label: "Valtion tulovero", v: tax.incomeTax },
-    { label: "Arvonlisävero", v: tax.vat },
-    { label: "Yhteisövero", v: tax.corporateTax },
-    { label: "Valmisteverot", v: tax.excise },
-    ...data.expenditure.map((e) => ({ label: e.name, v: -spend[e.id] })),
+    { label: "Valtion tulovero", v: tax.incomeTax, kind: "tax" as const },
+    { label: "Arvonlisävero", v: tax.vat, kind: "tax" as const },
+    { label: "Yhteisövero", v: tax.corporateTax, kind: "tax" as const },
+    { label: "Valmisteverot", v: tax.excise, kind: "tax" as const },
+    ...data.expenditure.map((e) => ({ label: e.name, v: -spend[e.id], kind: "spend" as const })),
   ].filter((e) => Math.abs(e.v) > 0.5);
   const totalEffect = effects.reduce((a, e) => a + e.v, 0);
+  const told = verdict({
+    effects,
+    growthDelta: s.realGrowth - DEFAULT_SCENARIO.realGrowth,
+    interestDelta: s.interestRate - DEFAULT_SCENARIO.interestRate,
+    population: data.population,
+    year: last.year,
+    debt: last.debtRatio,
+    baseDebt: lastBase.debtRatio,
+    target,
+    progress,
+  });
 
   return (
     <>
@@ -540,6 +554,18 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
               bars={result.map((r, i) => ({ year: r.year, value: r.balanceRatio, base: baseline[i].balanceRatio }))}
             />
           </div>
+
+          {changed && (
+            <div className="verdict" aria-live="polite">
+              <p className="step">Taskuministerin päätöstiedote</p>
+              <h4>
+                Olet <span>{told.title}</span>
+              </h4>
+              {told.lines.map((l) => (
+                <p key={l}>{l}</p>
+              ))}
+            </div>
+          )}
 
           <div className={`share-cta ${changed ? "" : "idle"}`}>
             <div className="share-copy">
