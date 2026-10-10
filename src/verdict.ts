@@ -20,6 +20,8 @@ export interface VerdictInput {
   baseDebt: number; // ilman muutoksia, %
   target: number; // nykyinen velkasuhde, %
   progress: number; // 0..1+ tavoitteesta
+  /** Kuinka monta %-yks. velkasuhde olisi pienempi, jos talous kasvaisi 0,5 %-yks. nopeammin. */
+  growthLesson: number;
 }
 
 export interface Verdict {
@@ -108,6 +110,31 @@ export function verdict(i: VerdictInput): Verdict {
   } else {
     lines.push(
       `Velka kasvaa yhä, mutta hitaammin: ${pct(i.debt, 0)} vuonna ${i.year}. Matkaa tavoitteeseen on ${num(Math.max(0, 1 - i.progress) * 100, 0)} %.`,
+    );
+  }
+  // Talouskasvun merkitys: vertaa puolen prosenttiyksikön lisäkasvua pelaajan omiin päätöksiin.
+  const ownEffect = i.baseDebt - i.debt;
+  const lesson = num(i.growthLesson, 0);
+  if (i.growthDelta >= 0.3) {
+    lines.push(
+      `Kasvu tekee tässä raskaan työn: jokainen puoli prosenttiyksikköä lisää kasvua pienentää velkaa noin ${lesson} %-yksikköä. Kasvua ei kuitenkaan säädetä liukusäätimellä, vaan se syntyy työllisyydestä, investoinneista ja tuottavuudesta.`,
+    );
+  } else if (i.growthDelta <= -0.3) {
+    lines.push(
+      `Hidas kasvu näkyy velassa nopeasti: puoli prosenttiyksikköä kasvussa tarkoittaa noin ${lesson} %-yksikköä velassa vuoteen ${i.year} mennessä.`,
+    );
+  } else if (ownEffect > 0.5 && i.growthLesson > ownEffect) {
+    lines.push(
+      `Vertailun vuoksi: jos talous kasvaisi vain 0,5 %-yksikköä nopeammin, velka olisi vuonna ${i.year} noin ${lesson} %-yksikköä pienempi. Se on enemmän kuin kaikki päätöksesi yhteensä (${num(ownEffect, 0)} %-yks.).`,
+    );
+  } else {
+    lines.push(
+      `Talouskasvulla on iso merkitys: jos talous kasvaisi 0,5 %-yksikköä nopeammin, velka olisi vuonna ${i.year} vielä noin ${lesson} %-yksikköä pienempi.`,
+    );
+  }
+  if (tighten >= 1000 && i.growthDelta < 0.3) {
+    lines.push(
+      "Malli ei laske, miten veronkorotukset tai leikkaukset vaikuttavat kasvuun. Todellisuudessa ne voivat hidastaa sitä, ja silloin osa hyödystä katoaa.",
     );
   }
   lines.push(closer);

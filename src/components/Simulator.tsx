@@ -216,6 +216,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
     baseDebt: lastBase.debtRatio,
     target,
     progress,
+    growthLesson,
   });
 
   return (
