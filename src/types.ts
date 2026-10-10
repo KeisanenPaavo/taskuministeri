@@ -19,6 +19,22 @@ export interface HistoryPoint {
   debtRatio: number;
 }
 
+export type CountryCode = "FI" | "SE" | "EE";
+export type ByCountry = Record<CountryCode, number>;
+
+export interface NeighborData {
+  source: string;
+  countries: { code: CountryCode; name: string }[];
+  mainYear: number;
+  taxYear: number;
+  cofogYear: number;
+  main: { expenditure: ByCountry; revenue: ByCountry; balance: ByCountry; interest: ByCountry; tax: ByCountry };
+  cofog: { id: string; name: string; values: ByCountry }[];
+  social: { id: string; name: string; values: ByCountry }[];
+  debt: ({ year: number } & ByCountry)[];
+  sources: { name: string; url: string }[];
+}
+
 export interface FinanceData {
   generated: string;
   baseYear: number;
@@ -36,5 +52,6 @@ export interface FinanceData {
   revenue: Item[];
   expenditure: Item[];
   history: HistoryPoint[];
+  neighbors: NeighborData;
   sources: { name: string; url: string }[];
 }

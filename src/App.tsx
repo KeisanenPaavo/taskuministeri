@@ -9,6 +9,7 @@ import HundredEuros from "./components/HundredEuros";
 import DailyChallenge from "./components/DailyChallenge";
 import { EXPENDITURE_COLORS, REVENUE_COLORS } from "./colors";
 import MuchOrLittle from "./components/MuchOrLittle";
+import Neighbors from "./components/Neighbors";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -193,6 +194,7 @@ export default function App() {
             <a href="#luvut">Paljon vai vähän</a>
             <a href="#rahat">Tulot ja menot</a>
             <a href="#velka">Velka</a>
+            <a href="#naapurit">Naapurit</a>
             <a href="#kokeile">Kokeile itse</a>
             <a href="#pelit">Pelit</a>
           </nav>
@@ -300,6 +302,16 @@ export default function App() {
           </div>
         </section>
 
+        <section id="naapurit">
+          <p className="chapter">Luku 5</p>
+          <h2 className="section-title">Naapurit: Suomi, Ruotsi ja Viro</h2>
+          <p className="section-lead">
+            Onko Suomen julkinen talous iso vai pieni? Vertailu naapureihin antaa mittakaavan. Luvut ovat prosentteja
+            bruttokansantuotteesta, jotta eri kokoiset maat ovat vertailukelpoisia.
+          </p>
+          <Neighbors n={data.neighbors} />
+        </section>
+
         <section id="kokeile">
           <div
             style={{
@@ -311,7 +323,7 @@ export default function App() {
             }}
           >
             <div>
-              <p className="chapter">Luku 5</p>
+              <p className="chapter">Luku 6</p>
               <h2 className="section-title">Kokeile itse: miten velka kehittyy?</h2>
               <p className="section-lead" style={{ marginBottom: 16 }}>
                 Liikuta säätimiä ja näe heti, miten talouskasvu, korot, verot ja menot vaikuttavat alijäämään ja velkaan
@@ -332,7 +344,7 @@ export default function App() {
         </section>
 
         <section id="pelit">
-          <p className="chapter">Luku 6</p>
+          <p className="chapter">Luku 7</p>
           <h2 className="section-title">Pelaa lisää</h2>
           <p className="section-lead">
             Nyt tiedät mittasuhteet. Ratkaise päivän talouspulma tai jaa itse sata euroa ja vertaa Suomeen.
@@ -390,7 +402,7 @@ export default function App() {
           <div>
             <h3>Lähteet</h3>
             <ul>
-              {data.sources.map((s) => (
+              {[...data.sources, ...data.neighbors.sources].map((s) => (
                 <li key={s.url}>
                   <a href={s.url} target="_blank" rel="noreferrer">
                     {s.name}

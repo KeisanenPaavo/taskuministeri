@@ -2137,3 +2137,164 @@ svg text {
     white-space: nowrap;
   }
 }
+
+/* ---------- Naapurit ---------- */
+.insights {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.insights li {
+  border-top: 1px solid var(--rule);
+  padding-top: 10px;
+  font-size: 16px;
+  color: var(--muted);
+}
+.insights b {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.country-legend {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.legend i.legend-dot {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+}
+.legend i.legend-dot.fi {
+  width: 14px;
+  height: 14px;
+  background: transparent !important;
+  border: 3px solid var(--text);
+  box-sizing: border-box;
+}
+.legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+.dot-table {
+  margin-bottom: 28px;
+}
+.dot-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.2fr) minmax(0, 2fr) repeat(3, 56px);
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  border-top: 1px solid var(--border);
+  font-size: 15px;
+}
+.dot-row.head {
+  border-top: 3px solid var(--rule);
+  min-height: 40px;
+  font-weight: 700;
+}
+.dot-row.head .dot-name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+}
+.dot-track-head {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.dot-row.sub .dot-name {
+  padding-left: 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.dot-track {
+  position: relative;
+  height: 18px;
+}
+.dot-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid var(--border);
+}
+.dot-mark {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+}
+/* Suomi renkaana, jotta lähellä olevat naapurien pisteet näkyvät sen läpi. */
+.dot-mark.fi {
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  background: transparent !important;
+  border: 3px solid var(--text);
+  z-index: 1;
+}
+.dot-val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.dot-val.fi {
+  color: var(--text);
+  font-weight: 700;
+}
+.dot-val.head {
+  font-size: 13px;
+}
+.neighbor-chart {
+  margin-bottom: 24px;
+}
+.neighbor-notes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.neighbor-notes p {
+  margin: 0;
+}
+.neighbor-notes b {
+  color: var(--text);
+}
+@media (max-width: 760px) {
+  .insights,
+  .neighbor-notes {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .dot-row {
+    grid-template-columns: minmax(0, 1fr) repeat(3, 40px);
+    row-gap: 2px;
+    padding: 6px 0;
+  }
+  .dot-track,
+  .dot-track-head {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .dot-row.head .dot-track-head {
+    display: none;
+  }
+  .dot-row.head .dot-name {
+    font-size: 18px;
+  }
+}

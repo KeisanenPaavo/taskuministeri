@@ -754,6 +754,359 @@
       "debtRatio": 88.5
     }
   ],
+  "neighbors": {
+    "source": "Eurostat",
+    "countries": [
+      {
+        "code": "FI",
+        "name": "Suomi"
+      },
+      {
+        "code": "SE",
+        "name": "Ruotsi"
+      },
+      {
+        "code": "EE",
+        "name": "Viro"
+      }
+    ],
+    "mainYear": 2025,
+    "taxYear": 2024,
+    "cofogYear": 2024,
+    "main": {
+      "expenditure": {
+        "FI": 57.7,
+        "SE": 49.9,
+        "EE": 45.4
+      },
+      "revenue": {
+        "FI": 53.9,
+        "SE": 48.5,
+        "EE": 43.4
+      },
+      "balance": {
+        "FI": -3.9,
+        "SE": -1.4,
+        "EE": -2
+      },
+      "interest": {
+        "FI": 1.6,
+        "SE": 0.6,
+        "EE": 0.5
+      },
+      "tax": {
+        "FI": 42.3,
+        "SE": 42.2,
+        "EE": 36.1
+      }
+    },
+    "cofog": [
+      {
+        "id": "social",
+        "name": "Sosiaaliturva",
+        "values": {
+          "FI": 26.5,
+          "SE": 19.1,
+          "EE": 13.8
+        }
+      },
+      {
+        "id": "health",
+        "name": "Terveydenhuolto",
+        "values": {
+          "FI": 7.7,
+          "SE": 7.4,
+          "EE": 6.3
+        }
+      },
+      {
+        "id": "admin",
+        "name": "Yleinen hallinto (ml. velan korot)",
+        "values": {
+          "FI": 7.1,
+          "SE": 5.5,
+          "EE": 4.3
+        }
+      },
+      {
+        "id": "education",
+        "name": "Koulutus",
+        "values": {
+          "FI": 6.3,
+          "SE": 7.3,
+          "EE": 6.3
+        }
+      },
+      {
+        "id": "economy",
+        "name": "Elinkeinot ja liikenne",
+        "values": {
+          "FI": 4.9,
+          "SE": 4.8,
+          "EE": 4.6
+        }
+      },
+      {
+        "id": "defence",
+        "name": "Puolustus",
+        "values": {
+          "FI": 1.6,
+          "SE": 2,
+          "EE": 3.7
+        }
+      },
+      {
+        "id": "order",
+        "name": "Järjestys ja turvallisuus",
+        "values": {
+          "FI": 1.3,
+          "SE": 1.6,
+          "EE": 1.8
+        }
+      },
+      {
+        "id": "culture",
+        "name": "Kulttuuri ja vapaa-aika",
+        "values": {
+          "FI": 1.7,
+          "SE": 1.4,
+          "EE": 1.9
+        }
+      },
+      {
+        "id": "environment",
+        "name": "Ympäristönsuojelu",
+        "values": {
+          "FI": 0.2,
+          "SE": 0.5,
+          "EE": 0.7
+        }
+      },
+      {
+        "id": "housing",
+        "name": "Asuminen ja yhdyskunnat",
+        "values": {
+          "FI": 0.5,
+          "SE": 0.8,
+          "EE": 0.4
+        }
+      }
+    ],
+    "social": [
+      {
+        "id": "oldAge",
+        "name": "Vanhuus (eläkkeet, vanhuspalvelut)",
+        "values": {
+          "FI": 15.5,
+          "SE": 11,
+          "EE": 8.1
+        }
+      },
+      {
+        "id": "sickness",
+        "name": "Sairaus ja työkyvyttömyys",
+        "values": {
+          "FI": 3.3,
+          "SE": 3.6,
+          "EE": 1.8
+        }
+      },
+      {
+        "id": "family",
+        "name": "Perheet ja lapset",
+        "values": {
+          "FI": 3.5,
+          "SE": 2.3,
+          "EE": 2.4
+        }
+      },
+      {
+        "id": "unemployment",
+        "name": "Työttömyys",
+        "values": {
+          "FI": 1.6,
+          "SE": 1.1,
+          "EE": 0.9
+        }
+      }
+    ],
+    "debt": [
+      {
+        "year": 2000,
+        "FI": 45.1,
+        "SE": 50.4,
+        "EE": 5.1
+      },
+      {
+        "year": 2001,
+        "FI": 43.4,
+        "SE": 52,
+        "EE": 4.9
+      },
+      {
+        "year": 2002,
+        "FI": 42.6,
+        "SE": 49.8,
+        "EE": 5.7
+      },
+      {
+        "year": 2003,
+        "FI": 45.2,
+        "SE": 49.5,
+        "EE": 5.6
+      },
+      {
+        "year": 2004,
+        "FI": 44.9,
+        "SE": 48.7,
+        "EE": 5.2
+      },
+      {
+        "year": 2005,
+        "FI": 42.1,
+        "SE": 49,
+        "EE": 4.7
+      },
+      {
+        "year": 2006,
+        "FI": 40.2,
+        "SE": 43.9,
+        "EE": 4.7
+      },
+      {
+        "year": 2007,
+        "FI": 36,
+        "SE": 39.3,
+        "EE": 3.9
+      },
+      {
+        "year": 2008,
+        "FI": 34.7,
+        "SE": 38,
+        "EE": 4.7
+      },
+      {
+        "year": 2009,
+        "FI": 44.1,
+        "SE": 41.3,
+        "EE": 8
+      },
+      {
+        "year": 2010,
+        "FI": 50.1,
+        "SE": 38.7,
+        "EE": 8
+      },
+      {
+        "year": 2011,
+        "FI": 52,
+        "SE": 37.8,
+        "EE": 7.6
+      },
+      {
+        "year": 2012,
+        "FI": 57.9,
+        "SE": 38.1,
+        "EE": 11.1
+      },
+      {
+        "year": 2013,
+        "FI": 60.8,
+        "SE": 41.2,
+        "EE": 11.4
+      },
+      {
+        "year": 2014,
+        "FI": 64.8,
+        "SE": 46.1,
+        "EE": 11.6
+      },
+      {
+        "year": 2015,
+        "FI": 68.8,
+        "SE": 44.8,
+        "EE": 10.8
+      },
+      {
+        "year": 2016,
+        "FI": 68.6,
+        "SE": 43.2,
+        "EE": 10.2
+      },
+      {
+        "year": 2017,
+        "FI": 66.6,
+        "SE": 41.9,
+        "EE": 9.4
+      },
+      {
+        "year": 2018,
+        "FI": 65.4,
+        "SE": 40.2,
+        "EE": 8.5
+      },
+      {
+        "year": 2019,
+        "FI": 65.3,
+        "SE": 36,
+        "EE": 9
+      },
+      {
+        "year": 2020,
+        "FI": 75.3,
+        "SE": 40.5,
+        "EE": 19.1
+      },
+      {
+        "year": 2021,
+        "FI": 73.1,
+        "SE": 37.2,
+        "EE": 18.4
+      },
+      {
+        "year": 2022,
+        "FI": 74,
+        "SE": 34.4,
+        "EE": 19.2
+      },
+      {
+        "year": 2023,
+        "FI": 77,
+        "SE": 32.2,
+        "EE": 20.2
+      },
+      {
+        "year": 2024,
+        "FI": 82.4,
+        "SE": 34.2,
+        "EE": 23.5
+      },
+      {
+        "year": 2025,
+        "FI": 88.5,
+        "SE": 35.1,
+        "EE": 24.1
+      }
+    ],
+    "sources": [
+      {
+        "name": "Eurostat: Julkisyhteisöjen tulot ja menot (gov_10a_main)",
+        "url": "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table"
+      },
+      {
+        "name": "Eurostat: Menot tehtävittäin, COFOG (gov_10a_exp)",
+        "url": "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table"
+      },
+      {
+        "name": "Eurostat: Julkinen velka (gov_10dd_edpt1)",
+        "url": "https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table"
+      },
+      {
+        "name": "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)",
+        "url": "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table"
+      }
+    ]
+  },
   "sources": [
     {
       "name": "Tilastokeskus: Julkisyhteisöjen tulot ja menot (15ah)",

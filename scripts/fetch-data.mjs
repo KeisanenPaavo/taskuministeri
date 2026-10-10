@@ -47,6 +47,114 @@ async function years(table, code = "timeperiod_y") {
 
 const r1 = (x) => Math.round(x * 10) / 10;
 
+// ---------- Eurostat: vertailu Ruotsiin ja Viroon ----------
+
+const EUROSTAT = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data";
+const COUNTRIES = [
+  { code: "FI", name: "Suomi" },
+  { code: "SE", name: "Ruotsi" },
+  { code: "EE", name: "Viro" },
+];
+
+/** Hakee Eurostat-taulun ja palauttaa {get(geo, key, time), times}. `key` on taulun luokkadimension koodi. */
+async function eurostat(table, params, keyDim) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) for (const x of [].concat(v)) qs.append(k, x);
+  for (const c of COUNTRIES) qs.append("geo", c.code);
+  const res = await fetch(`${EUROSTAT}/${table}?${qs}`);
+  if (!res.ok) throw new Error(`Eurostat ${table}: HTTP ${res.status}`);
+  const js = await res.json();
+  if (js.error) throw new Error(`Eurostat ${table}: ${JSON.stringify(js.error)}`);
+  const ids = js.id;
+  const index = ids.map((id) => js.dimension[id].category.index);
+  const times = Object.keys(js.dimension.time.category.index).sort();
+  const get = (geo, key, time) => {
+    let flat = 0;
+    for (let i = 0; i < ids.length; i++) {
+      const cats = index[i];
+      const want = ids[i] === "geo" ? geo : ids[i] === "time" ? time : ids[i] === keyDim ? key : Object.keys(cats)[0];
+      const pos = cats[want];
+      if (pos === undefined) return undefined;
+      flat = flat * js.size[i] + pos;
+    }
+    return js.value[flat];
+  };
+  return { get, times };
+}
+
+/** Uusin vuosi, jolta kaikilla mailla on arvo kaikille avaimille. */
+function latestCommonYear({ get, times }, keys) {
+  for (const t of [...times].reverse()) {
+    if (COUNTRIES.every((c) => keys.every((k) => get(c.code, k, t) !== undefined))) return t;
+  }
+  throw new Error("Ei yhteistä vuotta");
+}
+
+async function fetchNeighbors() {
+  const since = { sinceTimePeriod: "2018" };
+  const mainKeys = ["TE", "TR", "B9", "D41PAY"];
+  const main = await eurostat("gov_10a_main", { na_item: mainKeys, sector: "S13", unit: "PC_GDP", ...since }, "na_item");
+  const mainYear = latestCommonYear(main, mainKeys);
+
+  const tax = await eurostat(
+    "gov_10a_taxag",
+    { na_item: "D2_D5_D91_D61_M_D995", sector: "S13_S212", unit: "PC_GDP", ...since },
+    "na_item",
+  );
+  const taxYear = latestCommonYear(tax, ["D2_D5_D91_D61_M_D995"]);
+
+  const cofogDefs = [
+    { id: "social", code: "GF10", name: "Sosiaaliturva" },
+    { id: "health", code: "GF07", name: "Terveydenhuolto" },
+    { id: "admin", code: "GF01", name: "Yleinen hallinto (ml. velan korot)" },
+    { id: "education", code: "GF09", name: "Koulutus" },
+    { id: "economy", code: "GF04", name: "Elinkeinot ja liikenne" },
+    { id: "defence", code: "GF02", name: "Puolustus" },
+    { id: "order", code: "GF03", name: "Järjestys ja turvallisuus" },
+    { id: "culture", code: "GF08", name: "Kulttuuri ja vapaa-aika" },
+    { id: "environment", code: "GF05", name: "Ympäristönsuojelu" },
+    { id: "housing", code: "GF06", name: "Asuminen ja yhdyskunnat" },
+  ];
+  const socialDefs = [
+    { id: "oldAge", code: "GF1002", name: "Vanhuus (eläkkeet, vanhuspalvelut)" },
+    { id: "sickness", code: "GF1001", name: "Sairaus ja työkyvyttömyys" },
+    { id: "family", code: "GF1004", name: "Perheet ja lapset" },
+    { id: "unemployment", code: "GF1005", name: "Työttömyys" },
+  ];
+  const codes = [...cofogDefs, ...socialDefs].map((d) => d.code);
+  const exp = await eurostat("gov_10a_exp", { cofog99: codes, na_item: "TE", sector: "S13", unit: "PC_GDP", ...since }, "cofog99");
+  const cofogYear = latestCommonYear(exp, codes);
+
+  const debt = await eurostat("gov_10dd_edpt1", { na_item: "GD", sector: "S13", unit: "PC_GDP", sinceTimePeriod: "2000" }, "na_item");
+
+  const byCountry = (fn) => Object.fromEntries(COUNTRIES.map((c) => [c.code, fn(c.code)]));
+  return {
+    source: "Eurostat",
+    countries: COUNTRIES,
+    mainYear: Number(mainYear),
+    taxYear: Number(taxYear),
+    cofogYear: Number(cofogYear),
+    main: {
+      expenditure: byCountry((g) => main.get(g, "TE", mainYear)),
+      revenue: byCountry((g) => main.get(g, "TR", mainYear)),
+      balance: byCountry((g) => main.get(g, "B9", mainYear)),
+      interest: byCountry((g) => main.get(g, "D41PAY", mainYear)),
+      tax: byCountry((g) => tax.get(g, "D2_D5_D91_D61_M_D995", taxYear)),
+    },
+    cofog: cofogDefs.map((d) => ({ id: d.id, name: d.name, values: byCountry((g) => exp.get(g, d.code, cofogYear)) })),
+    social: socialDefs.map((d) => ({ id: d.id, name: d.name, values: byCountry((g) => exp.get(g, d.code, cofogYear)) })),
+    debt: debt.times
+      .map((t) => ({ year: Number(t), ...byCountry((g) => debt.get(g, "GD", t)) }))
+      .filter((r) => COUNTRIES.every((c) => r[c.code] !== undefined)),
+    sources: [
+      { name: "Eurostat: Julkisyhteisöjen tulot ja menot (gov_10a_main)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table" },
+      { name: "Eurostat: Menot tehtävittäin, COFOG (gov_10a_exp)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" },
+      { name: "Eurostat: Julkinen velka (gov_10dd_edpt1)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table" },
+      { name: "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table" },
+    ],
+  };
+}
+
 async function main() {
   // --- Vuodet ---------------------------------------------------------------
   const ntpYears = await years("ntp/15ah.px");
@@ -326,6 +434,8 @@ async function main() {
   }));
   const last = history[history.length - 1];
 
+  const neighbors = await fetchNeighbors();
+
   const out = {
     generated: new Date().toISOString().slice(0, 10),
     baseYear: Number(baseYear),
@@ -345,6 +455,7 @@ async function main() {
     revenue: revenue.map((r) => ({ ...r, value: Math.round(r.value) })),
     expenditure: expenditure.map((r) => ({ ...r, value: Math.round(r.value) })),
     history,
+    neighbors,
     sources: [
       { name: "Tilastokeskus: Julkisyhteisöjen tulot ja menot (15ah)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15ah.px/" },
       { name: "Tilastokeskus: Verot ja veronluonteiset maksut (15aj)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15aj.px/" },
@@ -367,6 +478,10 @@ async function main() {
     for (const p of it.parts) console.log(`   ${String(p.value).padStart(6)}  ${p.name}`);
   }
   console.log(history.slice(-3));
+  console.log("Naapurit", JSON.stringify(neighbors.main), "vuodet", neighbors.mainYear, neighbors.taxYear, neighbors.cofogYear);
+  console.table(neighbors.cofog.map((c) => ({ nimi: c.name, ...c.values })));
+  console.table(neighbors.social.map((c) => ({ nimi: c.name, ...c.values })));
+  console.log("velka", neighbors.debt[0], neighbors.debt.at(-1));
 }
 
 main().catch((e) => {
