@@ -104,16 +104,74 @@ export default function App() {
 
       <main className="wrap">
         <div className="hero">
-          <h1>Mistä Suomen julkinen talous saa rahansa ja mihin se ne käyttää?</h1>
-          <p>
-            Valtio, kunnat, hyvinvointialueet ja eläkelaitokset käyttivät vuonna {data.baseYear} yhteensä{" "}
-            {money(data.expenditureTotal, data.population, false)}, eli noin{" "}
-            {perCapita(data.expenditureTotal, data.population)} jokaista suomalaista kohden. Tuloja kertyi{" "}
-            {money(deficit, data.population, false)} vähemmän.
+          <div className="eyebrow">Avoin työkalu jokaiselle suomalaiselle</div>
+          <h1>
+            Julkinen talous on yhteinen taloutemme. <span className="grad">Nyt voit nähdä sen ja kokeilla itse.</span>
+          </h1>
+          <p className="lead">
+            Julkisesta taloudesta väitellään miljardeilla, prosenteilla ja leikkauslistoilla. Kokonaiskuvaa on silti
+            vaikea hahmottaa, ja vielä harvemmin vaihtoehtoja pääsee kokeilemaan itse. Tämä sivu on tehty, jotta
+            jokainen voi muodostaa oman käsityksensä avoimen datan pohjalta, ilman puoluekantaa.
+          </p>
+
+          <div className="fact">
+            <div>
+              <b>{perCapita(data.expenditureTotal, data.population)}</b>
+              <span>julkisia menoja jokaista suomalaista kohden vuodessa</span>
+            </div>
+            <div>
+              <b>{perCapita(data.revenueTotal, data.population)}</b>
+              <span>veroja ja muita tuloja</span>
+            </div>
+            <div>
+              <b className="neg">{perCapita(deficit, data.population)}</b>
+              <span>uutta velkaa per suomalainen vuonna {data.baseYear}</span>
+            </div>
+          </div>
+
+          <div className="intro-cards">
+            <a className="card intro-card" href="#rahat">
+              <span className="ic">🔍</span>
+              <h3>Katso, mihin rahat menevät</h3>
+              <p>
+                Näe yhdellä silmäyksellä, paljonko verot tuovat ja mihin jokainen euro käytetään: eläkkeisiin,
+                terveyteen, kouluihin vai velan korkoihin.
+              </p>
+              <span className="go">Tulot ja menot →</span>
+            </a>
+            <a className="card intro-card" href="#kokeile">
+              <span className="ic">🎛️</span>
+              <h3>Kokeile itse päättäjänä</h3>
+              <p>
+                Nosta tai laske veroja, leikkaa tai lisää menoja ja muuta korkoja. Näet heti, mitä velalle tapahtuu
+                seuraavan kymmenen vuoden aikana.
+              </p>
+              <span className="go">Avaa simulaattori →</span>
+            </a>
+            <a className="card intro-card" href="#kokeile">
+              <span className="ic">💬</span>
+              <h3>Jaa ja keskustele</h3>
+              <p>
+                Tallenna oma ratkaisusi linkiksi ja jaa se. Keskustelu on parempaa, kun kaikki puhuvat samoista
+                luvuista.
+              </p>
+              <span className="go">Tee oma skenaario →</span>
+            </a>
+          </div>
+
+          <p className="trust">
+            Luvut ovat Tilastokeskukselta, ja veromuutosten vaikutukset perustuvat valtiovarainministeriön arvioihin.
+            Laskentatapa ja kaikki oletukset ovat <a href="#lahteet">avoimesti nähtävillä</a>.
           </p>
         </div>
 
         <section id="rahat">
+          <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
+          <p className="section-lead">
+            Valtio, kunnat, hyvinvointialueet ja eläkelaitokset käyttivät vuonna {data.baseYear} yhteensä{" "}
+            {money(data.expenditureTotal, data.population, false)}. Tuloja kertyi{" "}
+            {money(deficit, data.population, false)} vähemmän, ja erotus otettiin velaksi.
+          </p>
           <div className="kpis">
             <div className="card kpi">
               <div className="label">
@@ -199,7 +257,7 @@ export default function App() {
         </section>
       </main>
 
-      <footer className="footer">
+      <footer className="footer" id="lahteet">
         <div className="wrap cols">
           <div>
             <h3>Miten simulaattori laskee?</h3>
