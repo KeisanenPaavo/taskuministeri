@@ -2027,3 +2027,80 @@ svg text {
   color: var(--text);
   margin-top: 4px;
 }
+
+/* ---------- Paljon vai vähän ---------- */
+.much {
+  margin: 28px 0 24px;
+}
+.much-ticker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+.much-ticker b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.much-ticker b.neg {
+  color: var(--bad);
+}
+.much-clock {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.much-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.much-col {
+  padding: 16px 18px;
+}
+.much-head {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.much-head span {
+  font-size: 28px;
+}
+.much-col ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+.much-col b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.much-verdict {
+  margin: 14px 0 0;
+  font-size: 16px;
+}
+@media (max-width: 640px) {
+  .much-cols {
+    grid-template-columns: 1fr;
+  }
+  .much-ticker {
+    align-items: flex-start;
+    font-size: 14px;
+  }
+}

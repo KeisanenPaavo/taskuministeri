@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import type { FinanceData } from "./types";
 import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
-import { money, perCapita, perDay, pct, type Unit } from "./format";
+import { money, perCapita, pct, type Unit } from "./format";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
 import HundredEuros from "./components/HundredEuros";
 import DailyChallenge from "./components/DailyChallenge";
+import MuchOrLittle from "./components/MuchOrLittle";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -134,29 +135,7 @@ export default function App() {
             kokeilemaan, mitä tapahtuisi, jos päättäisit. Avoimen datan pohjalta, ilman puoluekantaa.
           </p>
 
-          <div className="fact">
-            <div>
-              <b>{perCapita(data.expenditureTotal, data.population)}</b>
-              <span>
-                julkisia menoja jokaista suomalaista kohden vuodessa, eli{" "}
-                <b className="inline">{perDay(data.expenditureTotal, data.population).replace("/pv", "")}</b> päivässä
-              </span>
-            </div>
-            <div>
-              <b>{perCapita(data.revenueTotal, data.population)}</b>
-              <span>
-                veroja ja muita tuloja, eli{" "}
-                <b className="inline">{perDay(data.revenueTotal, data.population).replace("/pv", "")}</b> päivässä
-              </span>
-            </div>
-            <div>
-              <b className="neg">{perCapita(deficit, data.population)}</b>
-              <span>
-                uutta velkaa per suomalainen vuonna {data.baseYear}, eli{" "}
-                <b className="inline">{perDay(deficit, data.population).replace("/pv", "")}</b> päivässä
-              </span>
-            </div>
-          </div>
+          <MuchOrLittle data={data} />
 
           <div className="intro-cards">
             <a className="card intro-card" href="#peli">
