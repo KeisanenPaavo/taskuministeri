@@ -938,9 +938,6 @@ svg text {
   .controls {
     position: static;
   }
-  .results {
-    order: -1;
-  }
   .debt-strip {
     grid-template-columns: 1fr 1fr;
   }
@@ -2814,5 +2811,67 @@ svg text {
   }
   .year-bar span:nth-child(odd) {
     display: none;
+  }
+}
+
+/* Simulaattorin tavoite ja vaiheet */
+.step {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.goal {
+  margin-bottom: 24px;
+  padding: 14px 0 16px;
+  border-top: 3px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.goal h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 3vw, 30px);
+  margin: 0 0 6px;
+}
+.goal-text {
+  max-width: 760px;
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+.goal-text b {
+  color: var(--text);
+}
+.goal-meter {
+  position: relative;
+  height: 14px;
+  background: var(--surface-2);
+  max-width: 760px;
+}
+.goal-meter i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  transition: width 0.25s ease-out;
+}
+.goal.done .goal-meter i {
+  background: var(--good);
+}
+.goal-status {
+  margin: 8px 0 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+}
+.goal.done .goal-status {
+  color: var(--good);
+}
+.goal.worse .goal-status {
+  color: var(--bad);
+}
+@media (prefers-reduced-motion: reduce) {
+  .goal-meter i {
+    transition: none;
   }
 }

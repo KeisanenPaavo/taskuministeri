@@ -11,7 +11,7 @@ import {
   type Scenario,
 } from "../model";
 import { EXPENDITURE_COLORS } from "../colors";
-import { money, mrd, num, pct, type Unit } from "../format";
+import { money, mrd, num, pct, perDay, type Unit } from "../format";
 import { BarChart, LineChart } from "./charts";
 
 interface Props {
@@ -94,6 +94,24 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
     const faster = project(data, { ...s, realGrowth: s.realGrowth + 0.5 });
     return result[result.length - 1].debtRatio - faster[faster.length - 1].debtRatio;
   }, [data, s, result]);
+  // Tavoite: velkasuhde ei nouse nykyisestä. Kuinka paljon pysyviä säästöjä tai lisätuloja (milj. € perusvuoden
+  // tasolla) se vaatisi oletusoletuksilla? Haetaan puolitushaulla mallin yleisellä menomuutoksella.
+  const target = data.debtRatio;
+  const needed = useMemo(() => {
+    const base = { ...DEFAULT_SCENARIO, spendingTrend: s.spendingTrend, behavioral: s.behavioral };
+    const ratioWith = (saving: number) => {
+      const r = project(data, { ...base, extraSpending: -saving });
+      return r[r.length - 1].debtRatio;
+    };
+    let lo = 0;
+    let hi = 100_000;
+    for (let i = 0; i < 30; i++) {
+      const mid = (lo + hi) / 2;
+      if (ratioWith(mid) <= target) hi = mid;
+      else lo = mid;
+    }
+    return hi;
+  }, [data, target, s.spendingTrend, s.behavioral]);
   const tax = taxEffects(data, s);
   const spend = spendingEffects(data, s);
   const perPoint = perPointStatic(data);
@@ -116,6 +134,9 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
   const history = data.history.filter((h) => h.year >= 2000);
   const anchor = { year: data.baseYear, value: data.debtRatio };
   const diff = last.debtRatio - lastBase.debtRatio;
+  const gap = lastBase.debtRatio - target;
+  const progress = gap > 0 ? (lastBase.debtRatio - last.debtRatio) / gap : 1;
+  const reached = last.debtRatio <= target + 0.05;
 
   const perYear = unit === "total" ? " vuodessa" : "";
   const D = DEFAULT_SCENARIO;
@@ -158,6 +179,30 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
 
   return (
     <>
+      <div className={`goal ${reached ? "done" : progress < 0 ? "worse" : ""}`}>
+        <p className="step">Tehtäväsi</p>
+        <h3>Pysäytä velan kasvu</h3>
+        <p className="goal-text">
+          Ilman muutoksia velka nousee {pct(data.debtRatio, 0)}:sta <b>{pct(lastBase.debtRatio, 0)}:iin</b> BKT:stä
+          vuoteen {last.year} mennessä. Jotta se pysyisi nykytasolla, tarvitaan noin{" "}
+          <b>
+            {mrd(needed)} ({perDay(needed, data.population)} asukasta kohden)
+          </b>{" "}
+          pysyviä säästöjä tai lisätuloja vuodessa, tai nopeampaa talouskasvua.
+        </p>
+        <div className="goal-meter" aria-hidden="true">
+          <i style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }} />
+        </div>
+        <p className="goal-status" aria-live="polite">
+          {reached
+            ? `✓ Tavoite saavutettu: velka on vuonna ${last.year} ${pct(last.debtRatio, 0)} BKT:stä.`
+            : progress < 0
+              ? `✗ Valintasi kasvattavat velkaa: ${pct(last.debtRatio, 0)} BKT:stä vuonna ${last.year}.`
+              : `${num(Math.max(0, progress) * 100, 0)} % tavoitteesta · velka ${last.year}: ${pct(last.debtRatio, 0)} BKT:stä`}
+        </p>
+      </div>
+
+      <p className="step">1 · Valitse lähtötilanne (valinnainen)</p>
       <div className="presets" style={{ marginBottom: 16 }}>
         {PRESETS.map((p) => (
           <button
@@ -175,6 +220,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
 
       <div className="sim" ref={simRef}>
         <div className="controls">
+          <p className="step">2 · Tee päätökset</p>
           <div className="panel">
             <div className="panel-tabs" role="tablist" aria-label="Säätimet">
               {GROUPS.map((g) => (
@@ -369,6 +415,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
         </div>
 
         <div className="results">
+          <p className="step">3 · Katso tulos</p>
           <div className="card headline">
             <div className="big">
               Vuonna {last.year} julkinen velka olisi <b>{pct(last.debtRatio, 0)}</b> bruttokansantuotteesta.
@@ -501,8 +548,10 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
           <b style={{ color: first.balance < 0 ? "var(--bad)" : "var(--good)" }}>{pct(first.balanceRatio, 1, true)}</b>
         </div>
         <div>
-          Muutokset
-          <b style={{ color: totalEffect >= 0 ? "var(--good)" : "var(--bad)" }}>{mrd(totalEffect, true)}</b>
+          Tavoitteesta
+          <b style={{ color: reached ? "var(--good)" : progress < 0 ? "var(--bad)" : undefined }}>
+            {reached ? "✓" : `${num(Math.max(0, progress) * 100, 0)} %`}
+          </b>
         </div>
       </div>
     </>
