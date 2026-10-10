@@ -48,6 +48,25 @@ const GAMES = [
 ] as const;
 type GameId = (typeof GAMES)[number]["id"];
 
+// Lähteet, joiden luvut on kirjoitettu suoraan sivulle (eivät tule datahausta).
+const EXTRA_SOURCES = [
+  {
+    id: "spk",
+    name: "Suomen Pankki: Kotitalouksien asuntolainakanta (toukokuu 2026)",
+    url: "https://www.sttinfo.fi/tiedote/72170068/kotitalouslainojen-korot-nousivat-toukokuussa-2026?publisherId=1865&lang=fi",
+  },
+  {
+    id: "palkat",
+    name: "Tilastokeskus: Palkka- ja palkkiotulojen mediaani (joulukuu 2025)",
+    url: "https://stat.fi/tup/kokeelliset-tilastot/tulorekisterin_palkat_ja_palkkiot/2026-02-09/index.html",
+  },
+  {
+    id: "palpa",
+    name: "Palpa: Pantilliset pakkaukset ja panttiarvot",
+    url: "https://www.palpa.fi/kuluttajille/millaisia-pakkauksia-voi-palauttaa/",
+  },
+];
+
 // Lehden päiväys, esim. "Lauantai 10. lokakuuta 2026".
 const dateline = (() => {
   const now = new Date();
@@ -241,7 +260,7 @@ export default function App() {
   // Viimeinen ylijäämävuosi ja velka silloin, tarinan vertailukohdaksi.
   const lastSurplus = [...data.history].reverse().find((h) => h.balance > 0);
 
-  const sources = [...data.sources, ...data.neighbors.sources];
+  const sources = [...data.sources, ...data.neighbors.sources, ...EXTRA_SOURCES];
 
   return (
     <SourcesContext.Provider value={sources}>
@@ -274,8 +293,8 @@ export default function App() {
             <p className="kicker">Julkinen talous {data.baseYear}</p>
             <h1>Onko miljardi paljon vai vähän?</h1>
             <p className="byline">
-              Taskuministerin toimitus · <a href="#lahteet">Lähteet</a>: Tilastokeskus, Eurostat, Verohallinto,
-              valtiovarainministeriö · Päivitetty {new Date(data.generated).toLocaleDateString("fi-FI")}
+              Taskuministerin toimitus · <a href="#lahteet">Lähteet</a>: Tilastokeskus, Eurostat, Verohallinto, Suomen
+              Pankki, valtiovarainministeriö · Päivitetty {new Date(data.generated).toLocaleDateString("fi-FI")}
             </p>
             <p className="lead dropcap">
               Suomen julkinen sektori käytti viime vuonna {Math.round(data.expenditureTotal / 1000)} miljardia euroa.

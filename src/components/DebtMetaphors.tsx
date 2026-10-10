@@ -1,5 +1,6 @@
 import type { FinanceData } from "../types";
 import { num } from "../format";
+import Cite from "./Cite";
 
 // Velka-luvun vertauskuvat: perheen osuus ja asuntolainat, palkkakuukaudet sekä velkakalenteri.
 
@@ -45,6 +46,7 @@ export default function DebtMetaphors({ data }: { data: FinanceData }) {
             <b>{num(Math.round(familyInterest), 0)} € kuussa</b>. Koko julkinen velka on {num(mortgageTimes, 1)}
             -kertainen kaikkien suomalaisten asuntolainojen yhteismäärään ({num(MORTGAGE_STOCK_BN, 1)} mrd €)
             verrattuna.
+            <Cite ids={["122g", "spk"]} />
           </p>
           <p className="subs-note">
             Asuntolainat:{" "}
@@ -64,6 +66,7 @@ export default function DebtMetaphors({ data }: { data: FinanceData }) {
             Jokaisen suomalaisen osuus velasta, {num(Math.round(perPerson / 10) * 10, 0)} €, vastaa{" "}
             <b>{num(payMonths, 0)} kuukauden</b> mediaanipalkkaa ennen veroja. Palkansaajien mediaanipalkka oli{" "}
             {num(MEDIAN_PAY, 0)} € kuussa.
+            <Cite ids={["122g", "palkat"]} />
           </p>
           <p className="subs-note">
             Palkka:{" "}
