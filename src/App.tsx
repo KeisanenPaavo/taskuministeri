@@ -11,7 +11,6 @@ import MuchOrLittle, { SubscriptionCompare } from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
 import DebtMetaphors from "./components/DebtMetaphors";
 import DebtChart from "./components/DebtChart";
-import WorkWeek from "./components/WorkWeek";
 import Cite, { SourcesContext } from "./components/Cite";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
@@ -299,7 +298,7 @@ export default function App() {
             <p className="lead dropcap">
               Suomen julkinen sektori käytti viime vuonna {Math.round(data.expenditureTotal / 1000)} miljardia euroa.
               Luku on niin suuri, ettei sitä voi kuvitella, ja siksi miljardeista on helppo väitellä. Tässä jutussa
-              miljardit pienennetään taskukokoon: euroiksi päivässä, työtunneiksi, kahvikupeiksi ja tölkeiksi.
+              miljardit pienennetään taskukokoon: euroiksi päivässä, Netflix-tilauksiksi, kahvikupeiksi ja tölkeiksi.
             </p>
             <p className="story-text">Aloitetaan pelillä. Arvaa, kumpi on isompi.</p>
             <p className="chapter">Luku 1 · Arvaa</p>
@@ -332,9 +331,8 @@ export default function App() {
               <BudgetColumns data={data} unit={unit} />
             </div>
 
-            <WorkWeek data={data} />
             <p className="story-text story-bridge">
-              Keskiviikkoiltapäivän punainen raita on velkaa. Yksi vuosi ei kaada taloutta, mutta raita toistuu vuodesta
+              Tulojen päällä oleva punainen pala on velkaa. Yksi vuosi ei kaada taloutta, mutta sama toistuu vuodesta
               toiseen.
             </p>
           </section>
