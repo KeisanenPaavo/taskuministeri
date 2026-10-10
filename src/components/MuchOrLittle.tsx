@@ -21,6 +21,8 @@ interface Yardstick {
   note: React.ReactNode;
   /** Monikko ja yksikkö lukujen perään, esim. "Netflix-tilausta". */
   many: string;
+  /** Vertailtavat menoerät; oletuksena pienimmät erät. */
+  rows?: string[];
 }
 
 export const CAN_DEPOSIT = 0.15;
@@ -63,6 +65,17 @@ const YARDSTICKS: Yardstick[] = [
     ),
   },
   {
+    id: "coffee",
+    name: "Kahvi",
+    price: 3,
+    period: "day",
+    boxW: 14,
+    heading: "Jos valtio laskuttaisi kahvikupeissa",
+    many: "kahvikuppia",
+    rows: ["defence", "interest", "culture", "education", "health", "pensions"],
+    note: <>Yksi ruutu on yksi kahvilakahvi, noin 3 € (havainnollistava hinta, kahvilasta riippuen noin 2–3 €).</>,
+  },
+  {
     id: "can",
     name: "Tölkki",
     price: CAN_DEPOSIT,
@@ -97,7 +110,8 @@ function SubscriptionCompare({ data }: { data: FinanceData }) {
   const per = (millions: number) => (millions * 1e6) / data.population / (monthly ? 12 : 365);
   const deficit = per(data.expenditureTotal - data.revenueTotal);
   const total = per(data.expenditureTotal);
-  const rows = SUB_ROWS.map((id) => data.expenditure.find((e) => e.id === id))
+  const rows = (ys.rows ?? SUB_ROWS)
+    .map((id) => data.expenditure.find((e) => e.id === id))
     .filter((e): e is NonNullable<typeof e> => !!e)
     .map((e) => ({ name: e.name, eur: per(e.value), bad: false }))
     .sort((a, b) => a.eur - b.eur);
@@ -131,19 +145,23 @@ function SubscriptionCompare({ data }: { data: FinanceData }) {
         <b>
           {monthly ? euros(total) : `${num(total, 1)} €`} {periodText}
         </b>{" "}
-        jokaista suomalaista kohden. {monthly ? "Se on" : "Se vastaa"}{" "}
-        <b>
-          {count(total)} {monthly ? ys.many : "tölkin panttia"}
-        </b>
-        {monthly ? "" : " joka päivä"}.{" "}
-        {monthly ? (
+        jokaista suomalaista kohden.{" "}
+        {ys.id === "can" ? (
           <>
-            Velaksi siitä otettiin <b>{count(deficit)} tilausta</b> kuussa.
+            Se vastaa <b>{count(total)} tölkin panttia joka päivä</b>. Jotta velkaa ei tarvitsisi ottaa, jokaisen
+            suomalaisen pitäisi palauttaa lisäksi <b>{num(Math.round(deficit / ys.price), 0)} tölkkiä joka päivä</b>.
+          </>
+        ) : ys.id === "coffee" ? (
+          <>
+            Se on <b>{count(total)} kahvikupillista joka päivä</b>, ja niistä {count(deficit)} juotiin velaksi.
           </>
         ) : (
           <>
-            Jotta velkaa ei tarvitsisi ottaa, jokaisen suomalaisen pitäisi palauttaa lisäksi{" "}
-            <b>{num(Math.round(deficit / ys.price), 0)} tölkkiä joka päivä</b>.
+            Se on{" "}
+            <b>
+              {count(total)} {ys.many}
+            </b>
+            . Velaksi siitä otettiin <b>{count(deficit)} tilausta</b> kuussa.
           </>
         )}
       </p>
