@@ -88,8 +88,15 @@ a {
   color: var(--muted);
   border-bottom: 1px solid var(--rule);
 }
-.masthead-top span:last-child {
+.masthead-source {
+  justify-self: end;
   text-align: right;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.masthead-source:hover {
+  color: var(--text);
+  text-decoration: underline;
 }
 .masthead-motto {
   font-family: var(--font-serif);
@@ -120,8 +127,9 @@ a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 12px;
-  font-size: 14px;
+  padding: 0 clamp(6px, 1.2vw, 12px);
+  white-space: nowrap;
+  font-size: clamp(12px, 1.7vw, 14px);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2224,6 +2232,7 @@ svg text {
 @media (max-width: 640px) {
   .masthead-top {
     grid-template-columns: minmax(0, 1fr) auto;
+    font-size: 12px;
   }
   .masthead-motto {
     display: none;

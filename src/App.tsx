@@ -188,7 +188,9 @@ export default function App() {
             <div className="masthead-top">
               <span>{dateline}</span>
               <span className="masthead-motto">Miljardit taskukoossa</span>
-              <a href="#lahteet">Lähteet: Tilastokeskus, Eurostat</a>
+              <a className="masthead-source" href="#lahteet">
+                Lähteet: Tilastokeskus · Eurostat
+              </a>
             </div>
             <a className="nameplate" href="#">
               Taskuministeri
