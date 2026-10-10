@@ -127,7 +127,7 @@ async function main() {
     { id: "health", name: "Terveydenhuolto", value: cof("G07"),
       desc: "Sairaalat, terveyskeskukset, lääkekorvaukset." },
     { id: "education", name: "Koulutus", value: cof("G09"),
-      desc: "Varhaiskasvatuksen esiopetus, peruskoulu, lukiot, ammattikoulut ja yliopistot." },
+      desc: "Varhaiskasvatus, esiopetus, peruskoulu, lukiot, ammattikoulut ja yliopistot." },
     { id: "sickness", name: "Sairaus ja työkyvyttömyys", value: cof("G1001"),
       desc: "Työkyvyttömyyseläkkeet, sairauspäivärahat ja vammaispalvelut." },
     { id: "family", name: "Perheet ja lapset", value: cof("G1004"),

@@ -108,6 +108,7 @@ a {
   gap: 4px;
 }
 .nav a {
+  white-space: nowrap;
   text-decoration: none;
   color: var(--muted);
   font-size: 14px;
@@ -203,6 +204,26 @@ a {
 .fact span {
   font-size: 13px;
   color: var(--muted);
+}
+.fact b.inline {
+  display: inline;
+  font-size: inherit;
+  letter-spacing: 0;
+  color: var(--text);
+}
+.detail .units {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.detail .units b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.toggle .short {
+  display: none;
 }
 .intro-cards {
   display: grid;
@@ -767,6 +788,12 @@ svg text {
   gap: 12px;
 }
 
+@media (max-width: 1020px) {
+  .nav {
+    display: none;
+  }
+}
+
 @media (max-width: 960px) {
   .budget {
     grid-template-columns: 1fr 1fr;
@@ -854,6 +881,15 @@ svg text {
   }
   .brand {
     font-size: 15px;
+  }
+  .toggle .long {
+    display: none;
+  }
+  .toggle .short {
+    display: inline;
+  }
+  .toggle button {
+    padding: 5px 10px;
   }
   .col-head {
     flex-direction: column;

@@ -20,8 +20,23 @@ export function perCapita(millions: number, population: number, signed = false) 
   return `${sign}${f0.format(Math.abs(rounded))} €`;
 }
 
-export function money(millions: number, population: number, perPerson: boolean, signed = false) {
-  return perPerson ? perCapita(millions, population, signed) : mrd(millions, signed);
+/** Euroa asukasta kohden päivässä -> "78,7 €/pv". Pienet summat tarkemmin. */
+export function perDay(millions: number, population: number, signed = false) {
+  const v = (millions * 1e6) / population / 365;
+  const a = Math.abs(v);
+  const digits = a < 10 ? 2 : a < 100 ? 1 : 0;
+  const s = nf(digits).format(a);
+  const sign = v < 0 && s !== nf(digits).format(0) ? "−" : signed && v > 0 ? "+" : "";
+  return `${sign}${s} €/pv`;
+}
+
+/** Yksikkö, jossa rahamäärät näytetään. */
+export type Unit = "total" | "year" | "day";
+
+export function money(millions: number, population: number, unit: Unit, signed = false) {
+  if (unit === "year") return `${perCapita(millions, population, signed)}/v`;
+  if (unit === "day") return perDay(millions, population, signed);
+  return mrd(millions, signed);
 }
 
 export function pct(v: number, digits = 1, signed = false) {

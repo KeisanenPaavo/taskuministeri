@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FinanceData } from "./types";
 import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
-import { money, perCapita, pct } from "./format";
+import { money, perCapita, perDay, pct, type Unit } from "./format";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 
@@ -26,10 +26,16 @@ function writeScenario(s: Scenario) {
   history.replaceState(null, "", url);
 }
 
+const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
+  { id: "total", long: "Koko Suomi", short: "Suomi", title: "Koko Suomen luvut miljardeina euroina" },
+  { id: "year", long: "Per asukas / vuosi", short: "€/v", title: "Euroa jokaista suomalaista kohden vuodessa" },
+  { id: "day", long: "Per asukas / päivä", short: "€/pv", title: "Euroa jokaista suomalaista kohden päivässä" },
+];
+
 export default function App() {
   const [data, setData] = useState<FinanceData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [perPerson, setPerPerson] = useState(false);
+  const [unit, setUnit] = useState<Unit>("total");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [copied, setCopied] = useState(false);
 
@@ -69,7 +75,7 @@ export default function App() {
   if (!data) return <div className="wrap hero">Ladataan…</div>;
 
   const deficit = data.expenditureTotal - data.revenueTotal;
-  const fmt = (v: number) => money(v, data.population, perPerson);
+  const fmt = (v: number) => money(v, data.population, unit);
   const defence = data.expenditure.find((e) => e.id === "defence")?.value ?? 0;
   const interestVsDefence =
     data.interest > defence ? "enemmän kuin puolustukseen" : `${pct((data.interest / defence) * 100, 0)} puolustusmenoista`;
@@ -92,12 +98,12 @@ export default function App() {
             <a href="#kokeile">Kokeile itse</a>
           </nav>
           <div className="toggle" role="group" aria-label="Yksikkö">
-            <button className={!perPerson ? "on" : ""} onClick={() => setPerPerson(false)}>
-              Koko Suomi
-            </button>
-            <button className={perPerson ? "on" : ""} onClick={() => setPerPerson(true)}>
-              Per asukas
-            </button>
+            {UNITS.map((u) => (
+              <button key={u.id} className={unit === u.id ? "on" : ""} onClick={() => setUnit(u.id)} title={u.title}>
+                <span className="long">{u.long}</span>
+                <span className="short">{u.short}</span>
+              </button>
+            ))}
           </div>
         </div>
       </header>
@@ -117,15 +123,24 @@ export default function App() {
           <div className="fact">
             <div>
               <b>{perCapita(data.expenditureTotal, data.population)}</b>
-              <span>julkisia menoja jokaista suomalaista kohden vuodessa</span>
+              <span>
+                julkisia menoja jokaista suomalaista kohden vuodessa, eli{" "}
+                <b className="inline">{perDay(data.expenditureTotal, data.population).replace("/pv", "")}</b> päivässä
+              </span>
             </div>
             <div>
               <b>{perCapita(data.revenueTotal, data.population)}</b>
-              <span>veroja ja muita tuloja</span>
+              <span>
+                veroja ja muita tuloja, eli{" "}
+                <b className="inline">{perDay(data.revenueTotal, data.population).replace("/pv", "")}</b> päivässä
+              </span>
             </div>
             <div>
               <b className="neg">{perCapita(deficit, data.population)}</b>
-              <span>uutta velkaa per suomalainen vuonna {data.baseYear}</span>
+              <span>
+                uutta velkaa per suomalainen vuonna {data.baseYear}, eli{" "}
+                <b className="inline">{perDay(deficit, data.population).replace("/pv", "")}</b> päivässä
+              </span>
             </div>
           </div>
 
@@ -169,8 +184,8 @@ export default function App() {
           <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
           <p className="section-lead">
             Valtio, kunnat, hyvinvointialueet ja eläkelaitokset käyttivät vuonna {data.baseYear} yhteensä{" "}
-            {money(data.expenditureTotal, data.population, false)}. Tuloja kertyi{" "}
-            {money(deficit, data.population, false)} vähemmän, ja erotus otettiin velaksi.
+            {money(data.expenditureTotal, data.population, "total")}. Tuloja kertyi{" "}
+            {money(deficit, data.population, "total")} vähemmän, ja erotus otettiin velaksi.
           </p>
           <div className="kpis">
             <div className="card kpi">
@@ -200,7 +215,7 @@ export default function App() {
               </div>
             </div>
           </div>
-          <BudgetColumns data={data} perPerson={perPerson} />
+          <BudgetColumns data={data} unit={unit} />
         </section>
 
         <section id="velka">
@@ -253,7 +268,7 @@ export default function App() {
               </button>
             </div>
           </div>
-          <Simulator data={data} perPerson={perPerson} scenario={scenario} setScenario={setScenario} />
+          <Simulator data={data} unit={unit} scenario={scenario} setScenario={setScenario} />
         </section>
       </main>
 

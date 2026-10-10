@@ -11,12 +11,12 @@ import {
   type Scenario,
 } from "../model";
 import { EXPENDITURE_COLORS } from "../colors";
-import { money, mrd, num, pct } from "../format";
+import { money, mrd, num, pct, type Unit } from "../format";
 import { BarChart, LineChart } from "./charts";
 
 interface Props {
   data: FinanceData;
-  perPerson: boolean;
+  unit: Unit;
   scenario: Scenario;
   setScenario: (s: Scenario) => void;
 }
@@ -62,7 +62,7 @@ const PRESETS: Preset[] = [
 
 const MAIN_SPENDING = ["pensions", "health", "education", "defence", "unemployment", "family"];
 
-export default function Simulator({ data, perPerson, scenario: s, setScenario }: Props) {
+export default function Simulator({ data, unit, scenario: s, setScenario }: Props) {
   const [allSpending, setAllSpending] = useState(false);
   const [advanced, setAdvanced] = useState(false);
   // Mobiilin alapalkki näytetään vain, kun simulaattori on näkyvissä.
@@ -95,9 +95,9 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
   const last = result[result.length - 1];
   const lastBase = baseline[baseline.length - 1];
   const first = result[0];
-  const fmt = (v: number, signed = false) => money(v, data.population, perPerson, signed);
+  const fmt = (v: number, signed = false) => money(v, data.population, unit, signed);
   // Muutoksen vaikutus vuodessa (perusvuoden tasolla)
-  const fmtEffect = (v: number) => money(v, data.population, perPerson, true);
+  const fmtEffect = (v: number) => money(v, data.population, unit, true);
 
   const history = data.history.filter((h) => h.year >= 2000);
   const anchor = { year: data.baseYear, value: data.debtRatio };
@@ -380,7 +380,11 @@ export default function Simulator({ data, perPerson, scenario: s, setScenario }:
 
           {effects.length > 0 && (
             <div className="card breakdown">
-              <h4>Muutostesi vaikutus vuodessa (nykyrahassa)</h4>
+              <h4>
+                Muutostesi vaikutus{" "}
+                {unit === "total" ? "vuodessa" : unit === "year" ? "per asukas vuodessa" : "per asukas päivässä"}{" "}
+                (nykyrahassa)
+              </h4>
               <ul>
                 {effects.map((e) => (
                   <li key={e.label}>
@@ -463,7 +467,7 @@ function Slider({ label, value, min, max, step, base, format, onChange, hint, ef
       <div className="meta">
         <span>{hint}</span>
         {changed && effect !== undefined && fmtEffect && Math.abs(effect) > 0.5 ? (
-          <span className={`effect ${effect > 0 ? "good" : "bad"}`}>{fmtEffect(effect)}/v</span>
+          <span className={`effect ${effect > 0 ? "good" : "bad"}`}>{fmtEffect(effect)}</span>
         ) : changed ? (
           <button className="reset" onClick={() => onChange(base)}>
             ↺ palauta

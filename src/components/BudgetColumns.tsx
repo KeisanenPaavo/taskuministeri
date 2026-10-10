@@ -1,22 +1,22 @@
 import { useState } from "react";
 import type { FinanceData, Item } from "../types";
 import { EXPENDITURE_COLORS, REVENUE_COLORS, textOn } from "../colors";
-import { money, pct, perCapita } from "../format";
+import { money, pct, perCapita, perDay, type Unit } from "../format";
 
 interface Props {
   data: FinanceData;
-  perPerson: boolean;
+  unit: Unit;
 }
 
 type Selected = { kind: "revenue" | "expenditure" | "deficit"; item: Item };
 
 const STACK_HEIGHT = 620;
 
-export default function BudgetColumns({ data, perPerson }: Props) {
+export default function BudgetColumns({ data, unit }: Props) {
   const [sel, setSel] = useState<Selected | null>(null);
   const max = Math.max(data.revenueTotal, data.expenditureTotal);
   const deficit = data.expenditureTotal - data.revenueTotal;
-  const fmt = (v: number) => money(v, data.population, perPerson);
+  const fmt = (v: number) => money(v, data.population, unit);
 
   const deficitItem: Item = {
     id: "deficit",
@@ -74,7 +74,7 @@ export default function BudgetColumns({ data, perPerson }: Props) {
           {expItems.map((e) => segment("expenditure", e, EXPENDITURE_COLORS[e.id]))}
         </div>
       </div>
-      <Detail data={data} sel={sel} perPerson={perPerson} />
+      <Detail data={data} sel={sel} unit={unit} />
     </div>
   );
 }
@@ -82,13 +82,12 @@ export default function BudgetColumns({ data, perPerson }: Props) {
 function Detail({
   data,
   sel,
-  perPerson,
+  unit,
 }: {
   data: FinanceData;
   sel: Selected | null;
-  perPerson: boolean;
+  unit: Unit;
 }) {
-  const perDay = (v: number) => perCapita(v / 365, data.population);
   if (!sel) {
     const deficit = data.expenditureTotal - data.revenueTotal;
     return (
@@ -112,7 +111,7 @@ function Detail({
               <span>uutta velkaa</span>
             </div>
             <div>
-              <b>{perDay(data.expenditureTotal)}</b>
+              <b>{perDay(data.expenditureTotal, data.population)}</b>
               <span>menoja päivässä</span>
             </div>
           </div>
@@ -146,11 +145,16 @@ function Detail({
         <h3>{item.name}</h3>
       </div>
       <div>
-        <div className="big">{money(item.value, data.population, perPerson)}</div>
-        <div className="muted">
-          {perPerson
-            ? `${money(item.value, data.population, false)} yhteensä`
-            : `${perCapita(item.value, data.population)} jokaista suomalaista kohden`}
+        <div className="big">{money(item.value, data.population, unit)}</div>
+        <div className="units">
+          {(["total", "year", "day"] as Unit[])
+            .filter((u) => u !== unit)
+            .map((u) => (
+              <span key={u}>
+                <b>{money(item.value, data.population, u)}</b>
+                {u === "total" ? " koko Suomessa" : " per asukas"}
+              </span>
+            ))}
         </div>
       </div>
       {kind !== "deficit" ? (
