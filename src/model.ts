@@ -162,20 +162,6 @@ export const COEFFICIENTS: Coefficient[] = [
     url: "https://vtv.fi/en/report/automatic-fiscal-stabilizers-in-finland-1993-2021/",
   },
   {
-    name: "Työllisyysuudistus (päivän haaste)",
-    value:
-      "10 000 lisätyöllistä ≈ +165 milj. € vuodessa, vaikutus kertyy 3 vuodessa. Työllisyyden kasvu ei nosta palkkatasoa, joten menot eivät seuraa sitä.",
-    source: "VM 2020: yli 55-vuotiaiden työllisyystoimet, 10 000 työllistä vahvisti julkista taloutta noin 165 milj. €",
-    url: "https://valtioneuvosto.fi/-/10623/valtiovarainministerio-julkaisee-arvionsa-yli-55-vuotiaiden-tyollisyytta-parantavista-toimista",
-  },
-  {
-    name: "T&K- ja infrainvestointien kasvuvaikutus (päivän haaste)",
-    value:
-      "T&K +0,5 mrd € → tuottavuuskasvu +0,08 %-yks./v vuodesta 2028; infra +1 mrd € → +0,12 %-yks./v vuodesta 2027. Ne nostavat BKT:tä, mutta eivät mallissa maksa itseään takaisin julkiselle taloudelle 10 vuodessa.",
-    source: "Havainnollistava oletus: todellisesta tuotosta ei ole yksiselitteistä arviota",
-    own: true,
-  },
-  {
     name: "Menojen luontainen kasvu",
     value: "1,2 % vuodessa inflaation lisäksi",
     source: "Oma oletus (väestön ikääntyminen ja palvelutarve), säädettävissä",

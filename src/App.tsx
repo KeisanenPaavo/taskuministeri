@@ -6,7 +6,6 @@ import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
 import HundredEuros from "./components/HundredEuros";
-import DailyChallenge from "./components/DailyChallenge";
 import MuchOrLittle, { SubscriptionCompare } from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
 import DebtMetaphors from "./components/DebtMetaphors";
@@ -42,7 +41,6 @@ const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
 // Viimeisen luvun välilehdet: simulaattori ja pelit. Kumpi on isompi? on sivun alussa ensimmäisenä lukuna.
 const GAMES = [
   { id: "sim", name: "Kokeile itse", desc: "Säädä veroja ja menoja, katso velkaa" },
-  { id: "daily", name: "Päivän haaste", desc: "Uusi talouspulma joka päivä" },
   { id: "hundred", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
 ] as const;
 type GameId = (typeof GAMES)[number]["id"];
@@ -200,8 +198,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [unit, setUnit] = useState<Unit>("day");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
-  // Jakolinkit: #haaste avaa päivän haasteen, skenaariolinkki simulaattorin.
-  const [game, setGame] = useState<GameId>(() => (/^#(haaste|pelit)$/.test(location.hash) ? "daily" : "sim"));
+  const [game, setGame] = useState<GameId>("sim");
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/finance.json`)
@@ -369,7 +366,7 @@ export default function App() {
             <h2 className="section-title">Nyt on sinun vuorosi</h2>
             <p className="section-lead">
               Säädä veroja, menoja ja talouskasvua ja katso, mitä velalle tapahtuu seuraavan kymmenen vuoden aikana. Tai
-              ratkaise päivän talouspulma ja jaa tuloksesi.
+              jaa sata euroa itse ja vertaa Suomeen.
             </p>
             <div className="game-tabs" role="tablist">
               {GAMES.map((g) => (
@@ -403,7 +400,6 @@ export default function App() {
                 </details>
               </>
             )}
-            {game === "daily" && <DailyChallenge data={data} />}
             {game === "hundred" && <HundredEuros data={data} />}
           </section>
         </main>
