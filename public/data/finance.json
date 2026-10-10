@@ -1,0 +1,423 @@
+{
+  "generated": "2026-10-10",
+  "baseYear": 2025,
+  "cofogYear": 2024,
+  "preliminary": true,
+  "unit": "miljoonaa euroa",
+  "population": 5640000,
+  "gdp": 281783,
+  "wages": 114532,
+  "cashBenefits": 53140,
+  "revenueTotal": 151221,
+  "expenditureTotal": 161966,
+  "balance": -10745,
+  "debt": 248433,
+  "debtRatio": 88.5,
+  "interest": 4524,
+  "revenue": [
+    {
+      "id": "incomeTax",
+      "name": "Ansio- ja pääomatulovero",
+      "value": 36653,
+      "desc": "Palkoista, eläkkeistä, etuuksista ja pääomatuloista maksettavat verot (valtio + kunnat)."
+    },
+    {
+      "id": "socialContrib",
+      "name": "Sosiaaliturvamaksut",
+      "value": 33887,
+      "desc": "Työeläke-, työttömyys- ja sairausvakuutusmaksut. Suurin osa menee työeläkkeisiin."
+    },
+    {
+      "id": "vat",
+      "name": "Arvonlisävero",
+      "value": 27108,
+      "desc": "Lähes kaikkien tavaroiden ja palvelujen hintaan sisältyvä vero. Yleinen verokanta 25,5 %."
+    },
+    {
+      "id": "excise",
+      "name": "Valmisteverot",
+      "value": 7078,
+      "desc": "Energia-, alkoholi-, tupakka-, auto- ja virvoitusjuomaverot."
+    },
+    {
+      "id": "corporateTax",
+      "name": "Yhteisövero",
+      "value": 7070,
+      "desc": "Yritysten voitoista maksettava vero. Verokanta 20 %."
+    },
+    {
+      "id": "otherTax",
+      "name": "Muut verot",
+      "value": 7406,
+      "desc": "Mm. kiinteistövero, varainsiirtovero, perintövero ja ajoneuvovero."
+    },
+    {
+      "id": "otherRevenue",
+      "name": "Muut tulot",
+      "value": 32019,
+      "desc": "Maksutulot (esim. asiakasmaksut), korko- ja osinkotulot sekä myyntitulot."
+    }
+  ],
+  "expenditure": [
+    {
+      "id": "pensions",
+      "name": "Eläkkeet ja vanhuspalvelut",
+      "value": 43443,
+      "desc": "Vanhuuseläkkeet ja ikääntyneiden hoivapalvelut."
+    },
+    {
+      "id": "health",
+      "name": "Terveydenhuolto",
+      "value": 21691,
+      "desc": "Sairaalat, terveyskeskukset, lääkekorvaukset."
+    },
+    {
+      "id": "education",
+      "name": "Koulutus",
+      "value": 17562,
+      "desc": "Varhaiskasvatuksen esiopetus, peruskoulu, lukiot, ammattikoulut ja yliopistot."
+    },
+    {
+      "id": "sickness",
+      "name": "Sairaus ja työkyvyttömyys",
+      "value": 9215,
+      "desc": "Työkyvyttömyyseläkkeet, sairauspäivärahat ja vammaispalvelut."
+    },
+    {
+      "id": "family",
+      "name": "Perheet ja lapset",
+      "value": 9824,
+      "desc": "Lapsilisät, vanhempainpäivärahat, lastensuojelu ja päivähoito."
+    },
+    {
+      "id": "unemployment",
+      "name": "Työttömyys",
+      "value": 4558,
+      "desc": "Työttömyysturva ja työllisyyspalvelut."
+    },
+    {
+      "id": "otherSocial",
+      "name": "Muu sosiaaliturva",
+      "value": 7202,
+      "desc": "Asumistuki, toimeentulotuki, leskeneläkkeet ym."
+    },
+    {
+      "id": "economy",
+      "name": "Elinkeinot ja liikenne",
+      "value": 13700,
+      "desc": "Tiet ja raiteet, elinkeinotuet, maa- ja metsätalous, työvoimapalvelut."
+    },
+    {
+      "id": "admin",
+      "name": "Yleinen hallinto",
+      "value": 15449,
+      "desc": "Ministeriöt, verohallinto, ulkoasiainhallinto, perustutkimus, kehitysapu."
+    },
+    {
+      "id": "defence",
+      "name": "Puolustus",
+      "value": 4349,
+      "desc": "Puolustusvoimat ja hävittäjähankinnat."
+    },
+    {
+      "id": "order",
+      "name": "Järjestys ja turvallisuus",
+      "value": 3705,
+      "desc": "Poliisi, pelastustoimi, tuomioistuimet ja vankilat."
+    },
+    {
+      "id": "culture",
+      "name": "Kulttuuri ja vapaa-aika",
+      "value": 4659,
+      "desc": "Kirjastot, liikunta, kulttuuri, Yle."
+    },
+    {
+      "id": "environment",
+      "name": "Ympäristö ja asuminen",
+      "value": 2085,
+      "desc": "Jätehuolto, vesihuolto, ympäristönsuojelu ja asumisen tuet."
+    },
+    {
+      "id": "interest",
+      "name": "Velan korot",
+      "value": 4524,
+      "desc": "Julkisen velan korkomenot."
+    }
+  ],
+  "history": [
+    {
+      "year": 1990,
+      "balance": 4829,
+      "balanceRatio": 5.3,
+      "debt": 12547,
+      "debtRatio": 13.8
+    },
+    {
+      "year": 1991,
+      "balance": -782,
+      "balanceRatio": -0.9,
+      "debt": 18996,
+      "debtRatio": 21.9
+    },
+    {
+      "year": 1992,
+      "balance": -4512,
+      "balanceRatio": -5.3,
+      "debt": 33250,
+      "debtRatio": 39.2
+    },
+    {
+      "year": 1993,
+      "balance": -6832,
+      "balanceRatio": -8,
+      "debt": 46404,
+      "debtRatio": 54.2
+    },
+    {
+      "year": 1994,
+      "balance": -5792,
+      "balanceRatio": -6.4,
+      "debt": 50950,
+      "debtRatio": 56.2
+    },
+    {
+      "year": 1995,
+      "balance": -5742,
+      "balanceRatio": -5.8,
+      "debt": 54351,
+      "debtRatio": 55.2
+    },
+    {
+      "year": 1996,
+      "balance": -3206,
+      "balanceRatio": -3.1,
+      "debt": 56458,
+      "debtRatio": 55.4
+    },
+    {
+      "year": 1997,
+      "balance": -1303,
+      "balanceRatio": -1.2,
+      "debt": 57858,
+      "debtRatio": 52.2
+    },
+    {
+      "year": 1998,
+      "balance": 2018,
+      "balanceRatio": 1.7,
+      "debt": 56414,
+      "debtRatio": 46.8
+    },
+    {
+      "year": 1999,
+      "balance": 2137,
+      "balanceRatio": 1.7,
+      "debt": 55912,
+      "debtRatio": 44.1
+    },
+    {
+      "year": 2000,
+      "balance": 9395,
+      "balanceRatio": 6.9,
+      "debt": 61564,
+      "debtRatio": 45.1
+    },
+    {
+      "year": 2001,
+      "balance": 7201,
+      "balanceRatio": 5,
+      "debt": 62825,
+      "debtRatio": 43.4
+    },
+    {
+      "year": 2002,
+      "balance": 6062,
+      "balanceRatio": 4.1,
+      "debt": 63299,
+      "debtRatio": 42.6
+    },
+    {
+      "year": 2003,
+      "balance": 3703,
+      "balanceRatio": 2.4,
+      "debt": 68508,
+      "debtRatio": 45.2
+    },
+    {
+      "year": 2004,
+      "balance": 3516,
+      "balanceRatio": 2.2,
+      "debt": 71335,
+      "debtRatio": 44.9
+    },
+    {
+      "year": 2005,
+      "balance": 4379,
+      "balanceRatio": 2.7,
+      "debt": 69397,
+      "debtRatio": 42.1
+    },
+    {
+      "year": 2006,
+      "balance": 6894,
+      "balanceRatio": 4,
+      "debt": 69532,
+      "debtRatio": 40.2
+    },
+    {
+      "year": 2007,
+      "balance": 9562,
+      "balanceRatio": 5.1,
+      "debt": 67340,
+      "debtRatio": 36
+    },
+    {
+      "year": 2008,
+      "balance": 8119,
+      "balanceRatio": 4.2,
+      "debt": 67435,
+      "debtRatio": 34.7
+    },
+    {
+      "year": 2009,
+      "balance": -4510,
+      "balanceRatio": -2.5,
+      "debt": 80200,
+      "debtRatio": 44.1
+    },
+    {
+      "year": 2010,
+      "balance": -4844,
+      "balanceRatio": -2.6,
+      "debt": 94286,
+      "debtRatio": 50.1
+    },
+    {
+      "year": 2011,
+      "balance": -2002,
+      "balanceRatio": -1,
+      "debt": 102829,
+      "debtRatio": 52
+    },
+    {
+      "year": 2012,
+      "balance": -4310,
+      "balanceRatio": -2.2,
+      "debt": 115931,
+      "debtRatio": 57.9
+    },
+    {
+      "year": 2013,
+      "balance": -5132,
+      "balanceRatio": -2.5,
+      "debt": 123750,
+      "debtRatio": 60.8
+    },
+    {
+      "year": 2014,
+      "balance": -6165,
+      "balanceRatio": -3,
+      "debt": 133420,
+      "debtRatio": 64.8
+    },
+    {
+      "year": 2015,
+      "balance": -5101,
+      "balanceRatio": -2.4,
+      "debt": 144537,
+      "debtRatio": 68.8
+    },
+    {
+      "year": 2016,
+      "balance": -3670,
+      "balanceRatio": -1.7,
+      "debt": 148088,
+      "debtRatio": 68.6
+    },
+    {
+      "year": 2017,
+      "balance": -1414,
+      "balanceRatio": -0.6,
+      "debt": 149611,
+      "debtRatio": 66.6
+    },
+    {
+      "year": 2018,
+      "balance": -2022,
+      "balanceRatio": -0.9,
+      "debt": 151569,
+      "debtRatio": 65.4
+    },
+    {
+      "year": 2019,
+      "balance": -2228,
+      "balanceRatio": -0.9,
+      "debt": 155819,
+      "debtRatio": 65.3
+    },
+    {
+      "year": 2020,
+      "balance": -13082,
+      "balanceRatio": -5.5,
+      "debt": 178040,
+      "debtRatio": 75.3
+    },
+    {
+      "year": 2021,
+      "balance": -6598,
+      "balanceRatio": -2.7,
+      "debt": 181911,
+      "debtRatio": 73.1
+    },
+    {
+      "year": 2022,
+      "balance": -477,
+      "balanceRatio": -0.2,
+      "debt": 196844,
+      "debtRatio": 74
+    },
+    {
+      "year": 2023,
+      "balance": -7810,
+      "balanceRatio": -2.9,
+      "debt": 210338,
+      "debtRatio": 77
+    },
+    {
+      "year": 2024,
+      "balance": -12010,
+      "balanceRatio": -4.4,
+      "debt": 227339,
+      "debtRatio": 82.4
+    },
+    {
+      "year": 2025,
+      "balance": -9613,
+      "balanceRatio": -3.4,
+      "debt": 248433,
+      "debtRatio": 88.5
+    }
+  ],
+  "sources": [
+    {
+      "name": "Tilastokeskus: Julkisyhteisöjen tulot ja menot (15ah)",
+      "url": "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15ah.px/"
+    },
+    {
+      "name": "Tilastokeskus: Verot ja veronluonteiset maksut (15aj)",
+      "url": "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15aj.px/"
+    },
+    {
+      "name": "Tilastokeskus: Julkisyhteisöjen menot tehtävittäin (12a6)",
+      "url": "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jmete/statfin_jmete_pxt_12a6.px/"
+    },
+    {
+      "name": "Tilastokeskus: Julkisyhteisöjen alijäämä ja velka (122g)",
+      "url": "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jali/statfin_jali_pxt_122g.px/"
+    },
+    {
+      "name": "Tilastokeskus: BKT (15a9)",
+      "url": "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15a9.px/"
+    }
+  ]
+}
