@@ -28,39 +28,25 @@ export default function MuchOrLittle({ data }: { data: FinanceData }) {
 
   return (
     <div className="much">
-      <div className="much-ticker" aria-live="off">
-        <span className="much-clock">
-          ⏱ {mins}:{String(secs).padStart(2, "0")}
-        </span>
-        <span>
-          Sillä aikaa kun olet ollut sivulla, julkinen sektori on käyttänyt <b>{euros(perSecond * elapsed)}</b> ja
-          ottanut velkaa <b className="neg">{euros(debtPerSecond * elapsed)}</b>.
-        </span>
-      </div>
-
       <div className="much-cols">
-        <div className="card much-col">
-          <div className="much-head">
-            <span>😱</span> Paljon
-          </div>
+        <div className="much-col">
+          <h2 className="much-head">Paljon</h2>
           <ul>
             <li>
-              <b>{euros(perSecond)} sekunnissa.</b> Joka ikinen sekunti, yöllä ja juhannuksena.
+              <b>{euros(perSecond)} sekunnissa,</b> joka ikinen sekunti, yöllä ja juhannuksena.
             </li>
             <li>
               <b>{pct(share, 0)} kaikesta,</b> mitä Suomessa tuotetaan vuodessa, kulkee julkisen kassan kautta.
             </li>
             <li>
-              Jaettuna tasan jokainen suomalainen vauvasta vaariin saisi{" "}
+              Tasan jaettuna jokainen suomalainen vauvasta vaariin saisi{" "}
               <b>{perCapita(data.expenditureTotal, data.population)}</b> vuodessa.
             </li>
           </ul>
         </div>
 
-        <div className="card much-col">
-          <div className="much-head">
-            <span>🤏</span> Vähän
-          </div>
+        <div className="much-col">
+          <h2 className="much-head">Vähän</h2>
           <ul>
             <li>
               <b>{day(data.expenditureTotal)} päivässä</b> per suomalainen. Sillä saat koulut, sairaalat, poliisin, tiet
@@ -70,15 +56,15 @@ export default function MuchOrLittle({ data }: { data: FinanceData }) {
               Koko puolustus maksaa <b>{day(val("defence"))} päivässä</b> per suomalainen.
             </li>
             <li>
-              Kirjastot, museot, liikuntapaikat ja Yle yhteensä: <b>{day(val("culture"))} päivässä</b>.
+              Kirjastot, museot, liikuntapaikat ja Yle yhteensä <b>{day(val("culture"))} päivässä</b>.
             </li>
           </ul>
         </div>
       </div>
 
-      <p className="much-verdict">
-        <b>Tuomio:</b> molempia. Ja siitä {day(deficit)} päivässä per suomalainen otetaan velaksi. Siksi tämä sivu on
-        olemassa. 👇
+      <p className="much-ticker" aria-live="off">
+        Sivulla {mins}:{String(secs).padStart(2, "0")} · julkinen sektori on sillä aikaa käyttänyt{" "}
+        <b>{euros(perSecond * elapsed)}</b> ja ottanut velkaa <b className="neg">{euros(debtPerSecond * elapsed)}</b>.
       </p>
     </div>
   );

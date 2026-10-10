@@ -32,25 +32,25 @@ const PRESETS: Preset[] = [
   { id: "none", name: "Ei muutoksia", desc: "Verot ja menot pysyvät ennallaan.", apply: {} },
   {
     id: "rates",
-    name: "📈 Korot nousevat",
+    name: "Korot nousevat",
     desc: "Uuden velan korko nousee 5 prosenttiin.",
     apply: { interestRate: 5 },
   },
   {
     id: "slow",
-    name: "🐌 Heikko kasvu",
+    name: "Heikko kasvu",
     desc: "Talous kasvaa vain 0,3 % vuodessa.",
     apply: { realGrowth: 0.3 },
   },
   {
     id: "boom",
-    name: "🚀 Kasvuloikka",
+    name: "Kasvuloikka",
     desc: "Talous kasvaa 2,5 % vuodessa.",
     apply: { realGrowth: 2.5 },
   },
   {
     id: "package",
-    name: "✂️ Sopeutuspaketti",
+    name: "Sopeutuspaketti",
     desc: "ALV +1 %-yks., valtion tuloveroasteikko +0,5 %-yks. ja menoleikkauksia hallintoon, elinkeinotukiin ja sosiaaliturvaan.",
     apply: {
       vatPp: 1,
@@ -142,7 +142,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
       <div className="sim" ref={simRef}>
         <div className="controls">
           <div className="card group">
-            <h3>🌍 Talous</h3>
+            <h3>Talous</h3>
             <p className="gl">Asiat, joihin päättäjät eivät suoraan pysty vaikuttamaan.</p>
             <Slider
               label="Talouskasvu vuodessa"
@@ -180,7 +180,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
           </div>
 
           <div className="card group">
-            <h3>🧾 Verot</h3>
+            <h3>Verot</h3>
             <p className="gl">Veronkorotus parantaa taloutta (vihreä), kevennys heikentää (punainen).</p>
             <Slider
               label="Valtion tuloveroasteikko"
@@ -237,7 +237,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
           </div>
 
           <div className="card group">
-            <h3>🏥 Menot</h3>
+            <h3>Menot</h3>
             <p className="gl">Leikkaus parantaa taloutta (vihreä), lisäys heikentää (punainen).</p>
             {spendList.map((e) => (
               <Slider
@@ -263,7 +263,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
 
           <div className="card group">
             <h3>
-              ⚙️ Oletukset
+              Oletukset
               <button className="reset" onClick={() => setAdvanced(!advanced)} style={{ marginLeft: "auto" }}>
                 {advanced ? "Piilota" : "Näytä"}
               </button>

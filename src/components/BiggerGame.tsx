@@ -30,31 +30,6 @@ const PAIRS: [string, string][] = [
   ["interest", "order"],
 ];
 
-const EMOJI: Record<string, string> = {
-  incomeTax: "💼",
-  socialContrib: "🧾",
-  vat: "🛒",
-  excise: "⛽",
-  corporateTax: "🏭",
-  otherTax: "🏠",
-  otherRevenue: "💶",
-  pensions: "👵",
-  health: "🏥",
-  education: "🎓",
-  sickness: "🩺",
-  family: "👶",
-  unemployment: "📋",
-  otherSocial: "🤝",
-  economy: "🚆",
-  admin: "🏛️",
-  defence: "🛡️",
-  order: "🚓",
-  culture: "🎭",
-  environment: "🌲",
-  interest: "💸",
-  deficit: "📉",
-};
-
 type Kind = "Tulo" | "Meno" | "Velka";
 interface Entry extends Item {
   kind: Kind;
@@ -67,7 +42,7 @@ interface Question {
 }
 
 const RANKS: { min: number; title: string; text: string }[] = [
-  { min: 10, title: "Taskuministeri ♠", text: "Täydet pisteet! Miljardit ovat sinulle selvää kauraa." },
+  { min: 10, title: "Taskuministeri", text: "Täydet pisteet! Miljardit ovat sinulle selvää kauraa." },
   { min: 8, title: "Valtiosihteeri", text: "Hienoa! Tunnet Suomen talouden mittasuhteet paremmin kuin useimmat." },
   { min: 5, title: "Erityisavustaja", text: "Hyvä alku. Muutama luku pääsi yllättämään." },
   { min: 0, title: "Kesäharjoittelija", text: "Miljardit ovat vaikeita. Siksi tämä sivu on olemassa!" },
@@ -125,7 +100,6 @@ function Explain({ entry: e, data }: { entry: Entry; data: FinanceData }) {
   return (
     <div className="explain">
       <div className="explain-head">
-        <span>{EMOJI[e.id] ?? "💶"}</span>
         <div>
           <b>{e.name}</b>
           <small>{shareText(e, data)}</small>
@@ -221,7 +195,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
         <p>{rank.text}</p>
         <div className="game-actions">
           <button className="btn primary" onClick={share}>
-            {shared ? "✓ Kopioitu, liitä viestiin" : "📣 Haasta kaveri"}
+            {shared ? "Kopioitu, liitä viestiin" : "Haasta kaveri"}
           </button>
           <button className="btn" onClick={restart}>
             ↺ Pelaa uudestaan
@@ -251,7 +225,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
             <i key={i} className={i < round ? "done" : i === round ? "now" : ""} />
           ))}
         </div>
-        <span className="game-points">⭐ {score}</span>
+        <span className="game-points">Pisteet {score}</span>
       </div>
 
       <h3 className="game-q">Kumpi on isompi?</h3>
@@ -267,10 +241,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
               disabled={!!picked}
               aria-label={`${e.name} (${i === 0 ? "vasen" : "oikea"})`}
             >
-              <span className="choice-emoji">{EMOJI[e.id] ?? "💶"}</span>
-              <span className="choice-kind" style={{ color: e.color }}>
-                {e.kind}
-              </span>
+              <span className="choice-kind">{e.kind}</span>
               <span className="choice-name">{e.name}</span>
               {!picked && <span className="choice-sub">{e.desc}</span>}
               {picked && (
@@ -291,7 +262,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
       {picked ? (
         <div className={`game-feedback ${correct ? "ok" : "no"}`}>
           <div>
-            <b>{correct ? "✅ Oikein!" : "❌ Väärin."}</b> {winner.name}:{" "}
+            <b>{correct ? "Oikein." : "Väärin."}</b> {winner.name}:{" "}
             {ratio >= 1.5 ? `noin ${num(ratio, 1)} kertaa niin paljon` : `${num((ratio - 1) * 100, 0)} % enemmän`} kuin{" "}
             {loser.name.toLowerCase()}. Ero on {day(winner.value - loser.value)} jokaista suomalaista kohden.
           </div>
@@ -309,9 +280,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
         </div>
       )}
 
-      {picked ? null : (
-        <p className="game-hint">Valitse kortti. Vinkki: näppäimistöllä ← ja →.</p>
-      )}
+      {picked ? null : <p className="game-hint">Valitse kortti. Vinkki: näppäimistöllä ← ja →.</p>}
     </div>
   );
 }

@@ -93,7 +93,7 @@ function Detail({
     return (
       <div className="detail">
         <div className="hint">
-          👆 Klikkaa mitä tahansa palaa nähdäksesi, mitä se sisältää.
+          Valitse pala nähdäksesi, mitä se sisältää.
         </div>
         <div>
           <div className="muted">Jokaista suomalaista kohden vuodessa</div>

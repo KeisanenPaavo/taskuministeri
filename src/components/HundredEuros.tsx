@@ -216,11 +216,10 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
 
           <div className="alloc-list">
             <div className="alloc-row locked">
-              <span className="alloc-emoji">💸</span>
               <span className="alloc-name">
                 Velan korot <small className="alloc-hint locked-hint">pakollinen, ei voi muuttaa</small>
               </span>
-              <span className="alloc-lock">🔒</span>
+              <span className="alloc-lock">Lukittu</span>
               <b className="alloc-val">{interest} €</b>
             </div>
             {GROUPS.map((g) => {
@@ -228,7 +227,6 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
               return (
                 <div key={g.id} className="alloc-item">
                   <div className="alloc-row">
-                    <span className="alloc-emoji">{g.emoji}</span>
                     <span className="alloc-name">
                       {g.name}
                       <button
@@ -286,9 +284,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
               <span> %</span>
             </div>
             <p>Sinun Suomesi on {similarity}-prosenttisesti sama kuin oikea Suomi.</p>
-            <h3>
-              {most.g.emoji} {persona}
-            </h3>
+            <h3>{persona}</h3>
             <p className="muted">
               {most.diff > 2 ? (
                 <>
@@ -316,19 +312,12 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
           </div>
           <p className="compare-tip">Napauta riviä nähdäksesi, mistä summa koostuu.</p>
           <div className="compare-list">
-            <CompareRow
-              emoji="💸"
-              name="Velan korot"
-              mine={interest}
-              real={interest}
-              color={EXPENDITURE_COLORS.interest}
-            />
+            <CompareRow name="Velan korot" mine={interest} real={interest} color={EXPENDITURE_COLORS.interest} />
             {[...diffs]
               .sort((a, b) => b.real - a.real)
               .map(({ g, mine, real }) => (
                 <CompareRow
                   key={g.id}
-                  emoji={g.emoji}
                   name={g.name}
                   mine={mine}
                   real={real}
@@ -342,7 +331,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
 
           <div className="game-actions" style={{ marginTop: 20 }}>
             <button className="btn primary" onClick={share}>
-              {shared ? "✓ Kopioitu, liitä viestiin" : "📣 Haasta kaveri"}
+              {shared ? "Kopioitu, liitä viestiin" : "Haasta kaveri"}
             </button>
             <button className="btn" onClick={restart}>
               ↺ Jaa uudestaan
@@ -399,7 +388,6 @@ function InfoPanel({ info, total, perHundred }: { info: Info; total?: number; pe
 }
 
 function CompareRow({
-  emoji,
   name,
   mine,
   real,
@@ -408,7 +396,6 @@ function CompareRow({
   onToggle,
   details,
 }: {
-  emoji: string;
   name: string;
   mine: number;
   real: number;
@@ -425,7 +412,7 @@ function CompareRow({
       <button className="compare-hit" onClick={onToggle} disabled={!onToggle} aria-expanded={open}>
         <div className="compare-head">
           <span>
-            {emoji} {name}
+            {name}
             {onToggle && <span className="chev">{open ? "▴" : "▾"}</span>}
           </span>
           <span>

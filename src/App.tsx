@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import type { FinanceData } from "./types";
 import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
-import { money, perCapita, pct, type Unit } from "./format";
+import { money, perCapita, perDay, pct, type Unit } from "./format";
+import { challengeNumber, generateChallenge, helsinkiDate } from "./daily";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
 import HundredEuros from "./components/HundredEuros";
 import DailyChallenge from "./components/DailyChallenge";
+import { EXPENDITURE_COLORS, REVENUE_COLORS } from "./colors";
 import MuchOrLittle from "./components/MuchOrLittle";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
@@ -36,10 +38,21 @@ const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
   { id: "day", long: "Per asukas / päivä", short: "€/pv", title: "Euroa jokaista suomalaista kohden päivässä" },
 ];
 
+// Lehden päiväys otsikkoon, esim. "Lauantai 10.10.2026".
+const dateline = (() => {
+  const s = new Intl.DateTimeFormat("fi-FI", {
+    weekday: "long",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  }).format(new Date());
+  return s.charAt(0).toUpperCase() + s.slice(1);
+})();
+
 const GAMES = [
-  { id: "bigger", emoji: "🃏", name: "Kumpi on isompi?", desc: "Arvaa kumpi kahdesta maksaa enemmän" },
-  { id: "daily", emoji: "📅", name: "Päivän haaste", desc: "Uusi talouspulma joka päivä" },
-  { id: "hundred", emoji: "💯", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
+  { id: "bigger", name: "Kumpi on isompi?", desc: "Arvaa kumpi kahdesta maksaa enemmän" },
+  { id: "daily", name: "Päivän haaste", desc: "Uusi talouspulma joka päivä" },
+  { id: "hundred", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
 ] as const;
 type GameId = (typeof GAMES)[number]["id"];
 
@@ -89,6 +102,13 @@ export default function App() {
   if (!data) return <div className="wrap hero">Ladataan…</div>;
 
   const deficit = data.expenditureTotal - data.revenueTotal;
+  const today = generateChallenge(data, challengeNumber(helsinkiDate()));
+  const openDaily = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setGame("daily");
+    history.replaceState(null, "", "#haaste");
+    document.getElementById("peli")?.scrollIntoView({ behavior: "smooth" });
+  };
   const fmt = (v: number) => money(v, data.population, unit);
   const defence = data.expenditure.find((e) => e.id === "defence")?.value ?? 0;
   const interestVsDefence =
@@ -99,24 +119,20 @@ export default function App() {
   return (
     <div className="has-mobile-bar">
       <header className="topbar">
-        <div className="wrap">
-          <div className="brand">
-            <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden>
-              <rect x="4" y="14" width="6" height="14" rx="1" fill="#2a7d6b" />
-              <rect x="13" y="8" width="6" height="20" rx="1" fill="#315fa8" />
-              <rect x="22" y="4" width="6" height="24" rx="1" fill="#c4473a" />
-            </svg>
+        <div className="wrap masthead">
+          <span className="dateline">{dateline}</span>
+          <a className="brand" href="#">
             Taskuministeri
-          </div>
-          <nav className="nav">
-            <a href="#peli">Pelit</a>
-            <a href="#rahat">Tulot ja menot</a>
-            <a href="#velka">Velka</a>
-            <a href="#kokeile">Kokeile itse</a>
-          </nav>
+          </a>
           <div className="toggle" role="group" aria-label="Yksikkö">
             {UNITS.map((u) => (
-              <button key={u.id} className={unit === u.id ? "on" : ""} onClick={() => setUnit(u.id)} title={u.title}>
+              <button
+                key={u.id}
+                className={unit === u.id ? "on" : ""}
+                aria-pressed={unit === u.id}
+                onClick={() => setUnit(u.id)}
+                title={u.title}
+              >
                 <span className="long">{u.long}</span>
                 <span className="short">{u.short}</span>
               </button>
@@ -127,54 +143,51 @@ export default function App() {
 
       <main className="wrap">
         <div className="hero">
-          <div className="eyebrow">♠ Taskuministeri. Onko miljardi paljon vai vähän?</div>
-          <h1>
-            {Math.round(data.expenditureTotal / 1000)} miljardia euroa vuodessa.{" "}
-            <span className="grad">Riippuu, mihin vertaat.</span>
-          </h1>
-          <p className="lead">
-            Miljardeista väitellään joka päivä, mutta harva pystyy hahmottamaan niitä.
-            Tällä sivulla ne muutetaan euroiksi jokaista suomalaista kohden, verrataan toisiinsa, ja pääset itse
-            kokeilemaan, mitä tapahtuisi, jos päättäisit. Avoimen datan pohjalta, ilman puoluekantaa.
-          </p>
-
-          <MuchOrLittle data={data} />
-
-          <div className="intro-cards">
-            <a className="card intro-card" href="#peli">
-              <span className="ic">🃏</span>
-              <h3>Testaa vaistosi</h3>
-              <p>
-                Kumpi maksaa enemmän: puolustus vai velan korot? Ratkaise päivän talouspulma tai jaa itse sata
-                euroa. Pelit opettavat miljardien mittasuhteet minuutissa.
-              </p>
-              <span className="go">Pelaa →</span>
-            </a>
-            <a className="card intro-card" href="#rahat">
-              <span className="ic">🔍</span>
-              <h3>Katso, mihin rahat menevät</h3>
-              <p>
-                Näe yhdellä silmäyksellä, paljonko verot tuovat ja mihin jokainen euro käytetään: eläkkeisiin,
-                terveyteen, kouluihin vai velan korkoihin.
-              </p>
-              <span className="go">Tulot ja menot →</span>
-            </a>
-            <a className="card intro-card" href="#kokeile">
-              <span className="ic">🎛️</span>
-              <h3>Kokeile itse päättäjänä</h3>
-              <p>
-                Nosta tai laske veroja, leikkaa tai lisää menoja ja muuta korkoja. Näet heti, mitä velalle tapahtuu
-                seuraavan kymmenen vuoden aikana.
-              </p>
-              <span className="go">Avaa simulaattori →</span>
-            </a>
+          <div className="hero-main">
+            <p className="kicker">Julkinen talous {data.baseYear}</p>
+            <h1>Onko miljardi paljon vai vähän?</h1>
+            <p className="lead">
+              Julkinen sektori käytti vuonna {data.baseYear} yhteensä {Math.round(data.expenditureTotal / 1000)}{" "}
+              miljardia euroa. Se on {perDay(data.expenditureTotal, data.population).replace(" €/pv", "")} euroa
+              päivässä jokaista suomalaista kohden, ja siitä {perDay(deficit, data.population).replace(" €/pv", "")}{" "}
+              euroa otettiin velaksi.
+            </p>
+            <p className="hero-note">
+              Miljardeista väitellään joka päivä, mutta harva pystyy hahmottamaan niitä. Tällä sivulla ne muutetaan
+              euroiksi, verrataan toisiinsa ja pääset kokeilemaan itse. Avoimen datan pohjalta, ilman puoluekantaa.
+            </p>
           </div>
-
-          <p className="trust">
-            Luvut ovat Tilastokeskukselta, ja veromuutosten vaikutukset perustuvat valtiovarainministeriön arvioihin.
-            Laskentatapa ja kaikki oletukset ovat <a href="#lahteet">avoimesti nähtävillä</a>.
-          </p>
+          <aside className="hero-aside">
+            <p className="kicker-ink">Päivän haaste #{today.number}</p>
+            <p className="hero-aside-title">{today.theme.name}</p>
+            <p className="hero-aside-text">{today.theme.intro(data)}</p>
+            <a className="btn primary" href="#haaste" onClick={openDaily}>
+              Ratkaise haaste
+            </a>
+            <p className="hero-aside-small">Uusi pulma joka päivä keskiyöllä.</p>
+          </aside>
         </div>
+
+        <MuchOrLittle data={data} />
+
+        <nav className="contents" aria-label="Sivun sisältö">
+          <a href="#peli">
+            <b>Pelaa ja opi →</b>
+            <span>Kumpi maksaa enemmän: puolustus vai velan korot? Kolme peliä miljardien mittasuhteista.</span>
+          </a>
+          <a href="#rahat">
+            <b>Tulot ja menot →</b>
+            <span>Mistä rahat tulevat ja mihin jokainen euro käytetään.</span>
+          </a>
+          <a href="#kokeile">
+            <b>Kokeile itse →</b>
+            <span>Muuta veroja, menoja ja korkoja ja katso, mitä velalle tapahtuu kymmenessä vuodessa.</span>
+          </a>
+        </nav>
+        <p className="trust">
+          Luvut: Tilastokeskus. Veromuutosten vaikutukset: valtiovarainministeriön arviot. Laskentatapa ja oletukset
+          ovat <a href="#lahteet">avoimesti nähtävillä</a>.
+        </p>
 
         <section id="peli">
           <h2 className="section-title">Pelaa ja opi</h2>
@@ -191,7 +204,6 @@ export default function App() {
                 className={game === g.id ? "on" : ""}
                 onClick={() => setGame(g.id)}
               >
-                <span className="gt-emoji">{g.emoji}</span>
                 <span>
                   <b>{g.name}</b>
                   <small>{g.desc}</small>
@@ -214,7 +226,7 @@ export default function App() {
           <div className="kpis">
             <div className="card kpi">
               <div className="label">
-                <span className="dot" style={{ background: "#2f8a6f" }} />
+                <span className="dot" style={{ background: REVENUE_COLORS.socialContrib }} />
                 Tulot {data.baseYear}
               </div>
               <div className="value">{fmt(data.revenueTotal)}</div>
@@ -222,7 +234,7 @@ export default function App() {
             </div>
             <div className="card kpi">
               <div className="label">
-                <span className="dot" style={{ background: "#3866b0" }} />
+                <span className="dot" style={{ background: EXPENDITURE_COLORS.health }} />
                 Menot {data.baseYear}
               </div>
               <div className="value">{fmt(data.expenditureTotal)}</div>
@@ -289,7 +301,7 @@ export default function App() {
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               <button className="chip" onClick={share}>
-                {copied ? "✓ Linkki kopioitu" : "🔗 Jaa skenaario"}
+                {copied ? "Linkki kopioitu" : "Jaa skenaario"}
               </button>
               <button className="chip" onClick={() => setScenario(DEFAULT_SCENARIO)}>
                 ↺ Aloita alusta

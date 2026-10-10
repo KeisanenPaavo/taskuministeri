@@ -39,11 +39,14 @@ function targetText(c: Challenge) {
     : `Ylijäämä vähintään ${pctText(c.min!)} BKT:stä vuonna ${c.year}`;
 }
 
+const KIND_LABEL: Record<Card["kind"], string> = { tax: "Vero", cut: "Meno", growth: "Kasvu" };
 const kindEmoji = (c: Card) => (c.kind === "tax" ? "🧾" : c.kind === "growth" ? "🌱" : "✂️");
 
 /** Kasvukortin aikajanan vuodet (ennusteindeksit): ensimmäinen vuosi, 2030 ja 2035. */
 const TIMELINE = [0, 4, 9];
+/** Jaettavaan tulokseen emojitähdet, sivulle typografiset tähdet. */
 const starRow = (n: number) => "⭐".repeat(n) + "☆".repeat(3 - n);
+const starText = (n: number) => "★".repeat(n) + "☆".repeat(3 - n);
 
 export default function DailyChallenge({ data }: { data: FinanceData }) {
   const today = challengeNumber(helsinkiDate());
@@ -153,11 +156,11 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
           ‹
         </button>
         <div className="daily-title">
-          <span>♠ Päivän haaste #{c.number}</span>
+          <span>Päivän haaste #{c.number}</span>
           <small>
             {current === today ? "Tänään" : formatDate(c.date)}
-            {results[current] && ` · ${starRow(results[current].stars)}`}
-            {currentStreak > 0 && ` · 🔥 ${currentStreak} pv putki`}
+            {results[current] && ` · ${starText(results[current].stars)}`}
+            {currentStreak > 0 && ` · putki ${currentStreak} pv`}
           </small>
         </div>
         <button
@@ -171,7 +174,6 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
       </div>
 
       <div className="daily-theme">
-        <span className="daily-theme-emoji">{c.theme.emoji}</span>
         <div>
           <h3>{c.theme.name}</h3>
           <p>{c.theme.intro(data)}</p>
@@ -180,14 +182,14 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
 
       <ul className="daily-rules">
         <li>
-          🎯 <b>Tavoite:</b> {targetText(c)}
+          <b>Tavoite:</b> {targetText(c)}
         </li>
         <li>
-          🃏 <b>Kortteja:</b> enintään {c.maxMoves}
+          <b>Kortteja:</b> enintään {c.maxMoves}
         </li>
         {c.forbidden && (
           <li>
-            🚫 <b>Rajoite:</b> {CARDS.find((x) => x.id === c.forbidden)?.name} ei ole sallittu
+            <b>Rajoite:</b> {CARDS.find((x) => x.id === c.forbidden)?.name} ei ole sallittu
           </li>
         )}
       </ul>
@@ -204,7 +206,7 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
 
       {hasGrowth && (
         <details className="growth-explain" open={c.theme.id === "growth"}>
-          <summary>🌱 Miten talouskasvu vaikuttaa julkiseen talouteen?</summary>
+          <summary>Miten talouskasvu vaikuttaa julkiseen talouteen?</summary>
           <ul>
             <li>
               <b>Lisää verotuloja:</b> kun talous kasvaa 1 % enemmän, verotuloja kertyy noin {mrd(onePercent)} enemmän.
@@ -239,7 +241,7 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
               disabled={forbidden || full || showResult}
               aria-pressed={on}
             >
-              <span className="dc-emoji">{forbidden ? "🚫" : card.emoji}</span>
+              <span className="dc-kind">{forbidden ? "Kielletty" : KIND_LABEL[card.kind]}</span>
               <span className="dc-name">{card.name}</span>
               {forbidden ? (
                 <span className="dc-effect">Kielletty tänään</span>
@@ -258,7 +260,7 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
                     <em>mrd €</em>
                   </span>
                   <span className="dc-gdp">
-                    📈 BKT {data.baseYear + 10}: +{num(timelines[card.id].gdp, 1)} %
+                    BKT {data.baseYear + 10}: +{num(timelines[card.id].gdp, 1)} %
                   </span>
                   <span className="dc-note">{card.note}</span>
                 </>
@@ -283,7 +285,9 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
       ) : (
         result && (
           <div className="daily-result">
-            <div className="daily-stars">{starRow(result.stars)}</div>
+            <div className="daily-stars" aria-label={`${result.stars} tähteä kolmesta`}>
+              {starText(result.stars)}
+            </div>
             <ul>
               <li className={result.target ? "ok" : "no"}>
                 {result.target ? "✓" : "✗"} {targetText(c)}
@@ -298,7 +302,7 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
             </ul>
             <div className="game-actions">
               <button className="btn primary" onClick={share}>
-                {shared ? "✓ Kopioitu, liitä viestiin" : "📣 Jaa tulos"}
+                {shared ? "Kopioitu, liitä viestiin" : "Jaa tulos"}
               </button>
               <button className="btn" onClick={retry}>
                 ↺ Yritä uudelleen
