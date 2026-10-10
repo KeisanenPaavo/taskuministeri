@@ -126,12 +126,12 @@ export default function App() {
           <div className="eyebrow">♠ Taskuministeri. Ässä hihassa.</div>
           <h1>
             {Math.round(data.expenditureTotal / 1000)} miljardia euroa vuodessa.{" "}
-            <span className="grad">Mihin ne menevät, ja mihin sinä ne laittaisit?</span>
+            <span className="grad">Onko se paljon vai vähän?</span>
           </h1>
           <p className="lead">
-            Julkisesta taloudesta väitellään miljardeilla, prosenteilla ja leikkauslistoilla. Kokonaiskuvaa on silti
-            vaikea hahmottaa, ja vielä harvemmin vaihtoehtoja pääsee kokeilemaan itse. Tämä sivu on tehty, jotta
-            jokainen voi muodostaa oman käsityksensä avoimen datan pohjalta, ilman puoluekantaa.
+            Riippuu, mihin sitä vertaa. Miljardeista väitellään joka päivä, mutta harva pystyy hahmottamaan niitä.
+            Tällä sivulla ne muutetaan euroiksi jokaista suomalaista kohden, verrataan toisiinsa, ja pääset itse
+            kokeilemaan, mitä tapahtuisi, jos päättäisit. Avoimen datan pohjalta, ilman puoluekantaa.
           </p>
 
           <div className="fact">
