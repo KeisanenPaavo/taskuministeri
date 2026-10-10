@@ -1,6 +1,7 @@
 import type { ByCountry, CountryCode, NeighborData } from "../types";
 import { num } from "../format";
 import { LineChart } from "./charts";
+import CompareTool from "./CompareTool";
 
 // Naapurit-luku: Suomi verrattuna Ruotsiin ja Viroon Eurostatin datalla.
 // Kaikki luvut ovat prosentteja BKT:stä, jotta eri kokoiset taloudet ovat vertailukelpoisia.
@@ -98,14 +99,6 @@ export default function Neighbors({ n }: { n: NeighborData }) {
     },
   ];
 
-  const cofogRows: Row[] = [];
-  for (const c of n.cofog) {
-    cofogRows.push({ name: c.name, values: c.values });
-    if (c.id === "social") {
-      for (const s of n.social) cofogRows.push({ name: s.name, values: s.values, sub: true });
-    }
-  }
-
   return (
     <>
       <ul className="insights">
@@ -135,7 +128,8 @@ export default function Neighbors({ n }: { n: NeighborData }) {
       </div>
 
       <DotTable title="Avainluvut" rows={keyRows} codes={codes} names={names} />
-      <DotTable title={`Menot tehtävittäin ${n.cofogYear}`} rows={cofogRows} codes={codes} names={names} />
+
+      <CompareTool data={n.compare} codes={codes} names={names} colors={COLORS} />
 
       <div className="card chart-card neighbor-chart">
         <h4>Julkinen velka suhteessa BKT:hen</h4>
@@ -174,6 +168,11 @@ export default function Neighbors({ n }: { n: NeighborData }) {
         <p>
           <b>Eläkkeet:</b> maiden eläkejärjestelmät on rakennettu eri tavoin, ja osa eläkesäästöistä on julkisen
           sektorin ulkopuolella. Ero kertoo myös siitä, mitä luetaan julkiseksi taloudeksi, sekä väestön ikärakenteesta.
+        </p>
+        <p>
+          <b>Alaerät:</b> maat kirjaavat osan menoista ja tuloista eri luokkiin. Esimerkiksi Ruotsi kirjaa koko
+          peruskoulun alakouluksi, ja Ruotsin työnantajamaksuista suuri osa on tilastoissa palkkasummaveroa. Pääluokkien
+          ero on luotettavampi kuin yksittäisen alaerän.
         </p>
       </div>
     </>

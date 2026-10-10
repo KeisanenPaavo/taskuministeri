@@ -22,6 +22,30 @@ export interface HistoryPoint {
 export type CountryCode = "FI" | "SE" | "EE";
 export type ByCountry = Record<CountryCode, number>;
 
+/** Arvot miljoonina euroina; null, jos maalta puuttuu tieto. */
+export type MaybeByCountry = Record<CountryCode, number | null>;
+
+export interface CompareRow {
+  id?: string;
+  name: string;
+  values: MaybeByCountry;
+  parts: CompareRow[];
+}
+
+export interface CompareGroup {
+  id: string;
+  title: string;
+  year: number;
+  hint: string;
+  rows: CompareRow[];
+}
+
+export interface CompareData {
+  /** Vuosittain BKT (milj. €) ja väkiluku muunnoksia varten. */
+  scale: Record<string, { gdp: ByCountry; pop: ByCountry }>;
+  groups: CompareGroup[];
+}
+
 export interface NeighborData {
   source: string;
   countries: { code: CountryCode; name: string }[];
@@ -32,6 +56,7 @@ export interface NeighborData {
   cofog: { id: string; name: string; values: ByCountry }[];
   social: { id: string; name: string; values: ByCountry }[];
   debt: ({ year: number } & ByCountry)[];
+  compare: CompareData;
   sources: { name: string; url: string }[];
 }
 

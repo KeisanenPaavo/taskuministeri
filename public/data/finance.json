@@ -1088,6 +1088,909 @@
         "EE": 24.1
       }
     ],
+    "compare": {
+      "scale": {
+        "2024": {
+          "gdp": {
+            "FI": 276151,
+            "SE": 563572.2,
+            "EE": 39883
+          },
+          "pop": {
+            "FI": 5620900,
+            "SE": 10630970,
+            "EE": 1374690
+          }
+        },
+        "2025": {
+          "gdp": {
+            "FI": 281783,
+            "SE": 600390.8,
+            "EE": 41874.8
+          },
+          "pop": {
+            "FI": 5650000,
+            "SE": 10673810,
+            "EE": 1370000
+          }
+        }
+      },
+      "groups": [
+        {
+          "id": "cofog",
+          "title": "Menot tehtävittäin",
+          "year": 2024,
+          "rows": [
+            {
+              "id": "GF10",
+              "name": "Sosiaaliturva",
+              "values": {
+                "FI": 73006,
+                "SE": 107025.1,
+                "EE": 5492
+              },
+              "parts": [
+                {
+                  "name": "Vanhuus (eläkkeet, vanhuspalvelut)",
+                  "values": {
+                    "FI": 42720,
+                    "SE": 61350,
+                    "EE": 3235.9
+                  }
+                },
+                {
+                  "name": "Sairaus ja työkyvyttömyys",
+                  "values": {
+                    "FI": 9062,
+                    "SE": 19977.4,
+                    "EE": 735.9
+                  }
+                },
+                {
+                  "name": "Perheet ja lapset (ml. varhaiskasvatus)",
+                  "values": {
+                    "FI": 9660,
+                    "SE": 12873,
+                    "EE": 946
+                  }
+                },
+                {
+                  "name": "Työttömyys",
+                  "values": {
+                    "FI": 4482,
+                    "SE": 6044.5,
+                    "EE": 352.3
+                  }
+                },
+                {
+                  "name": "Perhe-eläkkeet",
+                  "values": {
+                    "FI": 1956,
+                    "SE": 722.3,
+                    "EE": 25.6
+                  }
+                },
+                {
+                  "name": "Asumisen tuet",
+                  "values": {
+                    "FI": 1677,
+                    "SE": 1595.8,
+                    "EE": 6.5
+                  }
+                },
+                {
+                  "name": "Toimeentulotuki ja muu syrjäytymisen ehkäisy",
+                  "values": {
+                    "FI": 2564,
+                    "SE": 4412.1,
+                    "EE": 89.9
+                  }
+                },
+                {
+                  "name": "Muu sosiaaliturva",
+                  "values": {
+                    "FI": 826,
+                    "SE": 39.4,
+                    "EE": 91.3
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF07",
+              "name": "Terveydenhuolto",
+              "values": {
+                "FI": 21330,
+                "SE": 41416.5,
+                "EE": 2520.6
+              },
+              "parts": [
+                {
+                  "name": "Sairaalahoito",
+                  "values": {
+                    "FI": 8752,
+                    "SE": 14635.9,
+                    "EE": 1825
+                  }
+                },
+                {
+                  "name": "Avohoito (terveyskeskukset, lääkärit, hammashoito)",
+                  "values": {
+                    "FI": 9672,
+                    "SE": 19127.8,
+                    "EE": 299.4
+                  }
+                },
+                {
+                  "name": "Lääkkeet ja apuvälineet",
+                  "values": {
+                    "FI": 1963,
+                    "SE": 4405.8,
+                    "EE": 293.6
+                  }
+                },
+                {
+                  "name": "Kansanterveystyö (rokotukset, seulonnat)",
+                  "values": {
+                    "FI": 420,
+                    "SE": 1132.9,
+                    "EE": 22.5
+                  }
+                },
+                {
+                  "name": "Terveysalan tutkimus",
+                  "values": {
+                    "FI": 303,
+                    "SE": 1080.8,
+                    "EE": 48.7
+                  }
+                },
+                {
+                  "name": "Muu terveydenhuolto",
+                  "values": {
+                    "FI": 220,
+                    "SE": 1033.3,
+                    "EE": 31.3
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF01",
+              "name": "Yleinen hallinto (ml. velan korot)",
+              "values": {
+                "FI": 19721,
+                "SE": 30977.4,
+                "EE": 1725.9
+              },
+              "parts": [
+                {
+                  "name": "Lainsäädäntö, verotus, ulkoasiat",
+                  "values": {
+                    "FI": 3780,
+                    "SE": 10643.6,
+                    "EE": 717.6
+                  }
+                },
+                {
+                  "name": "Julkisen velan korot",
+                  "values": {
+                    "FI": 4552,
+                    "SE": 4305.2,
+                    "EE": 237.8
+                  }
+                },
+                {
+                  "name": "Kehitysyhteistyö",
+                  "values": {
+                    "FI": 622,
+                    "SE": 4091.6,
+                    "EE": 65.8
+                  }
+                },
+                {
+                  "name": "Yleiset palvelut (mm. henkilöstö, suunnittelu)",
+                  "values": {
+                    "FI": 8120,
+                    "SE": 3320.4,
+                    "EE": 445.2
+                  }
+                },
+                {
+                  "name": "Perustutkimus",
+                  "values": {
+                    "FI": 2472,
+                    "SE": 8238.4,
+                    "EE": 234.1
+                  }
+                },
+                {
+                  "name": "Muu yleinen hallinto",
+                  "values": {
+                    "FI": 82,
+                    "SE": 377.2,
+                    "EE": 14.5
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF09",
+              "name": "Koulutus",
+              "values": {
+                "FI": 17270,
+                "SE": 40612.2,
+                "EE": 2492
+              },
+              "parts": [
+                {
+                  "name": "Esiopetus ja alakoulu",
+                  "values": {
+                    "FI": 4032,
+                    "SE": 25864.9,
+                    "EE": 968.8
+                  }
+                },
+                {
+                  "name": "Yläkoulu, lukio ja ammatillinen koulutus",
+                  "values": {
+                    "FI": 7502,
+                    "SE": 6240.8,
+                    "EE": 720.1
+                  }
+                },
+                {
+                  "name": "Korkeakoulut",
+                  "values": {
+                    "FI": 4748,
+                    "SE": 6136,
+                    "EE": 438.7
+                  }
+                },
+                {
+                  "name": "Muu toisen asteen jälkeinen koulutus",
+                  "values": {
+                    "FI": 0,
+                    "SE": 338.7,
+                    "EE": 31.1
+                  }
+                },
+                {
+                  "name": "Muu koulutus (esim. aikuiskoulutus)",
+                  "values": {
+                    "FI": 667,
+                    "SE": 1319.2,
+                    "EE": 115.2
+                  }
+                },
+                {
+                  "name": "Tukipalvelut (kouluruoka, kuljetukset)",
+                  "values": {
+                    "FI": 124,
+                    "SE": 110.6,
+                    "EE": 111.4
+                  }
+                },
+                {
+                  "name": "Koulutuksen tutkimus",
+                  "values": {
+                    "FI": 43,
+                    "SE": 18.4,
+                    "EE": 35.9
+                  }
+                },
+                {
+                  "name": "Muu koulutus",
+                  "values": {
+                    "FI": 154,
+                    "SE": 583.7,
+                    "EE": 70.8
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF04",
+              "name": "Elinkeinot ja liikenne",
+              "values": {
+                "FI": 13472,
+                "SE": 26964.8,
+                "EE": 1843.3
+              },
+              "parts": [
+                {
+                  "name": "Liikenne (tiet, radat, joukkoliikenne)",
+                  "values": {
+                    "FI": 7698,
+                    "SE": 19455.3,
+                    "EE": 1106.2
+                  }
+                },
+                {
+                  "name": "Yleiset elinkeino- ja työvoima-asiat",
+                  "values": {
+                    "FI": 2047,
+                    "SE": 5074.2,
+                    "EE": 202.1
+                  }
+                },
+                {
+                  "name": "Maa-, metsä- ja kalatalous",
+                  "values": {
+                    "FI": 1709,
+                    "SE": 693,
+                    "EE": 124.7
+                  }
+                },
+                {
+                  "name": "Energia",
+                  "values": {
+                    "FI": 252,
+                    "SE": 441.4,
+                    "EE": 159.7
+                  }
+                },
+                {
+                  "name": "Teollisuus ja rakentaminen",
+                  "values": {
+                    "FI": 127,
+                    "SE": 520.4,
+                    "EE": 11.9
+                  }
+                },
+                {
+                  "name": "Viestintä",
+                  "values": {
+                    "FI": 1,
+                    "SE": 135.8,
+                    "EE": 16.2
+                  }
+                },
+                {
+                  "name": "Muut toimialat (esim. matkailu)",
+                  "values": {
+                    "FI": 0,
+                    "SE": 224.3,
+                    "EE": 32.2
+                  }
+                },
+                {
+                  "name": "Elinkeinojen tutkimus ja kehitys",
+                  "values": {
+                    "FI": 1640,
+                    "SE": 358.5,
+                    "EE": 124.7
+                  }
+                },
+                {
+                  "name": "Muut elinkeinoasiat",
+                  "values": {
+                    "FI": -2,
+                    "SE": 61.9,
+                    "EE": 65.6
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF02",
+              "name": "Puolustus",
+              "values": {
+                "FI": 4300,
+                "SE": 10967.9,
+                "EE": 1491.2
+              },
+              "parts": [
+                {
+                  "name": "Sotilaallinen puolustus",
+                  "values": {
+                    "FI": 3526,
+                    "SE": 9068.5,
+                    "EE": 1451
+                  }
+                },
+                {
+                  "name": "Siviilipuolustus",
+                  "values": {
+                    "FI": 164,
+                    "SE": 490.4,
+                    "EE": 0.9
+                  }
+                },
+                {
+                  "name": "Sotilaallinen apu ulkomaille",
+                  "values": {
+                    "FI": 525,
+                    "SE": 1197.5,
+                    "EE": 5.7
+                  }
+                },
+                {
+                  "name": "Puolustuksen tutkimus",
+                  "values": {
+                    "FI": 56,
+                    "SE": 199.4,
+                    "EE": 14.2
+                  }
+                },
+                {
+                  "name": "Muu puolustus",
+                  "values": {
+                    "FI": 29,
+                    "SE": 12,
+                    "EE": 19.3
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF03",
+              "name": "Järjestys ja turvallisuus",
+              "values": {
+                "FI": 3643,
+                "SE": 8907,
+                "EE": 732.8
+              },
+              "parts": [
+                {
+                  "name": "Poliisi",
+                  "values": {
+                    "FI": 1762,
+                    "SE": 4527.2,
+                    "EE": 387.6
+                  }
+                },
+                {
+                  "name": "Pelastustoimi",
+                  "values": {
+                    "FI": 770,
+                    "SE": 1143.9,
+                    "EE": 118.6
+                  }
+                },
+                {
+                  "name": "Tuomioistuimet",
+                  "values": {
+                    "FI": 660,
+                    "SE": 1460.7,
+                    "EE": 118.1
+                  }
+                },
+                {
+                  "name": "Vankilat",
+                  "values": {
+                    "FI": 288,
+                    "SE": 1697,
+                    "EE": 52.9
+                  }
+                },
+                {
+                  "name": "Muu järjestys ja turvallisuus",
+                  "values": {
+                    "FI": 159,
+                    "SE": 78.1,
+                    "EE": 53.6
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF08",
+              "name": "Kulttuuri ja vapaa-aika",
+              "values": {
+                "FI": 4581,
+                "SE": 7799.1,
+                "EE": 775.7
+              },
+              "parts": [
+                {
+                  "name": "Liikunta ja virkistys",
+                  "values": {
+                    "FI": 1735,
+                    "SE": 3834.1,
+                    "EE": 208.3
+                  }
+                },
+                {
+                  "name": "Kulttuuri (kirjastot, museot, teatterit)",
+                  "values": {
+                    "FI": 1656,
+                    "SE": 2915.8,
+                    "EE": 383.8
+                  }
+                },
+                {
+                  "name": "Yleisradio ja julkaisutoiminta",
+                  "values": {
+                    "FI": 676,
+                    "SE": 976.3,
+                    "EE": 62.4
+                  }
+                },
+                {
+                  "name": "Uskonnolliset ja muut yhteisöt",
+                  "values": {
+                    "FI": 505,
+                    "SE": 8.8,
+                    "EE": 10
+                  }
+                },
+                {
+                  "name": "Kulttuurin tutkimus",
+                  "values": {
+                    "FI": 9,
+                    "SE": 31.8,
+                    "EE": 40.3
+                  }
+                },
+                {
+                  "name": "Muu kulttuuri ja vapaa-aika",
+                  "values": {
+                    "FI": 0,
+                    "SE": 32.3,
+                    "EE": 71
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF05",
+              "name": "Ympäristönsuojelu",
+              "values": {
+                "FI": 600,
+                "SE": 3065.4,
+                "EE": 280.4
+              },
+              "parts": [
+                {
+                  "name": "Jätehuolto",
+                  "values": {
+                    "FI": 59,
+                    "SE": 809.6,
+                    "EE": 113.8
+                  }
+                },
+                {
+                  "name": "Jätevesihuolto",
+                  "values": {
+                    "FI": 0,
+                    "SE": 1261.8,
+                    "EE": 21.9
+                  }
+                },
+                {
+                  "name": "Saasteiden torjunta",
+                  "values": {
+                    "FI": 179,
+                    "SE": 49.5,
+                    "EE": 20.9
+                  }
+                },
+                {
+                  "name": "Luonnon monimuotoisuus",
+                  "values": {
+                    "FI": 129,
+                    "SE": 182.3,
+                    "EE": 31.2
+                  }
+                },
+                {
+                  "name": "Ympäristötutkimus",
+                  "values": {
+                    "FI": 109,
+                    "SE": 54.1,
+                    "EE": 25.7
+                  }
+                },
+                {
+                  "name": "Muu ympäristönsuojelu",
+                  "values": {
+                    "FI": 124,
+                    "SE": 708.1,
+                    "EE": 66.8
+                  }
+                }
+              ]
+            },
+            {
+              "id": "GF06",
+              "name": "Asuminen ja yhdyskunnat",
+              "values": {
+                "FI": 1450,
+                "SE": 4449.4,
+                "EE": 162.8
+              },
+              "parts": [
+                {
+                  "name": "Asuntotuotanto",
+                  "values": {
+                    "FI": 697,
+                    "SE": 1175.9,
+                    "EE": 50
+                  }
+                },
+                {
+                  "name": "Yhdyskuntien kehittäminen",
+                  "values": {
+                    "FI": 727,
+                    "SE": 2020,
+                    "EE": 32.4
+                  }
+                },
+                {
+                  "name": "Vesihuolto",
+                  "values": {
+                    "FI": 26,
+                    "SE": 1017.4,
+                    "EE": 25.5
+                  }
+                },
+                {
+                  "name": "Katuvalaistus",
+                  "values": {
+                    "FI": 0,
+                    "SE": 0,
+                    "EE": 30.9
+                  }
+                },
+                {
+                  "name": "Asumisen tutkimus",
+                  "values": {
+                    "FI": 0,
+                    "SE": 236.2,
+                    "EE": 1.7
+                  }
+                },
+                {
+                  "name": "Muu asuminen ja yhdyskunnat",
+                  "values": {
+                    "FI": 0,
+                    "SE": 0,
+                    "EE": 22.2
+                  }
+                }
+              ]
+            }
+          ],
+          "hint": "Mihin rahat käytetään: COFOG-luokitus, sama kaikissa EU-maissa."
+        },
+        {
+          "id": "econ",
+          "title": "Menot lajeittain",
+          "year": 2025,
+          "rows": [
+            {
+              "id": "benefits",
+              "name": "Rahana maksettavat etuudet (eläkkeet, päivärahat)",
+              "values": {
+                "FI": 53199,
+                "SE": 69227.2,
+                "EE": 5309.7
+              },
+              "parts": []
+            },
+            {
+              "id": "wages",
+              "name": "Julkisen sektorin palkat",
+              "values": {
+                "FI": 38123,
+                "SE": 73990.6,
+                "EE": 5120.4
+              },
+              "parts": [
+                {
+                  "name": "Palkat",
+                  "values": {
+                    "FI": 31290,
+                    "SE": 60680,
+                    "EE": 3727.4
+                  }
+                },
+                {
+                  "name": "Työnantajan maksut",
+                  "values": {
+                    "FI": 6833,
+                    "SE": 13310.6,
+                    "EE": 1393
+                  }
+                }
+              ]
+            },
+            {
+              "id": "purchases",
+              "name": "Tavara- ja palveluostot",
+              "values": {
+                "FI": 32211,
+                "SE": 50296.8,
+                "EE": 2669
+              },
+              "parts": []
+            },
+            {
+              "id": "inKind",
+              "name": "Kotitalouksille ostetut palvelut",
+              "values": {
+                "FI": 9739,
+                "SE": 20846.8,
+                "EE": 1042.7
+              },
+              "parts": []
+            },
+            {
+              "id": "investment",
+              "name": "Investoinnit",
+              "values": {
+                "FI": 12760,
+                "SE": 34614.2,
+                "EE": 2784.7
+              },
+              "parts": []
+            },
+            {
+              "id": "subsidies",
+              "name": "Tuet yrityksille",
+              "values": {
+                "FI": 3387,
+                "SE": 6716,
+                "EE": 244.3
+              },
+              "parts": []
+            },
+            {
+              "id": "interest",
+              "name": "Velan korot",
+              "values": {
+                "FI": 4559,
+                "SE": 3637.7,
+                "EE": 202
+              },
+              "parts": []
+            },
+            {
+              "id": "otherExp",
+              "name": "Muut menot (mm. EU-maksut, kehitysapu, pääomansiirrot)",
+              "values": {
+                "FI": 8047,
+                "SE": 36732.7,
+                "EE": 1532.8
+              },
+              "parts": []
+            }
+          ],
+          "hint": "Miten rahat käytetään: palkkoihin, etuuksiin, ostoihin vai investointeihin."
+        },
+        {
+          "id": "revenue",
+          "title": "Tulot lajeittain",
+          "year": 2024,
+          "rows": [
+            {
+              "id": "incomeTax",
+              "name": "Ansio- ja pääomatuloverot",
+              "values": {
+                "FI": 36060,
+                "SE": 77082.7,
+                "EE": 2595.5
+              },
+              "parts": []
+            },
+            {
+              "id": "labour",
+              "name": "Sosiaaliturvamaksut ja palkkaverot",
+              "values": {
+                "FI": 32669,
+                "SE": 71669.7,
+                "EE": 5007.9
+              },
+              "parts": [
+                {
+                  "name": "Työnantajien sosiaaliturvamaksut",
+                  "values": {
+                    "FI": 20594,
+                    "SE": 19050.1,
+                    "EE": 4478.1
+                  }
+                },
+                {
+                  "name": "Palkansaajien ja yrittäjien maksut",
+                  "values": {
+                    "FI": 12075,
+                    "SE": 265.6,
+                    "EE": 395.8
+                  }
+                },
+                {
+                  "name": "Palkkasummaverot (Ruotsi: allmän löneavgift)",
+                  "values": {
+                    "FI": 0,
+                    "SE": 51061.5,
+                    "EE": 0
+                  }
+                }
+              ]
+            },
+            {
+              "id": "vat",
+              "name": "Arvonlisävero",
+              "values": {
+                "FI": 25856,
+                "SE": 48609,
+                "EE": 3834.1
+              },
+              "parts": []
+            },
+            {
+              "id": "excise",
+              "name": "Valmisteverot (energia, alkoholi, tupakka)",
+              "values": {
+                "FI": 7135,
+                "SE": 9153.3,
+                "EE": 1117.5
+              },
+              "parts": []
+            },
+            {
+              "id": "corporateTax",
+              "name": "Yhteisövero",
+              "values": {
+                "FI": 7125,
+                "SE": 18757.1,
+                "EE": 1193.6
+              },
+              "parts": []
+            },
+            {
+              "id": "property",
+              "name": "Kiinteistö- ja varallisuusverot",
+              "values": {
+                "FI": 2258,
+                "SE": 3637.7,
+                "EE": 58.5
+              },
+              "parts": []
+            },
+            {
+              "id": "otherTax",
+              "name": "Muut verot",
+              "values": {
+                "FI": 5465,
+                "SE": 6173.6,
+                "EE": 539.1
+              },
+              "parts": []
+            },
+            {
+              "id": "nonTax",
+              "name": "Muut kuin verotulot",
+              "values": {
+                "FI": 30950,
+                "SE": 37938.7,
+                "EE": 2712.4
+              },
+              "parts": [
+                {
+                  "name": "Myyntitulot ja asiakasmaksut",
+                  "values": {
+                    "FI": 17677,
+                    "SE": 23298.4,
+                    "EE": 1323.6
+                  }
+                },
+                {
+                  "name": "Korko- ja osinkotulot",
+                  "values": {
+                    "FI": 11043,
+                    "SE": 9647.5,
+                    "EE": 438.5
+                  }
+                }
+              ]
+            }
+          ],
+          "hint": "Mistä rahat tulevat: verot, maksut ja muut tulot."
+        }
+      ]
+    },
     "sources": [
       {
         "name": "Eurostat: Julkisyhteisöjen tulot ja menot (gov_10a_main)",
@@ -1104,6 +2007,10 @@
       {
         "name": "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)",
         "url": "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table"
+      },
+      {
+        "name": "Eurostat: BKT (nama_10_gdp) ja väkiluku (nama_10_pe)",
+        "url": "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table"
       }
     ]
   },

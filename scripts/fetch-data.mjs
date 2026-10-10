@@ -90,6 +90,305 @@ function latestCommonYear({ get, times }, keys) {
   throw new Error("Ei yhteistä vuotta");
 }
 
+// --- Naapurivertailu osa-alueittain --------------------------------------
+// Arvot miljoonina euroina, jotta selain voi näyttää ne sekä % BKT:stä että €/asukas/pv.
+
+const COFOG_TREE = [
+  [
+    "GF10",
+    "Sosiaaliturva",
+    [
+      ["GF1002", "Vanhuus (eläkkeet, vanhuspalvelut)"],
+      ["GF1001", "Sairaus ja työkyvyttömyys"],
+      ["GF1004", "Perheet ja lapset (ml. varhaiskasvatus)"],
+      ["GF1005", "Työttömyys"],
+      ["GF1003", "Perhe-eläkkeet"],
+      ["GF1006", "Asumisen tuet"],
+      ["GF1007", "Toimeentulotuki ja muu syrjäytymisen ehkäisy"],
+      ["GF1009", "Muu sosiaaliturva"],
+    ],
+  ],
+  [
+    "GF07",
+    "Terveydenhuolto",
+    [
+      ["GF0703", "Sairaalahoito"],
+      ["GF0702", "Avohoito (terveyskeskukset, lääkärit, hammashoito)"],
+      ["GF0701", "Lääkkeet ja apuvälineet"],
+      ["GF0704", "Kansanterveystyö (rokotukset, seulonnat)"],
+      ["GF0705", "Terveysalan tutkimus"],
+      ["GF0706", "Muu terveydenhuolto"],
+    ],
+  ],
+  [
+    "GF01",
+    "Yleinen hallinto (ml. velan korot)",
+    [
+      ["GF0101", "Lainsäädäntö, verotus, ulkoasiat"],
+      ["GF0107", "Julkisen velan korot"],
+      ["GF0102", "Kehitysyhteistyö"],
+      ["GF0103", "Yleiset palvelut (mm. henkilöstö, suunnittelu)"],
+      ["GF0104", "Perustutkimus"],
+      ["GF0106", "Muu yleinen hallinto"],
+      ["GF0108", "Siirrot hallinnon tasojen välillä"],
+    ],
+  ],
+  [
+    "GF09",
+    "Koulutus",
+    [
+      ["GF0901", "Esiopetus ja alakoulu"],
+      ["GF0902", "Yläkoulu, lukio ja ammatillinen koulutus"],
+      ["GF0904", "Korkeakoulut"],
+      ["GF0903", "Muu toisen asteen jälkeinen koulutus"],
+      ["GF0905", "Muu koulutus (esim. aikuiskoulutus)"],
+      ["GF0906", "Tukipalvelut (kouluruoka, kuljetukset)"],
+      ["GF0907", "Koulutuksen tutkimus"],
+      ["GF0908", "Muu koulutus"],
+    ],
+  ],
+  [
+    "GF04",
+    "Elinkeinot ja liikenne",
+    [
+      ["GF0405", "Liikenne (tiet, radat, joukkoliikenne)"],
+      ["GF0401", "Yleiset elinkeino- ja työvoima-asiat"],
+      ["GF0402", "Maa-, metsä- ja kalatalous"],
+      ["GF0403", "Energia"],
+      ["GF0404", "Teollisuus ja rakentaminen"],
+      ["GF0406", "Viestintä"],
+      ["GF0407", "Muut toimialat (esim. matkailu)"],
+      ["GF0408", "Elinkeinojen tutkimus ja kehitys"],
+      ["GF0409", "Muut elinkeinoasiat"],
+    ],
+  ],
+  [
+    "GF02",
+    "Puolustus",
+    [
+      ["GF0201", "Sotilaallinen puolustus"],
+      ["GF0202", "Siviilipuolustus"],
+      ["GF0203", "Sotilaallinen apu ulkomaille"],
+      ["GF0204", "Puolustuksen tutkimus"],
+      ["GF0205", "Muu puolustus"],
+    ],
+  ],
+  [
+    "GF03",
+    "Järjestys ja turvallisuus",
+    [
+      ["GF0301", "Poliisi"],
+      ["GF0302", "Pelastustoimi"],
+      ["GF0303", "Tuomioistuimet"],
+      ["GF0304", "Vankilat"],
+      ["GF0305", "Turvallisuusalan tutkimus"],
+      ["GF0306", "Muu järjestys ja turvallisuus"],
+    ],
+  ],
+  [
+    "GF08",
+    "Kulttuuri ja vapaa-aika",
+    [
+      ["GF0801", "Liikunta ja virkistys"],
+      ["GF0802", "Kulttuuri (kirjastot, museot, teatterit)"],
+      ["GF0803", "Yleisradio ja julkaisutoiminta"],
+      ["GF0804", "Uskonnolliset ja muut yhteisöt"],
+      ["GF0805", "Kulttuurin tutkimus"],
+      ["GF0806", "Muu kulttuuri ja vapaa-aika"],
+    ],
+  ],
+  [
+    "GF05",
+    "Ympäristönsuojelu",
+    [
+      ["GF0501", "Jätehuolto"],
+      ["GF0502", "Jätevesihuolto"],
+      ["GF0503", "Saasteiden torjunta"],
+      ["GF0504", "Luonnon monimuotoisuus"],
+      ["GF0505", "Ympäristötutkimus"],
+      ["GF0506", "Muu ympäristönsuojelu"],
+    ],
+  ],
+  [
+    "GF06",
+    "Asuminen ja yhdyskunnat",
+    [
+      ["GF0601", "Asuntotuotanto"],
+      ["GF0602", "Yhdyskuntien kehittäminen"],
+      ["GF0603", "Vesihuolto"],
+      ["GF0604", "Katuvalaistus"],
+      ["GF0605", "Asumisen tutkimus"],
+      ["GF0606", "Muu asuminen ja yhdyskunnat"],
+    ],
+  ],
+];
+
+// Lajit: [id, nimi, koodit (summataan), osat]
+const ECON_TREE = [
+  ["benefits", "Rahana maksettavat etuudet (eläkkeet, päivärahat)", ["D62PAY"], []],
+  [
+    "wages",
+    "Julkisen sektorin palkat",
+    ["D1PAY"],
+    [
+      ["Palkat", ["D11PAY"]],
+      ["Työnantajan maksut", ["D12PAY"]],
+    ],
+  ],
+  ["purchases", "Tavara- ja palveluostot", ["P2"], []],
+  ["inKind", "Kotitalouksille ostetut palvelut", ["D632PAY"], []],
+  ["investment", "Investoinnit", ["P51G"], []],
+  ["subsidies", "Tuet yrityksille", ["D3PAY"], []],
+  ["interest", "Velan korot", ["D41PAY"], []],
+];
+
+const TAX_TREE = [
+  ["incomeTax", "Ansio- ja pääomatuloverot", ["D51A_C1"], []],
+  [
+    "labour",
+    "Sosiaaliturvamaksut ja palkkaverot",
+    ["D61", "D29C"],
+    [
+      ["Työnantajien sosiaaliturvamaksut", ["D611"]],
+      ["Palkansaajien ja yrittäjien maksut", ["D613"]],
+      ["Palkkasummaverot (Ruotsi: allmän löneavgift)", ["D29C"]],
+    ],
+  ],
+  ["vat", "Arvonlisävero", ["D211"], []],
+  ["excise", "Valmisteverot (energia, alkoholi, tupakka)", ["D214A", "D2122C"], []],
+  ["corporateTax", "Yhteisövero", ["D51B_C2"], []],
+  ["property", "Kiinteistö- ja varallisuusverot", ["D29A", "D59A"], []],
+];
+const TAX_TOTAL = "D2_D5_D91_D61_M_D995";
+const NONTAX = [
+  ["Myyntitulot ja asiakasmaksut", ["P11_P12_P131"]],
+  ["Korko- ja osinkotulot", ["D4REC"]],
+];
+
+async function fetchCompare() {
+  const since = { sinceTimePeriod: "2018" };
+  const meur = { sector: "S13", unit: "MIO_EUR", ...since };
+  const byCountry = (fn) => Object.fromEntries(COUNTRIES.map((c) => [c.code, fn(c.code)]));
+  const r1 = (v) => (v === undefined || v === null ? null : Math.round(v * 10) / 10);
+  const sumOf = (src, t) => (codes) => (g) => codes.reduce((s, k) => s + (src.get(g, k, t) ?? 0), 0);
+
+  // BKT ja väkiluku muunnoksia varten
+  const gdp = await eurostat("nama_10_gdp", { na_item: "B1GQ", unit: "CP_MEUR", ...since }, "na_item");
+  const pop = await eurostat("nama_10_pe", { na_item: "POP_NC", unit: "THS_PER", ...since }, "na_item");
+  const scale = {};
+  const addScale = (y) => {
+    scale[y] = {
+      gdp: byCountry((g) => gdp.get(g, "B1GQ", y)),
+      pop: byCountry((g) => Math.round(pop.get(g, "POP_NC", y) * 1000)),
+    };
+  };
+
+  // Menot tehtävittäin
+  const cofogCodes = COFOG_TREE.flatMap(([c, , subs]) => [c, ...subs.map((s) => s[0])]);
+  const exp = await eurostat("gov_10a_exp", { cofog99: cofogCodes, na_item: "TE", ...meur }, "cofog99");
+  const cy = latestCommonYear(
+    exp,
+    COFOG_TREE.map((d) => d[0]),
+  );
+  addScale(cy);
+  const minShare = (vals, y) => Math.max(...COUNTRIES.map((c) => (vals[c.code] ?? 0) / scale[y].gdp[c.code]));
+  const cofog = COFOG_TREE.map(([code, name, subs]) => ({
+    id: code,
+    name,
+    values: byCountry((g) => r1(exp.get(g, code, cy))),
+    parts: subs
+      .map(([sc, sn]) => ({ name: sn, values: byCountry((g) => r1(exp.get(g, sc, cy))) }))
+      .filter((p) => minShare(p.values, cy) >= 0.0003),
+  }));
+
+  // Menot lajeittain ja tulot: gov_10a_main
+  const mainCodes = [
+    "TE",
+    "TR",
+    ...ECON_TREE.flatMap(([, , c, p]) => [...c, ...p.flatMap((x) => x[1])]),
+    ...NONTAX.flatMap((x) => x[1]),
+  ];
+  const main = await eurostat("gov_10a_main", { na_item: mainCodes, ...meur }, "na_item");
+  const ey = latestCommonYear(main, ECON_TREE.flatMap(([, , c]) => c).concat("TE"));
+  addScale(ey);
+  const eget = sumOf(main, ey);
+  const econ = ECON_TREE.map(([id, name, codes, parts]) => ({
+    id,
+    name,
+    values: byCountry((g) => r1(eget(codes)(g))),
+    parts: parts.map(([pn, pc]) => ({ name: pn, values: byCountry((g) => r1(eget(pc)(g))) })),
+  }));
+  econ.push({
+    id: "otherExp",
+    name: "Muut menot (mm. EU-maksut, kehitysapu, pääomansiirrot)",
+    values: byCountry((g) => r1(main.get(g, "TE", ey) - econ.reduce((s, r) => s + r.values[g], 0))),
+    parts: [],
+  });
+
+  const taxCodes = [TAX_TOTAL, ...TAX_TREE.flatMap(([, , c, p]) => [...c, ...p.flatMap((x) => x[1])])];
+  const tax = await eurostat("gov_10a_taxag", { na_item: taxCodes, ...meur }, "na_item");
+  // Tulovuosi: uusin, jolta sekä veroerittely että kokonaistulot löytyvät
+  const ry = [...tax.times]
+    .reverse()
+    .find((t) =>
+      COUNTRIES.every(
+        (c) =>
+          [TAX_TOTAL, "D51A_C1", "D211", "D61"].every((k) => tax.get(c.code, k, t) !== undefined) &&
+          main.get(c.code, "TR", t) !== undefined,
+      ),
+    );
+  addScale(ry);
+  const tget = sumOf(tax, ry);
+  const revenue = TAX_TREE.map(([id, name, codes, parts]) => ({
+    id,
+    name,
+    values: byCountry((g) => r1(tget(codes)(g))),
+    parts: parts
+      .map(([pn, pc]) => ({ name: pn, values: byCountry((g) => r1(tget(pc)(g))) }))
+      .filter((p) => minShare(p.values, ry) >= 0.0003),
+  }));
+  revenue.push({
+    id: "otherTax",
+    name: "Muut verot",
+    values: byCountry((g) => r1(tax.get(g, TAX_TOTAL, ry) - revenue.reduce((s, r) => s + r.values[g], 0))),
+    parts: [],
+  });
+  const nget = sumOf(main, ry);
+  revenue.push({
+    id: "nonTax",
+    name: "Muut kuin verotulot",
+    values: byCountry((g) => r1(main.get(g, "TR", ry) - tax.get(g, TAX_TOTAL, ry))),
+    parts: NONTAX.map(([pn, pc]) => ({ name: pn, values: byCountry((g) => r1(nget(pc)(g))) })),
+  });
+
+  return {
+    scale,
+    groups: [
+      {
+        id: "cofog",
+        title: "Menot tehtävittäin",
+        year: Number(cy),
+        rows: cofog,
+        hint: "Mihin rahat käytetään: COFOG-luokitus, sama kaikissa EU-maissa.",
+      },
+      {
+        id: "econ",
+        title: "Menot lajeittain",
+        year: Number(ey),
+        rows: econ,
+        hint: "Miten rahat käytetään: palkkoihin, etuuksiin, ostoihin vai investointeihin.",
+      },
+      {
+        id: "revenue",
+        title: "Tulot lajeittain",
+        year: Number(ry),
+        rows: revenue,
+        hint: "Mistä rahat tulevat: verot, maksut ja muut tulot.",
+      },
+    ],
+  };
+}
+
 async function fetchNeighbors() {
   const since = { sinceTimePeriod: "2018" };
   const mainKeys = ["TE", "TR", "B9", "D41PAY"];
@@ -146,11 +445,13 @@ async function fetchNeighbors() {
     debt: debt.times
       .map((t) => ({ year: Number(t), ...byCountry((g) => debt.get(g, "GD", t)) }))
       .filter((r) => COUNTRIES.every((c) => r[c.code] !== undefined)),
+    compare: await fetchCompare(),
     sources: [
       { name: "Eurostat: Julkisyhteisöjen tulot ja menot (gov_10a_main)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table" },
       { name: "Eurostat: Menot tehtävittäin, COFOG (gov_10a_exp)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" },
       { name: "Eurostat: Julkinen velka (gov_10dd_edpt1)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table" },
       { name: "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table" },
+      { name: "Eurostat: BKT (nama_10_gdp) ja väkiluku (nama_10_pe)", url: "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table" },
     ],
   };
 }
@@ -482,6 +783,12 @@ async function main() {
   console.table(neighbors.cofog.map((c) => ({ nimi: c.name, ...c.values })));
   console.table(neighbors.social.map((c) => ({ nimi: c.name, ...c.values })));
   console.log("velka", neighbors.debt[0], neighbors.debt.at(-1));
+  for (const gr of neighbors.compare.groups) {
+    const sc = neighbors.compare.scale[gr.year];
+    const pc = (v) => Object.fromEntries(Object.entries(v).map(([k, x]) => [k, x === null ? null : Math.round((x / sc.gdp[k]) * 1000) / 10]));
+    console.log(`\n${gr.title} ${gr.year}`);
+    console.table(gr.rows.flatMap((r) => [{ nimi: r.name, ...pc(r.values) }, ...r.parts.map((p) => ({ nimi: "  " + p.name, ...pc(p.values) }))]));
+  }
 }
 
 main().catch((e) => {
