@@ -90,7 +90,7 @@ export default function App() {
               <rect x="13" y="8" width="6" height="20" rx="1" fill="#315fa8" />
               <rect x="22" y="4" width="6" height="24" rx="1" fill="#c4473a" />
             </svg>
-            Suomen talous
+            Taskuministeri
           </div>
           <nav className="nav">
             <a href="#rahat">Tulot ja menot</a>
