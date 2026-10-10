@@ -1,24 +1,22 @@
-/* Taskuministeri: vanhan sanomalehden talousgrafiikka. Vain vaalea paperi: sivu ei seuraa
-   käyttöjärjestelmän tummaa tilaa, koska lehtipaperi on ilmeen ydin.
-   Lehtipaperi, lämmin muste, hiusviivat korttien sijaan.
+/* Taskuministeri: moderni talousgrafiikka. Valkoinen pohja, musta teksti, serif-otsikot ja
+   hiusviivat korttien sijaan. Vain vaalea teema: sivu ei seuraa käyttöjärjestelmän tummaa tilaa.
    Väri vain merkitykselle: tulot vihreä, menot sininen, velka punainen. */
 :root {
-  /* Vanha sanomalehtipaperi: kellertävä newsprint ja lämmin muste. */
-  --bg: #ece3cd;
-  --surface: #ece3cd;
-  --surface-2: #e0d5bb;
-  --text: #1c1a16;
-  --muted: #4a443a;
-  --faint: #5a5448;
-  --border: #c9bc9f;
-  --rule: #1c1a16;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f4f4f2;
+  --text: #121212;
+  --muted: #555555;
+  --faint: #6b6b6b;
+  --border: #e2e2e2;
+  --rule: #121212;
   --accent: #1d4f8a;
   --on-accent: #ffffff;
-  --good: #2a6347;
-  --bad: #a02b23;
-  --deficit: #a02b23;
-  --baseline: #857f72;
-  --grid: #dcd1b6;
+  --good: #2f6b4f;
+  --bad: #b8322a;
+  --deficit: #b8322a;
+  --baseline: #8a8a8a;
+  --grid: #ececec;
   --shadow: none;
   --radius: 4px;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
@@ -34,7 +32,7 @@
 html,
 body {
   margin: 0;
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 17px;
@@ -82,18 +80,14 @@ a {
   top: 0;
   z-index: 20;
   background: var(--bg);
-  border-bottom: 3px double var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 .masthead {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  gap: 16px;
-  height: 64px;
-}
-.dateline {
-  font-size: 14px;
-  color: var(--muted);
+  justify-content: space-between;
+  gap: 24px;
+  height: 60px;
 }
 .brand {
   font-family: var(--font-serif);
@@ -103,8 +97,57 @@ a {
   text-decoration: none;
   white-space: nowrap;
 }
-.masthead .toggle {
-  justify-self: end;
+.nav {
+  display: flex;
+  gap: 4px;
+}
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.unit-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.unit-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.section-head .section-title {
+  margin: 0;
+}
+.chapter {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hero .chapter {
+  margin-top: 28px;
 }
 
 .toggle {
@@ -137,11 +180,7 @@ a {
 
 /* ---------- Etusivu ---------- */
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
-  gap: 48px;
   padding: 48px 0 40px;
-  border-bottom: 1px solid var(--rule);
 }
 .kicker {
   margin: 0 0 14px;
@@ -150,13 +189,6 @@ a {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bad);
-}
-.kicker-ink {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 .hero h1 {
   font-size: clamp(42px, 7vw, 88px);
@@ -171,66 +203,7 @@ a {
   max-width: 660px;
   margin: 0 0 14px;
 }
-.hero-note {
-  margin: 0;
-  max-width: 640px;
-  color: var(--muted);
-  font-size: 16px;
-}
-.hero-aside {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-left: 1px solid var(--rule);
-  padding-left: 32px;
-}
-.hero-aside-title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1.15;
-}
-.hero-aside-text {
-  margin: 0;
-  font-size: 16px;
-  color: var(--muted);
-}
-.hero-aside .btn {
-  align-self: stretch;
-}
-.hero-aside-small {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-}
 
-.contents {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px;
-  padding: 28px 0 4px;
-}
-.contents a {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-top: 12px;
-  border-top: 1px solid var(--rule);
-  text-decoration: none;
-}
-.contents b {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  font-weight: 600;
-}
-.contents span {
-  font-size: 15px;
-  color: var(--muted);
-}
-.contents a:hover b {
-  text-decoration: underline;
-}
 .trust {
   font-size: 14px;
   color: var(--muted);
@@ -2067,46 +2040,21 @@ svg text {
   color: var(--text);
 }
 
-/* ---------- Otsake ja etusivu mobiilissa ---------- */
-@media (max-width: 900px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-  }
-  .hero-aside {
-    border-left: 0;
-    border-top: 1px solid var(--rule);
-    padding: 16px 0 0;
-  }
-  .contents {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-  }
-  .contents a {
-    padding: 12px 0 14px;
+/* ---------- Otsake ja etusivu pienillä näytöillä ---------- */
+@media (max-width: 960px) {
+  .nav {
+    display: none;
   }
 }
 @media (max-width: 640px) {
   .masthead {
-    grid-template-columns: auto minmax(0, 1fr);
-    height: 56px;
-  }
-  .dateline {
-    display: none;
+    height: 54px;
   }
   .brand {
     font-size: 22px;
   }
   .hero {
     padding-top: 28px;
-  }
-}
-@media (max-width: 1020px) {
-  .masthead {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-  .dateline {
-    display: none;
   }
   .toggle .long {
     display: none;
@@ -2120,22 +2068,4 @@ svg text {
 .wrap .card {
   padding-left: 0;
   padding-right: 0;
-}
-
-/* ---------- Paperi ---------- */
-/* Hienojakoinen rakeisuus koko sivun päällä ja hieman tummuvat reunat,
-   jotta otsake, kortit ja tausta näyttävät samalta paperilta. */
-body {
-  background-image: radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(110, 85, 40, 0.16) 100%);
-  background-attachment: fixed;
-}
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.9;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.29 0 0 0 0 0.2 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

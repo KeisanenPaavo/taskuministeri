@@ -194,15 +194,15 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
         <h3>{rank.title}</h3>
         <p>{rank.text}</p>
         <div className="game-actions">
-          <button className="btn primary" onClick={share}>
+          <a className="btn primary" href="#luvut">
+            Jatka: paljon vai vähän? →
+          </a>
+          <button className="btn" onClick={share}>
             {shared ? "Kopioitu, liitä viestiin" : "Haasta kaveri"}
           </button>
           <button className="btn" onClick={restart}>
             ↺ Pelaa uudestaan
           </button>
-          <a className="btn" href="#rahat">
-            Katso kaikki luvut →
-          </a>
         </div>
       </div>
     );

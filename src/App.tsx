@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { FinanceData } from "./types";
 import { COEFFICIENTS, DEFAULT_SCENARIO, ROLLOVER, BEHAVIOR, type Scenario } from "./model";
 import { money, perCapita, perDay, pct, type Unit } from "./format";
-import { challengeNumber, generateChallenge, helsinkiDate } from "./daily";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
@@ -33,28 +32,42 @@ function writeScenario(s: Scenario) {
 }
 
 const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
-  { id: "total", long: "Koko Suomi", short: "Suomi", title: "Koko Suomen luvut miljardeina euroina" },
-  { id: "year", long: "Per asukas / vuosi", short: "€/v", title: "Euroa jokaista suomalaista kohden vuodessa" },
-  { id: "day", long: "Per asukas / päivä", short: "€/pv", title: "Euroa jokaista suomalaista kohden päivässä" },
+  { id: "total", long: "Miljardeina", short: "mrd €", title: "Koko Suomen luvut miljardeina euroina" },
+  { id: "year", long: "Per asukas vuodessa", short: "€ / v", title: "Euroa jokaista suomalaista kohden vuodessa" },
+  { id: "day", long: "Per asukas päivässä", short: "€ / pv", title: "Euroa jokaista suomalaista kohden päivässä" },
 ];
 
-// Lehden päiväys otsikkoon, esim. "Lauantai 10.10.2026".
-const dateline = (() => {
-  const s = new Intl.DateTimeFormat("fi-FI", {
-    weekday: "long",
-    day: "numeric",
-    month: "numeric",
-    year: "numeric",
-  }).format(new Date());
-  return s.charAt(0).toUpperCase() + s.slice(1);
-})();
-
+// Lisäpelit sivun lopussa. Kumpi on isompi? on sivun alussa tarinan ensimmäisenä lukuna.
 const GAMES = [
-  { id: "bigger", name: "Kumpi on isompi?", desc: "Arvaa kumpi kahdesta maksaa enemmän" },
   { id: "daily", name: "Päivän haaste", desc: "Uusi talouspulma joka päivä" },
   { id: "hundred", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
 ] as const;
 type GameId = (typeof GAMES)[number]["id"];
+
+/** Selkeästi nimetty valinta: missä yksikössä luvut näytetään. */
+function UnitPicker({ unit, setUnit }: { unit: Unit; setUnit: (u: Unit) => void }) {
+  return (
+    <div className="unit-picker">
+      <span className="unit-label" id="unit-label">
+        Näytä luvut
+      </span>
+      <div className="toggle" role="group" aria-labelledby="unit-label">
+        {UNITS.map((u) => (
+          <button
+            key={u.id}
+            className={unit === u.id ? "on" : ""}
+            aria-pressed={unit === u.id}
+            onClick={() => setUnit(u.id)}
+            title={u.title}
+          >
+            <span className="long">{u.long}</span>
+            <span className="short">{u.short}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [data, setData] = useState<FinanceData | null>(null);
@@ -62,8 +75,7 @@ export default function App() {
   const [unit, setUnit] = useState<Unit>("total");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [copied, setCopied] = useState(false);
-  // Päivän haasteen jakolinkki (#haaste) avaa suoraan haaste-välilehden.
-  const [game, setGame] = useState<GameId>(() => (location.hash === "#haaste" ? "daily" : "bigger"));
+  const [game, setGame] = useState<GameId>("daily");
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/finance.json`)
@@ -79,8 +91,12 @@ export default function App() {
   useEffect(() => {
     if (!data) return;
     const hash = location.hash.slice(1);
-    const id = hash === "haaste" ? "peli" : hash;
-    if (id && /^[a-z]+$/.test(id)) document.getElementById(id)?.scrollIntoView();
+    // Päivän haasteen jakolinkki (#haaste) vie pelien lukuun, jossa haaste on oletuksena auki.
+    const id = hash === "haaste" ? "pelit" : hash;
+    if (!id || !/^[a-z]+$/.test(id)) return;
+    // Odotetaan, että kaaviot ja fontit ovat asettuneet, jotta kohta ei siirry vierityksen jälkeen.
+    const t = setTimeout(() => document.getElementById(id)?.scrollIntoView(), 300);
+    return () => clearTimeout(t);
   }, [data]);
 
   const setScenario = (s: Scenario) => {
@@ -102,13 +118,7 @@ export default function App() {
   if (!data) return <div className="wrap hero">Ladataan…</div>;
 
   const deficit = data.expenditureTotal - data.revenueTotal;
-  const today = generateChallenge(data, challengeNumber(helsinkiDate()));
-  const openDaily = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setGame("daily");
-    history.replaceState(null, "", "#haaste");
-    document.getElementById("peli")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const unitPicker = <UnitPicker unit={unit} setUnit={setUnit} />;
   const fmt = (v: number) => money(v, data.population, unit);
   const defence = data.expenditure.find((e) => e.id === "defence")?.value ?? 0;
   const interestVsDefence =
@@ -120,104 +130,50 @@ export default function App() {
     <div className="has-mobile-bar">
       <header className="topbar">
         <div className="wrap masthead">
-          <span className="dateline">{dateline}</span>
           <a className="brand" href="#">
             Taskuministeri
           </a>
-          <div className="toggle" role="group" aria-label="Yksikkö">
-            {UNITS.map((u) => (
-              <button
-                key={u.id}
-                className={unit === u.id ? "on" : ""}
-                aria-pressed={unit === u.id}
-                onClick={() => setUnit(u.id)}
-                title={u.title}
-              >
-                <span className="long">{u.long}</span>
-                <span className="short">{u.short}</span>
-              </button>
-            ))}
-          </div>
+          <nav className="nav" aria-label="Sivun luvut">
+            <a href="#arvaa">Arvaa</a>
+            <a href="#luvut">Paljon vai vähän</a>
+            <a href="#rahat">Tulot ja menot</a>
+            <a href="#velka">Velka</a>
+            <a href="#kokeile">Kokeile itse</a>
+            <a href="#pelit">Pelit</a>
+          </nav>
         </div>
       </header>
 
       <main className="wrap">
-        <div className="hero">
-          <div className="hero-main">
-            <p className="kicker">Julkinen talous {data.baseYear}</p>
-            <h1>Onko miljardi paljon vai vähän?</h1>
-            <p className="lead">
-              Julkinen sektori käytti vuonna {data.baseYear} yhteensä {Math.round(data.expenditureTotal / 1000)}{" "}
-              miljardia euroa. Se on {perDay(data.expenditureTotal, data.population).replace(" €/pv", "")} euroa
-              päivässä jokaista suomalaista kohden, ja siitä {perDay(deficit, data.population).replace(" €/pv", "")}{" "}
-              euroa otettiin velaksi.
-            </p>
-            <p className="hero-note">
-              Miljardeista väitellään joka päivä, mutta harva pystyy hahmottamaan niitä. Tällä sivulla ne muutetaan
-              euroiksi, verrataan toisiinsa ja pääset kokeilemaan itse. Avoimen datan pohjalta, ilman puoluekantaa.
-            </p>
-          </div>
-          <aside className="hero-aside">
-            <p className="kicker-ink">Päivän haaste #{today.number}</p>
-            <p className="hero-aside-title">{today.theme.name}</p>
-            <p className="hero-aside-text">{today.theme.intro(data)}</p>
-            <a className="btn primary" href="#haaste" onClick={openDaily}>
-              Ratkaise haaste
-            </a>
-            <p className="hero-aside-small">Uusi pulma joka päivä keskiyöllä.</p>
-          </aside>
+        <div className="hero" id="arvaa">
+          <p className="kicker">Julkinen talous {data.baseYear}</p>
+          <h1>Onko miljardi paljon vai vähän?</h1>
+          <p className="lead">
+            Miljardeista väitellään joka päivä, mutta harva osaa sanoa, mikä niistä on paljon. Aloitetaan pelillä:
+            arvaa, kumpi on isompi.
+          </p>
+          <p className="chapter">Luku 1 · Arvaa</p>
+          <BiggerGame data={data} />
         </div>
 
-        <MuchOrLittle data={data} />
-
-        <nav className="contents" aria-label="Sivun sisältö">
-          <a href="#peli">
-            <b>Pelaa ja opi →</b>
-            <span>Kumpi maksaa enemmän: puolustus vai velan korot? Kolme peliä miljardien mittasuhteista.</span>
-          </a>
-          <a href="#rahat">
-            <b>Tulot ja menot →</b>
-            <span>Mistä rahat tulevat ja mihin jokainen euro käytetään.</span>
-          </a>
-          <a href="#kokeile">
-            <b>Kokeile itse →</b>
-            <span>Muuta veroja, menoja ja korkoja ja katso, mitä velalle tapahtuu kymmenessä vuodessa.</span>
-          </a>
-        </nav>
-        <p className="trust">
-          Luvut: Tilastokeskus. Veromuutosten vaikutukset: valtiovarainministeriön arviot. Laskentatapa ja oletukset
-          ovat <a href="#lahteet">avoimesti nähtävillä</a>.
-        </p>
-
-        <section id="peli">
-          <h2 className="section-title">Pelaa ja opi</h2>
+        <section id="luvut">
+          <p className="chapter">Luku 2</p>
+          <h2 className="section-title">Paljon vai vähän?</h2>
           <p className="section-lead">
-            Testaa, kuinka hyvin tunnet Suomen talouden mittasuhteet, ratkaise päivän talouspulma tai jaa itse sata
-            euroa.
+            Julkinen sektori käytti vuonna {data.baseYear} yhteensä {Math.round(data.expenditureTotal / 1000)} miljardia
+            euroa. Se on {perDay(data.expenditureTotal, data.population).replace(" €/pv", "")} euroa päivässä jokaista
+            suomalaista kohden, ja siitä {perDay(deficit, data.population).replace(" €/pv", "")} euroa otettiin velaksi.
+            Vastaus riippuu siitä, mihin vertaa.
           </p>
-          <div className="game-tabs" role="tablist">
-            {GAMES.map((g) => (
-              <button
-                key={g.id}
-                role="tab"
-                aria-selected={game === g.id}
-                className={game === g.id ? "on" : ""}
-                onClick={() => setGame(g.id)}
-              >
-                <span>
-                  <b>{g.name}</b>
-                  <small>{g.desc}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-          {game === "bigger" && <BiggerGame data={data} />}
-          {game === "daily" && <DailyChallenge data={data} />}
-          {game === "hundred" && <HundredEuros data={data} />}
+          <MuchOrLittle data={data} />
         </section>
 
         <section id="rahat">
-          <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
+          <p className="chapter">Luku 3</p>
+          <div className="section-head">
+            <h2 className="section-title">Tulot ja menot {data.baseYear}</h2>
+            {unitPicker}
+          </div>
           <p className="section-lead">
             Valtio, kunnat, hyvinvointialueet ja eläkelaitokset käyttivät vuonna {data.baseYear} yhteensä{" "}
             {money(data.expenditureTotal, data.population, "total")}. Tuloja kertyi{" "}
@@ -253,6 +209,7 @@ export default function App() {
         </section>
 
         <section id="velka">
+          <p className="chapter">Luku 4</p>
           <h2 className="section-title">Velka kasvaa</h2>
           <p className="section-lead">
             Kun menot ovat tuloja suuremmat, erotus otetaan velaksi. Velasta maksetaan korkoa, joka on pois muista
@@ -293,13 +250,15 @@ export default function App() {
             }}
           >
             <div>
+              <p className="chapter">Luku 5</p>
               <h2 className="section-title">Kokeile itse: miten velka kehittyy?</h2>
               <p className="section-lead" style={{ marginBottom: 16 }}>
                 Liikuta säätimiä ja näe heti, miten talouskasvu, korot, verot ja menot vaikuttavat alijäämään ja velkaan
                 seuraavan kymmenen vuoden aikana.
               </p>
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+              {unitPicker}
               <button className="chip" onClick={share}>
                 {copied ? "Linkki kopioitu" : "Jaa skenaario"}
               </button>
@@ -309,6 +268,32 @@ export default function App() {
             </div>
           </div>
           <Simulator data={data} unit={unit} scenario={scenario} setScenario={setScenario} />
+        </section>
+
+        <section id="pelit">
+          <p className="chapter">Luku 6</p>
+          <h2 className="section-title">Pelaa lisää</h2>
+          <p className="section-lead">
+            Nyt tiedät mittasuhteet. Ratkaise päivän talouspulma tai jaa itse sata euroa ja vertaa Suomeen.
+          </p>
+          <div className="game-tabs" role="tablist">
+            {GAMES.map((g) => (
+              <button
+                key={g.id}
+                role="tab"
+                aria-selected={game === g.id}
+                className={game === g.id ? "on" : ""}
+                onClick={() => setGame(g.id)}
+              >
+                <span>
+                  <b>{g.name}</b>
+                  <small>{g.desc}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+          {game === "daily" && <DailyChallenge data={data} />}
+          {game === "hundred" && <HundredEuros data={data} />}
         </section>
       </main>
 
