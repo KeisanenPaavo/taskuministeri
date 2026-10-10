@@ -2,21 +2,22 @@
    Valkoinen paperi, musta muste, hiusviivat korttien sijaan.
    Väri vain merkitykselle: tulot vihreä, menot sininen, velka punainen. */
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f3f3f1;
-  --text: #121212;
-  --muted: #555555;
-  --faint: #6b6b6b;
-  --border: #d9d9d9;
-  --rule: #121212;
+  /* Vanha sanomalehtipaperi: kellertävä newsprint ja lämmin muste. */
+  --bg: #ece3cd;
+  --surface: #ece3cd;
+  --surface-2: #e0d5bb;
+  --text: #1c1a16;
+  --muted: #4a443a;
+  --faint: #5a5448;
+  --border: #c9bc9f;
+  --rule: #1c1a16;
   --accent: #1d4f8a;
   --on-accent: #ffffff;
-  --good: #2f6b4f;
-  --bad: #b8322a;
-  --deficit: #b8322a;
-  --baseline: #8a8a8a;
-  --grid: #ececec;
+  --good: #2a6347;
+  --bad: #a02b23;
+  --deficit: #a02b23;
+  --baseline: #857f72;
+  --grid: #dcd1b6;
   --shadow: none;
   --radius: 4px;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
@@ -71,7 +72,7 @@
 html,
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 17px;
@@ -2157,4 +2158,36 @@ svg text {
 .wrap .card {
   padding-left: 0;
   padding-right: 0;
+}
+
+/* ---------- Paperi ---------- */
+/* Hienojakoinen rakeisuus koko sivun päällä ja hieman tummuvat reunat,
+   jotta otsake, kortit ja tausta näyttävät samalta paperilta. */
+body {
+  background-image: radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(110, 85, 40, 0.16) 100%);
+  background-attachment: fixed;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.29 0 0 0 0 0.2 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body {
+    background-image: none;
+  }
+  :root:not([data-theme="light"]) body::after {
+    display: none;
+  }
+}
+:root[data-theme="dark"] body {
+  background-image: none;
+}
+:root[data-theme="dark"] body::after {
+  display: none;
 }
