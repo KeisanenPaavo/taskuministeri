@@ -80,6 +80,11 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
     [data, s.spendingTrend, s.behavioral],
   );
   const result = useMemo(() => project(data, s), [data, s]);
+  // Kuinka paljon +0,5 %-yks. nopeampi kasvu muuttaisi velkasuhdetta viimeisenä vuonna.
+  const growthLesson = useMemo(() => {
+    const faster = project(data, { ...s, realGrowth: s.realGrowth + 0.5 });
+    return result[result.length - 1].debtRatio - faster[faster.length - 1].debtRatio;
+  }, [data, s, result]);
   const tax = taxEffects(data, s);
   const spend = spendingEffects(data, s);
   const perPoint = perPointStatic(data);
@@ -147,7 +152,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
               step={0.1}
               base={DEFAULT_SCENARIO.realGrowth}
               format={(v) => pct(v, 1)}
-              hint="Kun talous kasvaa, verotuloja kertyy enemmän."
+              hint={`Kasvu tuo lisää verotuloja, mutta menot eivät kasva samaa tahtia. +0,5 %-yks. nopeampi kasvu pienentäisi velkaa vuonna ${result[result.length - 1].year} noin ${num(growthLesson, 0)} %-yks.`}
               onChange={(v) => update({ realGrowth: v })}
             />
             <Slider
@@ -277,7 +282,9 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
                   hint="Kuinka paljon menot kasvavat hintojen nousun lisäksi esim. väestön ikääntymisen takia."
                   onChange={(v) => update({ spendingTrend: v })}
                 />
-                <label style={{ display: "flex", gap: 8, fontSize: 14, padding: "8px 0 12px", alignItems: "flex-start" }}>
+                <label
+                  style={{ display: "flex", gap: 8, fontSize: 14, padding: "8px 0 12px", alignItems: "flex-start" }}
+                >
                   <input
                     type="checkbox"
                     checked={s.behavioral}
@@ -288,8 +295,7 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
                     Huomioi käyttäytymisvaikutukset
                     <br />
                     <span className="gl" style={{ fontSize: 12, color: "var(--muted)" }}>
-                      Esim. korkeampi vero vähentää hieman työntekoa tai kulutusta, joten osa
-                      lisätuotosta jää saamatta.
+                      Esim. korkeampi vero vähentää hieman työntekoa tai kulutusta, joten osa lisätuotosta jää saamatta.
                     </span>
                   </span>
                 </label>
@@ -314,12 +320,16 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
 
           <div className="mini-kpis">
             <div className={`card kpi ${first.balance < 0 ? "bad" : "good"}`}>
-              <div className="label">{first.balance < 0 ? "Alijäämä" : "Ylijäämä"} {first.year}</div>
+              <div className="label">
+                {first.balance < 0 ? "Alijäämä" : "Ylijäämä"} {first.year}
+              </div>
               <div className="value">{fmt(Math.abs(first.balance))}</div>
               <div className="sub">{pct(first.balanceRatio, 1, true)} BKT:stä</div>
             </div>
             <div className={`card kpi ${last.balance < 0 ? "bad" : "good"}`}>
-              <div className="label">{last.balance < 0 ? "Alijäämä" : "Ylijäämä"} {last.year}</div>
+              <div className="label">
+                {last.balance < 0 ? "Alijäämä" : "Ylijäämä"} {last.year}
+              </div>
               <div className="value">{fmt(Math.abs(last.balance))}</div>
               <div className="sub">{pct(last.balanceRatio, 1, true)} BKT:stä</div>
             </div>
@@ -333,9 +343,18 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
           <div className="card chart-card">
             <h4>Julkinen velka suhteessa BKT:hen</h4>
             <div className="legend">
-              <span><i style={{ borderColor: "var(--text)" }} />Toteutunut</span>
-              <span><i className="dash" style={{ borderColor: "var(--baseline)" }} />Ilman muutoksia</span>
-              <span><i style={{ borderColor: "var(--accent)" }} />Sinun valintasi</span>
+              <span>
+                <i style={{ borderColor: "var(--text)" }} />
+                Toteutunut
+              </span>
+              <span>
+                <i className="dash" style={{ borderColor: "var(--baseline)" }} />
+                Ilman muutoksia
+              </span>
+              <span>
+                <i style={{ borderColor: "var(--accent)" }} />
+                Sinun valintasi
+              </span>
             </div>
             <LineChart
               height={250}
@@ -368,8 +387,14 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
           <div className="card chart-card">
             <h4>Vuosittainen yli-/alijäämä suhteessa BKT:hen</h4>
             <div className="legend">
-              <span><i style={{ borderColor: "var(--deficit)" }} />Sinun valintasi</span>
-              <span><i className="dash" style={{ borderColor: "var(--baseline)" }} />Ilman muutoksia</span>
+              <span>
+                <i style={{ borderColor: "var(--deficit)" }} />
+                Sinun valintasi
+              </span>
+              <span>
+                <i className="dash" style={{ borderColor: "var(--baseline)" }} />
+                Ilman muutoksia
+              </span>
             </div>
             <BarChart
               height={190}
@@ -421,7 +446,11 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
 }
 
 function normalize(s: Scenario) {
-  const spending = Object.fromEntries(Object.entries(s.spending).filter(([, v]) => v !== 0).sort());
+  const spending = Object.fromEntries(
+    Object.entries(s.spending)
+      .filter(([, v]) => v !== 0)
+      .sort(),
+  );
   return { ...s, spending };
 }
 

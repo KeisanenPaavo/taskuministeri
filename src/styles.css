@@ -1950,3 +1950,80 @@ svg text {
 .daily-meter.done {
   position: static;
 }
+
+/* ---------- Päivän haaste: kasvukortit ---------- */
+.daily-card.growth {
+  border-color: color-mix(in srgb, var(--good) 45%, var(--border));
+  background: color-mix(in srgb, var(--good) 6%, var(--surface));
+}
+.daily-card.growth.on {
+  border-color: var(--good);
+  background: color-mix(in srgb, var(--good) 16%, var(--surface));
+}
+.dc-timeline {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.dc-timeline span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  color: var(--muted);
+}
+.dc-timeline small {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--faint);
+}
+.dc-timeline .pos {
+  color: var(--good);
+}
+.dc-timeline .neg {
+  color: var(--bad);
+}
+.dc-timeline em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--faint);
+  font-size: 11px;
+}
+.dc-note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+  margin-top: 4px;
+}
+.growth-explain {
+  margin: 0 0 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--good) 40%, var(--border));
+  background: color-mix(in srgb, var(--good) 7%, var(--surface));
+  padding: 10px 14px;
+  font-size: 14px;
+}
+.growth-explain summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.growth-explain ul {
+  margin: 8px 0 2px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+}
+.growth-explain b {
+  color: var(--text);
+}
+.dc-gdp {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 4px;
+}

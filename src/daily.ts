@@ -68,7 +68,7 @@ function shuffle<T>(arr: T[], rnd: () => number): T[] {
 
 // ---------- Kortit ----------
 
-export type CardKind = "tax" | "cut";
+export type CardKind = "tax" | "cut" | "growth";
 
 export interface Card {
   id: string;
@@ -76,6 +76,8 @@ export interface Card {
   emoji: string;
   name: string;
   patch: Partial<Scenario>;
+  /** Lyhyt selitys kasvukorteille */
+  note?: string;
 }
 
 const tax = (id: string, emoji: string, name: string, patch: Partial<Scenario>): Card => ({
@@ -111,6 +113,32 @@ export const CARDS: Card[] = [
   cut("otherSocial10", "🤝", "Asumistuki ym. sosiaaliturva −10 %", "otherSocial", 10),
   cut("culture20", "🎭", "Kulttuuri ja vapaa-aika −20 %", "culture", 20),
   cut("defence10", "🛡️", "Puolustus −10 %", "defence", 10),
+  // Kasvukortit: vaikutus kertyy viiveellä. Työllisyys on kalibroitu VM:n arvioon
+  // (10 000 työllistä ≈ 165 milj. €), T&K ja infra ovat havainnollistavia oletuksia.
+  {
+    id: "jobs",
+    kind: "growth",
+    emoji: "👷",
+    name: "Työllisyysuudistus: +30 000 työllistä",
+    patch: { growthBoosts: [{ pp: 0.1, from: 2, to: 4, employment: true }] },
+    note: "Ei maksa mitään, mutta vaikutus alkaa vasta 2027. Lisätyöllisten verot vahvistavat taloutta suoraan.",
+  },
+  {
+    id: "rnd",
+    kind: "growth",
+    emoji: "🔬",
+    name: "T&K-rahoitus +0,5 mrd €",
+    patch: { extraSpending: 500, growthBoosts: [{ pp: 0.08, from: 3 }] },
+    note: "Maksaa heti, nostaa tuottavuutta vuodesta 2028. Julkiselle taloudelle tuotto tulee hitaasti.",
+  },
+  {
+    id: "infra",
+    kind: "growth",
+    emoji: "🏗️",
+    name: "Infrainvestoinnit +1 mrd €",
+    patch: { extraSpending: 1000, growthBoosts: [{ pp: 0.12, from: 2 }] },
+    note: "Maksaa heti, nostaa tuottavuutta vuodesta 2027. Julkiselle taloudelle tuotto tulee hitaasti.",
+  },
 ];
 
 /** Lisää muutokset skenaarioon. Vero- ja menomuutokset summautuvat. */
@@ -121,6 +149,8 @@ function withPatch(base: Scenario, p: Partial<Scenario>): Scenario {
   s.corporateTaxPp += p.corporateTaxPp ?? 0;
   s.excisePct += p.excisePct ?? 0;
   for (const [k, v] of Object.entries(p.spending ?? {})) s.spending[k] = (s.spending[k] ?? 0) + v;
+  s.extraSpending = (s.extraSpending ?? 0) + (p.extraSpending ?? 0);
+  s.growthBoosts = [...(s.growthBoosts ?? []), ...(p.growthBoosts ?? [])];
   return s;
 }
 
@@ -143,6 +173,8 @@ interface Theme {
   metric: Metric;
   pool: CardKind[];
   range?: boolean;
+  /** Mittausvuosi ennusteessa (1 = ensimmäinen ennustevuosi). Oletus: saldo 2 v, velka 5 v. */
+  horizon?: number;
 }
 
 // Viikonpäivän mukaan (0 = sunnuntai).
@@ -154,7 +186,7 @@ const THEMES: Record<number, Theme> = {
     intro: () => "Markkinat hermostuvat ja uuden velan korko nousee 5 prosenttiin.",
     shock: { interestRate: 5 },
     metric: "debt",
-    pool: ["tax", "cut"],
+    pool: ["tax", "cut", "growth"],
   },
   2: {
     id: "cuts",
@@ -178,10 +210,11 @@ const THEMES: Record<number, Theme> = {
     id: "recession",
     emoji: "🌧️",
     name: "Taantuma",
-    intro: () => "Vienti hyytyy ja talous polkee paikallaan: kasvu on 0 % vuodessa.",
+    intro: () =>
+      "Vienti hyytyy ja talous polkee paikallaan: kasvu on 0 % vuodessa. Ilman kasvua verotulot eivät kasva, mutta menot kasvavat.",
     shock: { realGrowth: 0 },
-    metric: "balance",
-    pool: ["tax", "cut"],
+    metric: "debt",
+    pool: ["tax", "cut", "growth"],
   },
   5: {
     id: "precision",
@@ -204,16 +237,18 @@ const THEMES: Record<number, Theme> = {
     shock: {},
     mandatory: { spending: { education: 6 } },
     metric: "balance",
-    pool: ["tax", "cut"],
+    pool: ["tax", "cut", "growth"],
   },
   0: {
-    id: "wild",
-    emoji: "🃏",
-    name: "Villi kortti",
-    intro: () => "Inflaatio kiihtyy 4 prosenttiin ja korot nousevat 4 prosenttiin. Pidä velka kurissa.",
-    shock: { inflation: 4, interestRate: 4 },
+    id: "growth",
+    emoji: "🌱",
+    name: "Kasvun vuosikymmen",
+    intro: () =>
+      "Tavoite on kymmenen vuoden päässä, joten kasvulla on aikaa vaikuttaa. Mutta mitkä kasvutoimet oikeasti vahvistavat julkista taloutta? Vertaa korttien aikajanoja.",
+    shock: {},
     metric: "debt",
-    pool: ["tax", "cut"],
+    pool: ["tax", "cut", "growth"],
+    horizon: 10,
   },
 };
 
@@ -237,6 +272,7 @@ const BONUSES: Bonus[] = [
   },
   { id: "noVat", text: "Arvonlisäveroon ei kosketa", check: (c) => c.every((x) => !x.id.startsWith("vat")) },
   { id: "twoMax", text: "Korkeintaan kaksi korttia", check: (c) => c.length <= 2 },
+  { id: "growth", text: "Vähintään yksi kasvukortti", check: (c) => c.some((x) => x.kind === "growth") },
 ];
 
 // ---------- Haaste ----------
@@ -299,16 +335,19 @@ export function generateChallenge(d: FinanceData, num: number): Challenge {
   // Korttivalikoima teeman mukaan
   const pool = CARDS.filter((c) => theme.pool.includes(c.kind));
   let cards: Card[];
-  if (theme.pool.length === 2) {
-    const taxes = shuffle(
-      pool.filter((c) => c.kind === "tax"),
-      rnd,
-    ).slice(0, 3);
-    const cuts = shuffle(
-      pool.filter((c) => c.kind === "cut"),
-      rnd,
-    ).slice(0, CARD_COUNT - 3);
-    cards = shuffle([...taxes, ...cuts], rnd);
+  if (theme.pool.length > 1) {
+    // Kasvun vuosikymmenessä kaikki kolme kasvukorttia, muissa sekateemoissa yksi.
+    const nGrowth = theme.pool.includes("growth") ? (theme.id === "growth" ? 3 : 1) : 0;
+    const nTax = nGrowth === 3 ? 2 : nGrowth === 1 ? 2 : 3;
+    const pick = (kind: CardKind, n: number) =>
+      shuffle(
+        pool.filter((c) => c.kind === kind),
+        rnd,
+      ).slice(0, n);
+    const growth = pick("growth", nGrowth);
+    const taxes = pick("tax", nTax);
+    const cuts = pick("cut", CARD_COUNT - nGrowth - nTax);
+    cards = shuffle([...growth, ...taxes, ...cuts], rnd);
   } else {
     cards = shuffle(pool, rnd).slice(0, CARD_COUNT);
   }
@@ -317,7 +356,7 @@ export function generateChallenge(d: FinanceData, num: number): Challenge {
   const allowed = cards.filter((c) => c.id !== forbidden);
 
   const metric = theme.metric;
-  const yearIndex = metric === "balance" ? 1 : 4; // 2 v tai 5 v perusvuodesta
+  const yearIndex = (theme.horizon ?? (metric === "balance" ? 2 : 5)) - 1;
   const year = d.baseYear + yearIndex + 1;
   const partial = { base, metric, yearIndex };
   const start = metricValue(d, partial, []);
@@ -376,9 +415,14 @@ export function generateChallenge(d: FinanceData, num: number): Challenge {
   };
 }
 
-/** Kortin oma vaikutus ensimmäisen vuoden rahoitusasemaan (milj. €). */
-export function cardEffect(d: FinanceData, base: Scenario, card: Card) {
-  return project(d, applyCards(base, [card]))[0].balance - project(d, base)[0].balance;
+/** Kortin vaikutus BKT:n tasoon (%) ennustevuonna index. */
+export function cardGdpEffect(d: FinanceData, base: Scenario, card: Card, index = 9) {
+  return (project(d, applyCards(base, [card]))[index].gdp / project(d, base)[index].gdp - 1) * 100;
+}
+
+/** Kortin oma vaikutus rahoitusasemaan (milj. €) ennustevuonna index (0 = ensimmäinen). */
+export function cardEffect(d: FinanceData, base: Scenario, card: Card, index = 0) {
+  return project(d, applyCards(base, [card]))[index].balance - project(d, base)[index].balance;
 }
 
 // ---------- Tähdet ja tallennus ----------

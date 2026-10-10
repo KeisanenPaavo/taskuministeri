@@ -6,6 +6,7 @@ import {
   CARDS,
   applyCards,
   cardEffect,
+  cardGdpEffect,
   challengeNumber,
   formatDate,
   generateChallenge,
@@ -38,7 +39,10 @@ function targetText(c: Challenge) {
     : `Ylijäämä vähintään ${pctText(c.min!)} BKT:stä vuonna ${c.year}`;
 }
 
-const kindEmoji = (c: Card) => (c.kind === "tax" ? "🧾" : "✂️");
+const kindEmoji = (c: Card) => (c.kind === "tax" ? "🧾" : c.kind === "growth" ? "🌱" : "✂️");
+
+/** Kasvukortin aikajanan vuodet (ennusteindeksit): ensimmäinen vuosi, 2030 ja 2035. */
+const TIMELINE = [0, 4, 9];
 const starRow = (n: number) => "⭐".repeat(n) + "☆".repeat(3 - n);
 
 export default function DailyChallenge({ data }: { data: FinanceData }) {
@@ -76,6 +80,22 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
     () => Object.fromEntries(c.cards.map((card) => [card.id, cardEffect(data, c.base, card)])),
     [data, c],
   );
+  // Kasvukorteille vaikutus usealta vuodelta, jotta viive näkyy.
+  const timelines = useMemo(
+    () =>
+      Object.fromEntries(
+        c.cards
+          .filter((card) => card.kind === "growth")
+          .map((card) => [
+            card.id,
+            { balance: TIMELINE.map((i) => cardEffect(data, c.base, card, i)), gdp: cardGdpEffect(data, c.base, card) },
+          ]),
+      ),
+    [data, c],
+  );
+  const hasGrowth = c.cards.some((card) => card.kind === "growth");
+  // 1 % suurempi BKT tuo saman verran prosentteja lisää verotuloja (tulot seuraavat BKT:tä).
+  const onePercent = data.revenueTotal / 100;
 
   const toggle = (id: string) => {
     if (showResult) return;
@@ -182,6 +202,30 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
         </div>
       </div>
 
+      {hasGrowth && (
+        <details className="growth-explain" open={c.theme.id === "growth"}>
+          <summary>🌱 Miten talouskasvu vaikuttaa julkiseen talouteen?</summary>
+          <ul>
+            <li>
+              <b>Lisää verotuloja:</b> kun talous kasvaa 1 % enemmän, verotuloja kertyy noin {mrd(onePercent)} enemmän.
+              Menot eivät kasva samaa tahtia, joten ero jää vahvistamaan taloutta.
+            </li>
+            <li>
+              <b>Pienempi velkasuhde:</b> velka suhteutetaan BKT:hen. Kun BKT kasvaa, sama velka on pienempi osuus
+              taloudesta.
+            </li>
+            <li>
+              <b>Viive:</b> kasvutoimet vaikuttavat hitaasti. Lyhyellä aikavälillä leikkaukset ja verot toimivat
+              nopeammin. Katso korttien aikajanaa.
+            </li>
+            <li>
+              <b>Kaikki kasvu ei ole yhtä hyödyllistä:</b> lisätyöllisyys tuo uusia veronmaksajia. Tuottavuuden kasvu
+              nostaa myös palkkoja ja eläkkeitä, joten osa hyödystä palaa menoina.
+            </li>
+          </ul>
+        </details>
+      )}
+
       <div className="daily-cards">
         {c.cards.map((card) => {
           const forbidden = card.id === c.forbidden;
@@ -197,7 +241,30 @@ export default function DailyChallenge({ data }: { data: FinanceData }) {
             >
               <span className="dc-emoji">{forbidden ? "🚫" : card.emoji}</span>
               <span className="dc-name">{card.name}</span>
-              <span className="dc-effect">{forbidden ? "Kielletty tänään" : `+${mrd(effects[card.id])}`}</span>
+              {forbidden ? (
+                <span className="dc-effect">Kielletty tänään</span>
+              ) : card.kind === "growth" ? (
+                <>
+                  <span className="dc-timeline">
+                    {TIMELINE.map((i, k) => {
+                      const v = timelines[card.id].balance[k];
+                      return (
+                        <span key={i} className={v >= 0.05 ? "pos" : v <= -0.05 ? "neg" : ""}>
+                          <small>{data.baseYear + i + 1}</small>
+                          {mrd(v, true).replace(" mrd €", "")}
+                        </span>
+                      );
+                    })}
+                    <em>mrd €</em>
+                  </span>
+                  <span className="dc-gdp">
+                    📈 BKT {data.baseYear + 10}: +{num(timelines[card.id].gdp, 1)} %
+                  </span>
+                  <span className="dc-note">{card.note}</span>
+                </>
+              ) : (
+                <span className="dc-effect">+{mrd(effects[card.id])}</span>
+              )}
               {on && <span className="dc-check">✓</span>}
             </button>
           );

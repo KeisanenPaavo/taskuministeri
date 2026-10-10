@@ -87,7 +87,9 @@ export default function App() {
   const fmt = (v: number) => money(v, data.population, unit);
   const defence = data.expenditure.find((e) => e.id === "defence")?.value ?? 0;
   const interestVsDefence =
-    data.interest > defence ? "enemmän kuin puolustukseen" : `${pct((data.interest / defence) * 100, 0)} puolustusmenoista`;
+    data.interest > defence
+      ? "enemmän kuin puolustukseen"
+      : `${pct((data.interest / defence) * 100, 0)} puolustusmenoista`;
 
   return (
     <div className="has-mobile-bar">
@@ -255,9 +257,7 @@ export default function App() {
                 Alijäämä eli otettiin velaksi
               </div>
               <div className="value">{fmt(deficit)}</div>
-              <div className="sub">
-                {pct((deficit / data.expenditureTotal) * 100, 0)} menoista rahoitettiin velalla
-              </div>
+              <div className="sub">{pct((deficit / data.expenditureTotal) * 100, 0)} menoista rahoitettiin velalla</div>
             </div>
           </div>
           <BudgetColumns data={data} unit={unit} />
@@ -266,8 +266,8 @@ export default function App() {
         <section id="velka">
           <h2 className="section-title">Velka kasvaa</h2>
           <p className="section-lead">
-            Kun menot ovat tuloja suuremmat, erotus otetaan velaksi. Velasta maksetaan korkoa, joka on pois
-            muista menoista.
+            Kun menot ovat tuloja suuremmat, erotus otetaan velaksi. Velasta maksetaan korkoa, joka on pois muista
+            menoista.
           </p>
           <div className="debt-strip">
             <div className="card kpi">
@@ -288,20 +288,26 @@ export default function App() {
             <div className="card kpi">
               <div className="label">Korkomenot</div>
               <div className="value">{fmt(data.interest)}</div>
-              <div className="sub">
-                vuodessa, {interestVsDefence}
-              </div>
+              <div className="sub">vuodessa, {interestVsDefence}</div>
             </div>
           </div>
         </section>
 
         <section id="kokeile">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
             <div>
               <h2 className="section-title">Kokeile itse: miten velka kehittyy?</h2>
               <p className="section-lead" style={{ marginBottom: 16 }}>
-                Liikuta säätimiä ja näe heti, miten talouskasvu, korot, verot ja menot vaikuttavat
-                alijäämään ja velkaan seuraavan kymmenen vuoden aikana.
+                Liikuta säätimiä ja näe heti, miten talouskasvu, korot, verot ja menot vaikuttavat alijäämään ja velkaan
+                seuraavan kymmenen vuoden aikana.
               </p>
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -325,7 +331,9 @@ export default function App() {
               <li>Verotulot kasvavat samaa tahtia kuin talous (reaalikasvu + inflaatio).</li>
               <li>
                 Menot kasvavat hintojen nousun verran ja lisäksi luontaisen menokasvun verran (oletus 1,2 % vuodessa,
-                mm. ikääntyminen). Ne eivät automaattisesti seuraa talouskasvua.
+                mm. ikääntyminen). Jos talous kasvaa oletusta nopeammin, menot seuraavat erotusta puoliksi vuoden
+                viiveellä, koska palkat ja osin eläkkeet seuraavat ansiokehitystä. Lisätyöllisyydestä syntyvää kasvua
+                menot eivät seuraa.
               </li>
               <li>
                 Velasta uusitaan noin {pct(ROLLOVER * 100, 0)} vuodessa, joten korkojen nousu näkyy korkomenoissa
@@ -333,9 +341,9 @@ export default function App() {
               </li>
               <li>
                 Veromuutosten tuotot perustuvat valtiovarainministeriön vaikutusarvioihin. Osa tuotosta menetetään
-                käyttäytymisvaikutusten takia (tulovero{" "}
-                {pct(BEHAVIOR.incomeTax * 100, 0)}, ALV {pct(BEHAVIOR.vat * 100, 0)}, yhteisövero{" "}
-                {pct(BEHAVIOR.corporateTax * 100, 0)}, valmisteverot {pct(BEHAVIOR.excise * 100, 0)}).
+                käyttäytymisvaikutusten takia (tulovero {pct(BEHAVIOR.incomeTax * 100, 0)}, ALV{" "}
+                {pct(BEHAVIOR.vat * 100, 0)}, yhteisövero {pct(BEHAVIOR.corporateTax * 100, 0)}, valmisteverot{" "}
+                {pct(BEHAVIOR.excise * 100, 0)}).
               </li>
               <li>
                 Malli on tarkoituksella yksinkertainen. Se ei huomioi esim. menoleikkausten vaikutusta talouskasvuun,

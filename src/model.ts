@@ -3,8 +3,10 @@
 // Periaatteet:
 //  - Verotulot kasvavat samaa tahtia kuin nimellinen BKT (reaalikasvu + inflaatio).
 //  - Menot (pl. korot) kasvavat inflaation verran ja lisäksi "luontaisen menokasvun"
-//    verran (ikääntyminen, palvelutarve). Ne EIVÄT automaattisesti seuraa talouskasvua,
-//    joten nopeampi kasvu parantaa taloutta ja hitaampi heikentää.
+//    verran (ikääntyminen, palvelutarve). Jos talous kasvaa oletusta nopeammin tai
+//    hitaammin, menot seuraavat erotusta puoliksi vuoden viiveellä (palkat ja osin
+//    eläkkeet seuraavat ansiokehitystä). Siksi kasvu parantaa taloutta heti, mutta
+//    pitkällä aikavälillä vähemmän kuin lyhyellä.
 //  - Velasta uusitaan vuosittain noin viidesosa, joten korkojen nousu siirtyy
 //    korkomenoihin vähitellen.
 //  - Veromuutosten tuotot on kalibroitu valtiovarainministeriön vaikutusarvioihin.
@@ -25,6 +27,18 @@ export interface Scenario {
   spending: Record<string, number>; // menoluokan muutos, %
   spendingTrend: number; // menojen luontainen reaalikasvu, %/v
   behavioral: boolean; // huomioidaanko käyttäytymisvaikutukset
+  /** Kasvutoimien lisäkasvu (%-yks.) ennustevuosina from..to (1 = ensimmäinen ennustevuosi). */
+  growthBoosts?: GrowthBoost[];
+  /** Lisämenot perusvuoden euroissa (milj. €), kasvavat muiden menojen tahdissa. */
+  extraSpending?: number;
+}
+
+export interface GrowthBoost {
+  pp: number;
+  from: number;
+  to?: number;
+  /** Työllisyydestä syntyvä kasvu ei nosta palkkatasoa, joten menot eivät seuraa sitä. */
+  employment?: boolean;
 }
 
 export const DEFAULT_SCENARIO: Scenario = {
@@ -43,6 +57,9 @@ export const DEFAULT_SCENARIO: Scenario = {
 export const YEARS = 10;
 export const VAT_GENERAL_RATE = 25.5;
 export const CORPORATE_RATE = 20;
+
+/** Osuus oletuksesta poikkeavasta kasvusta, joka siirtyy menoihin vuoden viiveellä. */
+export const GROWTH_PASS_THROUGH = 0.5;
 
 /** Osuus velasta, joka hinnoitellaan vuosittain uudelleen (1 / uudelleenhinnoitteluaika 5,4 v). */
 export const ROLLOVER = 0.185;
@@ -139,9 +156,24 @@ export const COEFFICIENTS: Coefficient[] = [
   },
   {
     name: "Talouskasvun vaikutus rahoitusasemaan",
-    value: "≈ 0,56 (menot / BKT, koska menot eivät seuraa kasvua)",
+    value:
+      "Ensimmäisenä vuonna ≈ 0,56 (menot / BKT). Sen jälkeen menot seuraavat oletuksesta poikkeavaa kasvua 50 %:sti vuoden viiveellä (oma oletus: palkat ja osin eläkkeet seuraavat ansiokehitystä)",
     source: "Vertailu: VTV:n arvio Suomen budjettijoustosta noin 0,5, EU-komission hieman korkeampi",
     url: "https://vtv.fi/en/report/automatic-fiscal-stabilizers-in-finland-1993-2021/",
+  },
+  {
+    name: "Työllisyysuudistus (päivän haaste)",
+    value:
+      "10 000 lisätyöllistä ≈ +165 milj. € vuodessa, vaikutus kertyy 3 vuodessa. Työllisyyden kasvu ei nosta palkkatasoa, joten menot eivät seuraa sitä.",
+    source: "VM 2020: yli 55-vuotiaiden työllisyystoimet, 10 000 työllistä vahvisti julkista taloutta noin 165 milj. €",
+    url: "https://valtioneuvosto.fi/-/10623/valtiovarainministerio-julkaisee-arvionsa-yli-55-vuotiaiden-tyollisyytta-parantavista-toimista",
+  },
+  {
+    name: "T&K- ja infrainvestointien kasvuvaikutus (päivän haaste)",
+    value:
+      "T&K +0,5 mrd € → tuottavuuskasvu +0,08 %-yks./v vuodesta 2028; infra +1 mrd € → +0,12 %-yks./v vuodesta 2027. Ne nostavat BKT:tä, mutta eivät mallissa maksa itseään takaisin julkiselle taloudelle 10 vuodessa.",
+    source: "Havainnollistava oletus: todellisesta tuotosta ei ole yksiselitteistä arviota",
+    own: true,
   },
   {
     name: "Menojen luontainen kasvu",
@@ -208,18 +240,27 @@ export function project(d: FinanceData, s: Scenario): YearResult[] {
   let debt = d.debt;
   // Muutokset suhteutetaan BKT:hen, jotta ne kasvavat talouden mukana.
   const revenueShare = (d.revenueTotal + taxDelta) / d.gdp;
-  const basePrimary = d.expenditureTotal - d.interest + spendDelta;
+  const basePrimary = d.expenditureTotal - d.interest + spendDelta + (s.extraSpending ?? 0);
 
   const g = s.realGrowth / 100;
   const p = s.inflation / 100;
   const i = s.interestRate / 100;
   const trend = s.spendingTrend / 100;
 
+  const gRef = DEFAULT_SCENARIO.realGrowth / 100;
+  let followGrowth = 1; // menojen kertynyt sopeutuminen poikkeavaan kasvuun
+  let prevGrowth = gRef;
+
   const out: YearResult[] = [];
   for (let t = 1; t <= YEARS; t++) {
-    gdp *= (1 + g) * (1 + p);
+    const active = (s.growthBoosts ?? []).filter((b) => t >= b.from && t <= (b.to ?? YEARS));
+    const boost = active.reduce((a, b) => a + b.pp / 100, 0);
+    const jobsBoost = active.filter((b) => b.employment).reduce((a, b) => a + b.pp / 100, 0);
+    gdp *= (1 + g + boost) * (1 + p);
     const revenue = revenueShare * gdp;
-    const primary = basePrimary * Math.pow((1 + p) * (1 + trend), t);
+    followGrowth *= 1 + GROWTH_PASS_THROUGH * (prevGrowth - gRef);
+    prevGrowth = g + boost - jobsBoost;
+    const primary = basePrimary * Math.pow((1 + p) * (1 + trend), t) * followGrowth;
     const blended = (1 - ROLLOVER) * rate + ROLLOVER * i;
     const interest = debt * blended;
     const balance = revenue - primary - interest;
