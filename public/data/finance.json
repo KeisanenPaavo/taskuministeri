@@ -19,15 +19,19 @@
       "id": "incomeTax",
       "name": "Ansio- ja pääomatulovero",
       "value": 36653,
-      "desc": "Verot, jotka maksetaan palkoista, eläkkeistä, verotettavista etuuksista (esim. työttömyyspäiväraha) sekä pääomatuloista kuten osingoista, vuokrista ja myyntivoitoista. Valtion tulovero on progressiivinen: pienituloisimmat eivät maksa sitä lainkaan. Kunnallisvero on kaikille saman suuruinen prosentti, joka vaihtelee kunnittain.",
+      "desc": "Verot, jotka maksetaan palkoista, eläkkeistä, verotettavista etuuksista (esim. työttömyyspäiväraha) sekä pääomatuloista kuten osingoista, vuokrista ja myyntivoitoista. Ansiotulovero menee valtiolle ja kunnille. Valtion ansiotulovero on progressiivinen: pienituloisimmat eivät maksa sitä lainkaan. Kunnallisvero on kaikille saman suuruinen prosentti, joka vaihtelee kunnittain. Pääomatulovero (30 %, yli 30 000 euron osalta 34 %) menee kokonaan valtiolle. Ansio- ja pääomatuloveron jako perustuu Verohallinnon verovuoden 2024 tilastoon.",
       "parts": [
         {
-          "name": "Valtion ansio- ja pääomatulovero",
-          "value": 26595
+          "name": "Valtion ansiotulovero (palkat, eläkkeet, etuudet)",
+          "value": 22398
         },
         {
-          "name": "Kunnallisvero",
+          "name": "Kunnallisvero (ansiotuloista)",
           "value": 10058
+        },
+        {
+          "name": "Pääomatulovero (osingot, vuokrat, myyntivoitot, korot)",
+          "value": 4197
         }
       ]
     },
@@ -2881,6 +2885,10 @@
     {
       "name": "Tilastokeskus: Julkisyhteisöjen alijäämä ja velka (122g)",
       "url": "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jali/statfin_jali_pxt_122g.px/"
+    },
+    {
+      "name": "Verohallinto: Henkilöasiakkaiden tuloverot (ansio- ja pääomatuloveron jako)",
+      "url": "https://vero2.stat.fi/PXWeb/pxweb/fi/Vero/Vero__Henkiloasiakkaiden_tuloverot__lopulliset__verot_maksut/verot_maksut_105.px/"
     },
     {
       "name": "Tilastokeskus: BKT (15a9)",

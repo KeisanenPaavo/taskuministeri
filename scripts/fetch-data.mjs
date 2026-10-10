@@ -470,6 +470,34 @@ async function fetchNeighbors() {
   };
 }
 
+/** Verohallinto: pääomatuloveron osuus valtion tuloverosta uusimmalta verovuodelta. */
+async function fetchCapitalShare() {
+  const url =
+    "https://vero2.stat.fi/PXWeb/api/v1/fi/Vero/Henkiloasiakkaiden_tuloverot/lopulliset/verot_maksut/verot_maksut_105.px";
+  const meta = await (await fetch(url)).json();
+  const year = meta.variables.find((v) => v.code === "Verovuosi").values.at(-1);
+  // 40 = valtion tulovero ansiotulosta, 50 = pääomatulosta, 180 = eläketulon lisävero (ansiotuloa)
+  const items = ["HVT_VEROT_40", "HVT_VEROT_50", "HVT_VEROT_180"];
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: [
+        { code: "Verovuosi", selection: { filter: "item", values: [year] } },
+        { code: "Erä", selection: { filter: "item", values: items } },
+        { code: "Sukupuoli", selection: { filter: "item", values: ["S"] } },
+        { code: "Ikäluokka", selection: { filter: "item", values: ["SS"] } },
+        { code: "Tunnusluvut", selection: { filter: "item", values: ["Sum"] } },
+      ],
+      response: { format: "json" },
+    }),
+  });
+  if (!res.ok) throw new Error(`Verohallinto: HTTP ${res.status}`);
+  const v = Object.fromEntries((await res.json()).data.map((d) => [d.key[1], Number(d.values[0])]));
+  const earned = v.HVT_VEROT_40 + v.HVT_VEROT_180;
+  return { year: Number(year), share: v.HVT_VEROT_50 / (earned + v.HVT_VEROT_50) };
+}
+
 async function main() {
   // --- Vuodet ---------------------------------------------------------------
   const ntpYears = await years("ntp/15ah.px");
@@ -502,7 +530,7 @@ async function main() {
   const cashBenefits = tot("D62K");
 
   // --- Verot verolajeittain -------------------------------------------------
-  const taxCodes = ["SSS", "1100", "1200", "2000", "210001", "210002", "220001", "220002",
+  const taxCodes = ["SSS", "1100", "110001", "1200", "2000", "210001", "210002", "220001", "220002",
     "5111", "5121", "512101", "512102", "512103", "512104", "512105",
     "410001", "430001", "440001", "511302", "521001", "5126"];
   const taxQ = await query("ntp/15aj.px", {
@@ -532,14 +560,22 @@ async function main() {
     return list.map((p) => ({ name: p.name, value: Math.round(p.value) }));
   };
 
+  // Valtion tuloveron jako ansio- ja pääomatuloveroon Verohallinnon tilaston osuuksilla.
+  // Korkotulojen lähdevero on pääomatulon veroa, joten se lisätään pääomatuloveroon sellaisenaan.
+  const capital = await fetchCapitalShare();
+  const stateRest = tax("1100", "S1311") - tax("110001");
+  const stateCapital = stateRest * capital.share + tax("110001");
+  const stateEarned = tax("1100", "S1311") - stateCapital;
+
   const taxesTotal = tax("SSS");
   const otherTaxValue = taxesTotal - tax("1100") - tax("2000") - tax("5111") - tax("5121") - tax("1200");
   const revenue = [
     { id: "incomeTax", name: "Ansio- ja pääomatulovero", value: tax("1100"),
-      desc: "Verot, jotka maksetaan palkoista, eläkkeistä, verotettavista etuuksista (esim. työttömyyspäiväraha) sekä pääomatuloista kuten osingoista, vuokrista ja myyntivoitoista. Valtion tulovero on progressiivinen: pienituloisimmat eivät maksa sitä lainkaan. Kunnallisvero on kaikille saman suuruinen prosentti, joka vaihtelee kunnittain.",
+      desc: `Verot, jotka maksetaan palkoista, eläkkeistä, verotettavista etuuksista (esim. työttömyyspäiväraha) sekä pääomatuloista kuten osingoista, vuokrista ja myyntivoitoista. Ansiotulovero menee valtiolle ja kunnille. Valtion ansiotulovero on progressiivinen: pienituloisimmat eivät maksa sitä lainkaan. Kunnallisvero on kaikille saman suuruinen prosentti, joka vaihtelee kunnittain. Pääomatulovero (30 %, yli 30 000 euron osalta 34 %) menee kokonaan valtiolle. Ansio- ja pääomatuloveron jako perustuu Verohallinnon verovuoden ${capital.year} tilastoon.`,
       parts: finishParts(tax("1100"), [
-        { name: "Valtion ansio- ja pääomatulovero", value: tax("1100", "S1311") },
-        { name: "Kunnallisvero", value: tax("1100", "S1313") },
+        { name: "Valtion ansiotulovero (palkat, eläkkeet, etuudet)", value: stateEarned },
+        { name: "Kunnallisvero (ansiotuloista)", value: tax("1100", "S1313") },
+        { name: "Pääomatulovero (osingot, vuokrat, myyntivoitot, korot)", value: stateCapital },
       ]) },
     { id: "socialContrib", name: "Sosiaaliturvamaksut", value: tax("2000"),
       desc: "Palkasta maksettavat vakuutusmaksut, joilla rahoitetaan työeläkkeet sekä työttömyys- ja sairausvakuutus. Osan maksaa työnantaja palkan päälle, osan palkansaaja tai yrittäjä itse. Valtaosa menee työeläkelaitoksille tulevia eläkkeitä varten.",
@@ -776,6 +812,7 @@ async function main() {
       { name: "Tilastokeskus: Verot ja veronluonteiset maksut (15aj)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15aj.px/" },
       { name: "Tilastokeskus: Julkisyhteisöjen menot tehtävittäin (12a6)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jmete/statfin_jmete_pxt_12a6.px/" },
       { name: "Tilastokeskus: Julkisyhteisöjen alijäämä ja velka (122g)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__jali/statfin_jali_pxt_122g.px/" },
+      { name: "Verohallinto: Henkilöasiakkaiden tuloverot (ansio- ja pääomatuloveron jako)", url: "https://vero2.stat.fi/PXWeb/pxweb/fi/Vero/Vero__Henkiloasiakkaiden_tuloverot__lopulliset__verot_maksut/verot_maksut_105.px/" },
       { name: "Tilastokeskus: BKT (15a9)", url: "https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ntp/statfin_ntp_pxt_15a9.px/" },
     ],
   };
