@@ -112,6 +112,11 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
     }
     return hi;
   }, [data, target, s.spendingTrend, s.behavioral]);
+  // Jakaminen: tulos tekstinä ja linkki skenaarioon. Mobiilissa käytetään laitteen jakovalikkoa.
+  const [copied, setCopied] = useState(false);
+  const changed =
+    JSON.stringify(normalize(s)) !==
+    JSON.stringify(normalize({ ...DEFAULT_SCENARIO, spendingTrend: s.spendingTrend, behavioral: s.behavioral }));
   const tax = taxEffects(data, s);
   const spend = spendingEffects(data, s);
   const perPoint = perPointStatic(data);
@@ -137,6 +142,28 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
   const gap = lastBase.debtRatio - target;
   const progress = gap > 0 ? (lastBase.debtRatio - last.debtRatio) / gap : 1;
   const reached = last.debtRatio <= target + 0.05;
+  const shareHeadline = reached
+    ? `Pysäytit velan kasvun: velka ${last.year} on ${pct(last.debtRatio, 0)} BKT:stä.`
+    : progress < 0
+      ? `Velka ${last.year}: ${pct(last.debtRatio, 0)} BKT:stä. Uskallatko jakaa?`
+      : `Pääsit ${num(Math.max(0, progress) * 100, 0)} % tavoitteesta: velka ${last.year} on ${pct(last.debtRatio, 0)}.`;
+  const shareScenario = async () => {
+    const text = reached
+      ? `Pysäytin Suomen velan kasvun Taskuministerissä: velka ${last.year} ${pct(last.debtRatio, 0)} BKT:stä (ilman muutoksia ${pct(lastBase.debtRatio, 0)}). Pystytkö parempaan?`
+      : `Taskuministerissä pääsin ${num(Math.max(0, progress) * 100, 0)} % tavoitteesta: velka ${last.year} ${pct(last.debtRatio, 0)} BKT:stä. Pystytkö parempaan?`;
+    const url = location.href;
+    try {
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+        await navigator.share({ title: "Taskuministeri", text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      /* jako peruttiin tai leikepöytä ei käytettävissä */
+    }
+  };
 
   const perYear = unit === "total" ? " vuodessa" : "";
   const D = DEFAULT_SCENARIO;
@@ -512,6 +539,20 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
               refLine={{ value: -3, label: "EU:n alijäämäraja −3 %" }}
               bars={result.map((r, i) => ({ year: r.year, value: r.balanceRatio, base: baseline[i].balanceRatio }))}
             />
+          </div>
+
+          <div className={`share-cta ${changed ? "" : "idle"}`}>
+            <div className="share-copy">
+              <b>{changed ? shareHeadline : "Löydätkö keinon pysäyttää velan kasvun?"}</b>
+              <span>
+                {changed
+                  ? "Lähetä linkki kaverille: pystyykö hän parempaan?"
+                  : "Tee ensin päätöksiä, niin voit jakaa oman ratkaisusi."}
+              </span>
+            </div>
+            <button className="btn primary share-btn" onClick={shareScenario} disabled={!changed}>
+              {copied ? "✓ Linkki kopioitu" : "Jaa ratkaisusi →"}
+            </button>
           </div>
 
           {effects.length > 0 && (

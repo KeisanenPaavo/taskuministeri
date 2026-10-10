@@ -200,7 +200,6 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [unit, setUnit] = useState<Unit>("day");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
-  const [copied, setCopied] = useState(false);
   // Jakolinkit: #haaste avaa päivän haasteen, skenaariolinkki simulaattorin.
   const [game, setGame] = useState<GameId>(() => (/^#(haaste|pelit)$/.test(location.hash) ? "daily" : "sim"));
 
@@ -230,16 +229,6 @@ export default function App() {
   const setScenario = (s: Scenario) => {
     setScenarioState(s);
     writeScenario(s);
-  };
-
-  const share = async () => {
-    try {
-      await navigator.clipboard.writeText(location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* leikepöytä ei käytettävissä */
-    }
   };
 
   if (error) return <div className="wrap hero">Datan lataus epäonnistui: {error}</div>;
@@ -402,9 +391,7 @@ export default function App() {
               <>
                 <div className="sim-bar">
                   {unitPicker}
-                  <button className="chip" onClick={share}>
-                    {copied ? "Linkki kopioitu" : "Jaa skenaario"}
-                  </button>
+
                   <button className="chip" onClick={() => setScenario(DEFAULT_SCENARIO)}>
                     ↺ Aloita alusta
                   </button>
