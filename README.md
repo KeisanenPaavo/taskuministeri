@@ -40,7 +40,9 @@ Rajoitukset: malli ei huomioi finanssipolitiikan kerroinvaikutuksia, työllisyys
 
 ## Julkaisu
 
-Sivu julkaistaan automaattisesti GitHub Pagesiin jokaisesta `main`-haaran pushista ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)).
+Sivu on osoitteessa **https://taskuministeri.fi**. Se julkaistaan automaattisesti Cloudflare Pagesiin jokaisesta `main`-haaran pushista (build `npm run build`, hakemisto `dist`, `NODE_VERSION` 22). Verkkotunnuksen DNS on Cloudflaressa, ja www-osoite ohjautuu pääosoitteeseen.
+
+Vanha osoite keisanenpaavo.github.io/taskuministeri ohjaa uuteen osoitteeseen: GitHub Pagesiin julkaistaan vain [gh-pages-redirect](gh-pages-redirect/)-hakemiston ohjaussivu ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)).
 
 ## Rakentaminen
 

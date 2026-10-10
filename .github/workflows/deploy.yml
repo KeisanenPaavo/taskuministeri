@@ -1,4 +1,4 @@
-name: Julkaise GitHub Pagesiin
+name: Ohjaa GitHub Pages taskuministeri.fi-osoitteeseen
 
 on:
   push:
@@ -19,15 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+      # Sivu julkaistaan Cloudflare Pagesissa (taskuministeri.fi). GitHub Pagesissa on enää ohjaussivu,
+      # joka vie vanhat linkit (myös #-skenaariot) uuteen osoitteeseen.
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: dist
+          path: gh-pages-redirect
 
   deploy:
     needs: build
