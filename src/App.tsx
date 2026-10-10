@@ -6,6 +6,7 @@ import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
 import HundredEuros from "./components/HundredEuros";
+import DailyChallenge from "./components/DailyChallenge";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -101,7 +102,8 @@ export default function App() {
             Taskuministeri
           </div>
           <nav className="nav">
-            <a href="#peli">Peli</a>
+            <a href="#haaste">Päivän haaste</a>
+            <a href="#peli">Pelit</a>
             <a href="#rahat">Tulot ja menot</a>
             <a href="#velka">Velka</a>
             <a href="#kokeile">Kokeile itse</a>
@@ -188,6 +190,15 @@ export default function App() {
             Laskentatapa ja kaikki oletukset ovat <a href="#lahteet">avoimesti nähtävillä</a>.
           </p>
         </div>
+
+        <section id="haaste">
+          <h2 className="section-title">Päivän haaste</h2>
+          <p className="section-lead">
+            Joka päivä uusi talouspulma, sama kaikille. Valitse korteista oikeat toimet ja saavuta tavoite, ja vertaa
+            tulostasi kavereihin.
+          </p>
+          <DailyChallenge data={data} />
+        </section>
 
         <section id="peli">
           <h2 className="section-title">Pelaa ja opi</h2>
