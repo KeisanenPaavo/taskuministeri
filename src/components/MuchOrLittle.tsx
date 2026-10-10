@@ -8,14 +8,14 @@ const SECONDS_PER_YEAR = 365 * 24 * 3600;
 
 const euros = (v: number) => `${num(Math.round(v), 0)} €`;
 
-// Vertailukohdat: suoratoistotilaukset kuukaudessa ja tölkin pantti päivässä (hinnat lokakuu 2026).
+// Vertailukohdat: Netflix-tilaus kuukaudessa ja kahvikuppi päivässä (hinnat lokakuu 2026).
 // Päivitä, kun hinnat muuttuvat.
 interface Yardstick {
   id: string;
   name: string;
   price: number;
   period: "month" | "day";
-  /** Ruudun leveys pikseleinä; tölkit ovat kapeita pystyruutuja. */
+  /** Ruudun leveys pikseleinä. */
   boxW: number;
   heading: string;
   note: React.ReactNode;
@@ -24,8 +24,6 @@ interface Yardstick {
   /** Vertailtavat menoerät; oletuksena pienimmät erät. */
   rows?: string[];
 }
-
-export const CAN_DEPOSIT = 0.15;
 
 const YARDSTICKS: Yardstick[] = [
   {
@@ -47,24 +45,6 @@ const YARDSTICKS: Yardstick[] = [
     ),
   },
   {
-    id: "spotify",
-    name: "Spotify",
-    price: 12.99,
-    period: "month",
-    boxW: 22,
-    heading: "Jos valtio laskuttaisi kuukausitilauksena",
-    many: "Spotify-tilausta",
-    note: (
-      <>
-        Yksi ruutu on yksi{" "}
-        <a href="https://www.spotify.com/fi/premium/" target="_blank" rel="noreferrer">
-          Spotify Premium Yksilö
-        </a>{" "}
-        -tilaus, 12,99 €/kk (hinta lokakuussa 2026).
-      </>
-    ),
-  },
-  {
     id: "coffee",
     name: "Kahvi",
     price: 3,
@@ -74,28 +54,6 @@ const YARDSTICKS: Yardstick[] = [
     many: "kahvikuppia",
     rows: ["defence", "interest", "culture", "education", "health", "pensions"],
     note: <>Yksi ruutu on yksi kahvilakahvi, noin 3 € (havainnollistava hinta, kahvilasta riippuen noin 2–3 €).</>,
-  },
-  {
-    id: "can",
-    name: "Tölkki",
-    price: CAN_DEPOSIT,
-    period: "day",
-    boxW: 7,
-    heading: "Jos valtio laskuttaisi tölkkipanteissa",
-    many: "tölkkiä",
-    note: (
-      <>
-        Yksi ruutu on yksi palautettu tölkki, pantti 0,15 € (
-        <a
-          href="https://www.palpa.fi/kuluttajille/millaisia-pakkauksia-voi-palauttaa/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Palpa
-        </a>
-        ).
-      </>
-    ),
   },
 ];
 
@@ -146,12 +104,7 @@ export function SubscriptionCompare({ data }: { data: FinanceData }) {
           {monthly ? euros(total) : `${num(total, 1)} €`} {periodText}
         </b>{" "}
         jokaista suomalaista kohden.{" "}
-        {ys.id === "can" ? (
-          <>
-            Se vastaa <b>{count(total)} tölkin panttia joka päivä</b>. Jotta velkaa ei tarvitsisi ottaa, jokaisen
-            suomalaisen pitäisi palauttaa lisäksi <b>{num(Math.round(deficit / ys.price), 0)} tölkkiä joka päivä</b>.
-          </>
-        ) : ys.id === "coffee" ? (
+        {ys.id === "coffee" ? (
           <>
             Se on <b>{count(total)} kahvikupillista joka päivä</b>, ja niistä {count(deficit)} juotiin velaksi.
           </>
@@ -165,7 +118,7 @@ export function SubscriptionCompare({ data }: { data: FinanceData }) {
           </>
         )}
       </p>
-      <ul className={`subs-rows ${ys.id === "can" ? "cans" : ""}`}>
+      <ul className="subs-rows">
         {rows.map((r) => {
           const n = r.eur / ys.price;
           return (

@@ -59,11 +59,6 @@ const EXTRA_SOURCES = [
     name: "Tilastokeskus: Palkka- ja palkkiotulojen mediaani (joulukuu 2025)",
     url: "https://stat.fi/tup/kokeelliset-tilastot/tulorekisterin_palkat_ja_palkkiot/2026-02-09/index.html",
   },
-  {
-    id: "palpa",
-    name: "Palpa: Pantilliset pakkaukset ja panttiarvot",
-    url: "https://www.palpa.fi/kuluttajille/millaisia-pakkauksia-voi-palauttaa/",
-  },
 ];
 
 // Lehden päiväys, esim. "Lauantai 10. lokakuuta 2026".
@@ -298,7 +293,7 @@ export default function App() {
             <p className="lead dropcap">
               Suomen julkinen sektori käytti viime vuonna {Math.round(data.expenditureTotal / 1000)} miljardia euroa.
               Luku on niin suuri, ettei sitä voi kuvitella, ja siksi miljardeista on helppo väitellä. Tässä jutussa
-              miljardit pienennetään taskukokoon: euroiksi päivässä, Netflix-tilauksiksi, kahvikupeiksi ja tölkeiksi.
+              miljardit pienennetään taskukokoon: euroiksi päivässä, Netflix-tilauksiksi ja kahvikupeiksi.
             </p>
             <p className="story-text">Aloitetaan pelillä. Arvaa, kumpi on isompi.</p>
             <p className="chapter">Luku 1 · Arvaa</p>

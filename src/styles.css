@@ -2231,13 +2231,6 @@ svg text {
   gap: 4px;
   padding: 4px 0;
 }
-.subs-rows.cans .subs-boxes {
-  gap: 3px;
-}
-.subs-rows.cans .subs-boxes i {
-  height: 18px;
-  border-radius: 2px 2px 1px 1px;
-}
 .subs-rows li.bad .subs-boxes i {
   background: var(--deficit);
 }
