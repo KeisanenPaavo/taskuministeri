@@ -5,6 +5,7 @@ import { money, perCapita, perDay, pct, type Unit } from "./format";
 import BudgetColumns from "./components/BudgetColumns";
 import Simulator from "./components/Simulator";
 import BiggerGame from "./components/BiggerGame";
+import HundredEuros from "./components/HundredEuros";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -33,12 +34,18 @@ const UNITS: { id: Unit; long: string; short: string; title: string }[] = [
   { id: "day", long: "Per asukas / päivä", short: "€/pv", title: "Euroa jokaista suomalaista kohden päivässä" },
 ];
 
+const GAMES = [
+  { id: "bigger", emoji: "🃏", name: "Kumpi on isompi?", desc: "Arvaa kumpi kahdesta maksaa enemmän" },
+  { id: "hundred", emoji: "💯", name: "Sata euroa", desc: "Jaa 100 € ja vertaa Suomeen" },
+] as const;
+
 export default function App() {
   const [data, setData] = useState<FinanceData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unit, setUnit] = useState<Unit>("total");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [copied, setCopied] = useState(false);
+  const [game, setGame] = useState<"bigger" | "hundred">("bigger");
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/finance.json`)
@@ -151,8 +158,8 @@ export default function App() {
               <span className="ic">🃏</span>
               <h3>Testaa vaistosi</h3>
               <p>
-                Kumpi maksaa enemmän: puolustus vai velan korot? Kymmenen kysymyksen peli, joka opettaa miljardien
-                mittasuhteet minuutissa.
+                Kumpi maksaa enemmän: puolustus vai velan korot? Miten itse jakaisit sata euroa? Pelit opettavat
+                miljardien mittasuhteet minuutissa.
               </p>
               <span className="go">Pelaa →</span>
             </a>
@@ -183,12 +190,28 @@ export default function App() {
         </div>
 
         <section id="peli">
-          <h2 className="section-title">Lämmittely: kumpi on isompi?</h2>
+          <h2 className="section-title">Pelaa ja opi</h2>
           <p className="section-lead">
-            Arvaa ennen kuin katsot. Kumpi kahdesta vie enemmän rahaa tai tuo enemmän tuloja? Vastauksen jälkeen näet
-            luvut euroina päivässä jokaista suomalaista kohden.
+            Testaa, kuinka hyvin tunnet Suomen talouden mittasuhteet, ennen kuin katsot lukuja.
           </p>
-          <BiggerGame data={data} />
+          <div className="game-tabs" role="tablist">
+            {GAMES.map((g) => (
+              <button
+                key={g.id}
+                role="tab"
+                aria-selected={game === g.id}
+                className={game === g.id ? "on" : ""}
+                onClick={() => setGame(g.id)}
+              >
+                <span className="gt-emoji">{g.emoji}</span>
+                <span>
+                  <b>{g.name}</b>
+                  <small>{g.desc}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+          {game === "bigger" ? <BiggerGame data={data} /> : <HundredEuros data={data} />}
         </section>
 
         <section id="rahat">
