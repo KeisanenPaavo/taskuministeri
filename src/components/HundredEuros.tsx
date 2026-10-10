@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import type { FinanceData } from "../types";
+import { useMemo, useState, type ReactNode } from "react";
+import type { FinanceData, Part } from "../types";
 import { EXPENDITURE_COLORS } from "../colors";
 import { num } from "../format";
 
@@ -12,27 +12,68 @@ interface Group {
   emoji: string;
   ids: string[]; // datan menoerät
   persona: string; // arvonimi, jos pelaaja painottaa tätä eniten
+  hint: string; // lyhyt, aina näkyvä esimerkkilista
+  desc?: string; // kuvaus ryhmille, jotka yhdistävät useita menoeriä
 }
 
 const GROUPS: Group[] = [
-  { id: "pensions", name: "Eläkkeet ja vanhuspalvelut", emoji: "👵", ids: ["pensions"], persona: "Eläkeläisten ystävä" },
-  { id: "health", name: "Terveydenhuolto", emoji: "🏥", ids: ["health"], persona: "Terveyden puolustaja" },
-  { id: "education", name: "Koulutus", emoji: "🎓", ids: ["education"], persona: "Sivistysvaltion rakentaja" },
-  { id: "family", name: "Perheet ja lapset", emoji: "👶", ids: ["family"], persona: "Lapsiperheiden asianajaja" },
+  {
+    id: "pensions",
+    name: "Eläkkeet ja vanhuspalvelut",
+    emoji: "👵",
+    ids: ["pensions"],
+    persona: "Eläkeläisten ystävä",
+    hint: "eläkkeet, kotihoito, hoivakodit",
+  },
+  {
+    id: "health",
+    name: "Terveydenhuolto",
+    emoji: "🏥",
+    ids: ["health"],
+    persona: "Terveyden puolustaja",
+    hint: "sairaalat, terveyskeskukset, lääkkeet",
+  },
+  {
+    id: "education",
+    name: "Koulutus",
+    emoji: "🎓",
+    ids: ["education"],
+    persona: "Sivistysvaltion rakentaja",
+    hint: "koulut, lukiot, ammattikoulut, yliopistot",
+  },
+  {
+    id: "family",
+    name: "Perheet ja lapset",
+    emoji: "👶",
+    ids: ["family"],
+    persona: "Lapsiperheiden asianajaja",
+    hint: "päiväkodit, lapsilisät, lastensuojelu",
+  },
   {
     id: "social",
     name: "Sairaus, työttömyys ja muu sosiaaliturva",
     emoji: "🤝",
     ids: ["sickness", "unemployment", "otherSocial"],
     persona: "Turvaverkon kutoja",
+    hint: "työkyvyttömyys, työttömyysturva, asumistuki",
+    desc: "Toimeentulo ja palvelut niille, jotka eivät sairauden, vamman tai työttömyyden vuoksi saa elantoaan työstä: työkyvyttömyyseläkkeet, sairauspäivärahat, vammaispalvelut, työttömyysturva, asumistuki ja toimeentulotuki.",
   },
-  { id: "economy", name: "Elinkeinot ja liikenne", emoji: "🚆", ids: ["economy"], persona: "Infran rakentaja" },
+  {
+    id: "economy",
+    name: "Elinkeinot ja liikenne",
+    emoji: "🚆",
+    ids: ["economy"],
+    persona: "Infran rakentaja",
+    hint: "tiet, raiteet, yritys- ja maataloustuet",
+  },
   {
     id: "security",
     name: "Puolustus ja turvallisuus",
     emoji: "🛡️",
     ids: ["defence", "order"],
     persona: "Turvallisuuden vartija",
+    hint: "puolustusvoimat, poliisi, pelastustoimi",
+    desc: "Puolustusvoimat ja puolustushankinnat sekä sisäinen turvallisuus: poliisi, pelastustoimi, tuomioistuimet ja vankilat.",
   },
   {
     id: "culture",
@@ -40,12 +81,36 @@ const GROUPS: Group[] = [
     emoji: "🎭",
     ids: ["culture", "environment"],
     persona: "Kulttuurin ja luonnon puolustaja",
+    hint: "kirjastot, liikunta, Yle, luonnonsuojelu",
+    desc: "Kirjastot, museot, teatterit, liikuntapaikat ja nuorisotyö, Yle sekä ympäristön- ja luonnonsuojelu, jätehuolto ja yhdyskuntien kehittäminen.",
   },
-  { id: "admin", name: "Hallinto ja tutkimus", emoji: "🏛️", ids: ["admin"], persona: "Virkakoneiston arkkitehti" },
+  {
+    id: "admin",
+    name: "Hallinto ja tutkimus",
+    emoji: "🏛️",
+    ids: ["admin"],
+    persona: "Virkakoneiston arkkitehti",
+    hint: "ministeriöt, verottaja, perustutkimus",
+  },
 ];
 
 const TOTAL = 100;
 const MAX = 50;
+
+interface Info {
+  desc: string;
+  parts: Part[];
+}
+
+/** Ryhmän kuvaus ja erittely: yhdistetyille ryhmille osat ovat menoeriä, muille datan alaeriä. */
+function groupInfo(g: Group, data: FinanceData): Info {
+  const items = g.ids.map((id) => data.expenditure.find((e) => e.id === id)).filter((e) => !!e);
+  if (items.length === 1) {
+    const it = items[0]!;
+    return { desc: g.desc ?? it.desc, parts: it.parts ?? [] };
+  }
+  return { desc: g.desc ?? "", parts: items.map((it) => ({ name: it!.name, value: it!.value })) };
+}
 
 export default function HundredEuros({ data }: { data: FinanceData }) {
   // Todellinen jako sadasta eurosta. Korot ovat pakollinen meno, joka lukitaan.
@@ -63,6 +128,9 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
   const [alloc, setAlloc] = useState<Record<string, number>>({});
   const [revealed, setRevealed] = useState(false);
   const [shared, setShared] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  const toggle = (id: string) => setOpen(open === id ? null : id);
+  const info = useMemo(() => Object.fromEntries(GROUPS.map((g) => [g.id, groupInfo(g, data)])), [data]);
 
   const used = GROUPS.reduce((a, g) => a + (alloc[g.id] ?? 0), 0);
   const left = budget - used;
@@ -86,6 +154,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
     setAlloc({});
     setRevealed(false);
     setShared(false);
+    setOpen(null);
   };
 
   // Tulokset: yhtäläisyys = 100 − puolet absoluuttisten erojen summasta
@@ -149,7 +218,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
             <div className="alloc-row locked">
               <span className="alloc-emoji">💸</span>
               <span className="alloc-name">
-                Velan korot <small>pakollinen</small>
+                Velan korot <small className="alloc-hint locked-hint">pakollinen, ei voi muuttaa</small>
               </span>
               <span className="alloc-lock">🔒</span>
               <b className="alloc-val">{interest} €</b>
@@ -157,28 +226,42 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
             {GROUPS.map((g) => {
               const v = alloc[g.id] ?? 0;
               return (
-                <div className="alloc-row" key={g.id}>
-                  <span className="alloc-emoji">{g.emoji}</span>
-                  <span className="alloc-name">{g.name}</span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={MAX}
-                    step={1}
-                    value={v}
-                    aria-label={g.name}
-                    onChange={(e) => set(g.id, Number(e.target.value))}
-                    style={{ ["--fill" as string]: `${(v / MAX) * 100}%`, ["--from" as string]: "0%" }}
-                  />
-                  <span className="alloc-steps">
-                    <button onClick={() => set(g.id, v - 1)} aria-label={`Vähennä: ${g.name}`} disabled={v === 0}>
-                      −
-                    </button>
-                    <button onClick={() => set(g.id, v + 1)} aria-label={`Lisää: ${g.name}`} disabled={left === 0}>
-                      +
-                    </button>
-                  </span>
-                  <b className="alloc-val">{v} €</b>
+                <div key={g.id} className="alloc-item">
+                  <div className="alloc-row">
+                    <span className="alloc-emoji">{g.emoji}</span>
+                    <span className="alloc-name">
+                      {g.name}
+                      <button
+                        className={`info-btn ${open === g.id ? "on" : ""}`}
+                        onClick={() => toggle(g.id)}
+                        aria-expanded={open === g.id}
+                        aria-label={`Mitä kuuluu: ${g.name}`}
+                      >
+                        i
+                      </button>
+                      <small className="alloc-hint">{g.hint}</small>
+                    </span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={MAX}
+                      step={1}
+                      value={v}
+                      aria-label={g.name}
+                      onChange={(e) => set(g.id, Number(e.target.value))}
+                      style={{ ["--fill" as string]: `${(v / MAX) * 100}%`, ["--from" as string]: "0%" }}
+                    />
+                    <span className="alloc-steps">
+                      <button onClick={() => set(g.id, v - 1)} aria-label={`Vähennä: ${g.name}`} disabled={v === 0}>
+                        −
+                      </button>
+                      <button onClick={() => set(g.id, v + 1)} aria-label={`Lisää: ${g.name}`} disabled={left === 0}>
+                        +
+                      </button>
+                    </span>
+                    <b className="alloc-val">{v} €</b>
+                  </div>
+                  {open === g.id && <InfoPanel info={info[g.id]} />}
                 </div>
               );
             })}
@@ -231,8 +314,15 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
               <i className="real" /> Suomi oikeasti
             </span>
           </div>
+          <p className="compare-tip">Napauta riviä nähdäksesi, mistä summa koostuu.</p>
           <div className="compare-list">
-            <CompareRow emoji="💸" name="Velan korot" mine={interest} real={interest} color={EXPENDITURE_COLORS.interest} />
+            <CompareRow
+              emoji="💸"
+              name="Velan korot"
+              mine={interest}
+              real={interest}
+              color={EXPENDITURE_COLORS.interest}
+            />
             {[...diffs]
               .sort((a, b) => b.real - a.real)
               .map(({ g, mine, real }) => (
@@ -243,6 +333,9 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
                   mine={mine}
                   real={real}
                   color={EXPENDITURE_COLORS[g.ids[0]]}
+                  open={open === g.id}
+                  onToggle={() => toggle(g.id)}
+                  details={<InfoPanel info={info[g.id]} total={real} perHundred={TOTAL / data.expenditureTotal} />}
                 />
               ))}
           </div>
@@ -264,42 +357,93 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
   );
 }
 
+/**
+ * Ryhmän kuvaus ja alaerät. Ennen paljastusta näytetään vain nimet, jotta oikea jako ei paljastu.
+ * Paljastuksen jälkeen alaerät näytetään euroina sadasta.
+ */
+function InfoPanel({ info, total, perHundred }: { info: Info; total?: number; perHundred?: number }) {
+  const parts = [...info.parts].sort(
+    (a, b) => Number(a.name === "Muut") - Number(b.name === "Muut") || b.value - a.value,
+  );
+  const showAmounts = perHundred !== undefined && total !== undefined;
+  return (
+    <div className="info-panel">
+      <p>{info.desc}</p>
+      {parts.length > 1 &&
+        (showAmounts ? (
+          <ul className="info-amounts">
+            {parts.map((p) => {
+              const eur = p.value * perHundred!;
+              return (
+                <li key={p.name}>
+                  <span>{p.name}</span>
+                  <span className="info-bar">
+                    <span style={{ width: `${(eur / total!) * 100}%` }} />
+                  </span>
+                  <b>{eur < 1 ? num(eur, 1) : num(eur, 0)} €</b>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="info-tags">
+            {parts
+              .filter((p) => p.name !== "Muut")
+              .map((p) => (
+                <span key={p.name}>{p.name}</span>
+              ))}
+          </div>
+        ))}
+    </div>
+  );
+}
+
 function CompareRow({
   emoji,
   name,
   mine,
   real,
   color,
+  open,
+  onToggle,
+  details,
 }: {
   emoji: string;
   name: string;
   mine: number;
   real: number;
   color: string;
+  open?: boolean;
+  onToggle?: () => void;
+  details?: ReactNode;
 }) {
   // Erotus näytetään samoista pyöristetyistä luvuista, jotka näkyvät rivillä.
   const diff = Math.round(mine) - Math.round(real);
   const scale = (v: number) => `${(v / MAX) * 100}%`;
   return (
-    <div className="compare-row">
-      <div className="compare-head">
-        <span>
-          {emoji} {name}
-        </span>
-        <span>
-          <b>{num(mine, 0)} €</b> / {num(real, 0)} €
-          {diff !== 0 && (
-            <em className={diff > 0 ? "more" : "less"}>
-              {diff > 0 ? "+" : "−"}
-              {num(Math.abs(diff), 0)}
-            </em>
-          )}
-        </span>
-      </div>
-      <div className="compare-bars">
-        <div className="bar-mine" style={{ width: scale(mine), background: color }} />
-        <div className="bar-real" style={{ width: scale(real), borderColor: color }} />
-      </div>
+    <div className={`compare-row ${open ? "open" : ""}`}>
+      <button className="compare-hit" onClick={onToggle} disabled={!onToggle} aria-expanded={open}>
+        <div className="compare-head">
+          <span>
+            {emoji} {name}
+            {onToggle && <span className="chev">{open ? "▴" : "▾"}</span>}
+          </span>
+          <span>
+            <b>{num(mine, 0)} €</b> / {num(real, 0)} €
+            {diff !== 0 && (
+              <em className={diff > 0 ? "more" : "less"}>
+                {diff > 0 ? "+" : "−"}
+                {num(Math.abs(diff), 0)}
+              </em>
+            )}
+          </span>
+        </div>
+        <div className="compare-bars">
+          <div className="bar-mine" style={{ width: scale(mine), background: color }} />
+          <div className="bar-real" style={{ width: scale(real), borderColor: color }} />
+        </div>
+      </button>
+      {open && details}
     </div>
   );
 }
