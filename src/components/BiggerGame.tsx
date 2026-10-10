@@ -109,6 +109,48 @@ function newGame(entries: Record<string, Entry>): Question[] {
     .map(([x, y]) => (Math.random() < 0.5 ? { a: entries[x], b: entries[y] } : { a: entries[y], b: entries[x] }));
 }
 
+/** Osuus kokonaisuudesta selkokielellä, esim. "10,8 % kaikista julkisista menoista". */
+function shareText(e: Entry, d: FinanceData) {
+  if (e.kind === "Tulo") return `${num((e.value / d.revenueTotal) * 100, 1)} % kaikista julkisista tuloista`;
+  if (e.kind === "Meno") return `${num((e.value / d.expenditureTotal) * 100, 1)} % kaikista julkisista menoista`;
+  return `${num((e.value / d.expenditureTotal) * 100, 1)} % menoista rahoitettiin velalla`;
+}
+
+/** Vastauksen jälkeen näytettävä selitys: mitä erä sisältää ja mistä se koostuu. */
+function Explain({ entry: e, data }: { entry: Entry; data: FinanceData }) {
+  const parts = (e.parts ?? [])
+    .filter((p) => p.name !== "Muut")
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3);
+  return (
+    <div className="explain">
+      <div className="explain-head">
+        <span>{EMOJI[e.id] ?? "💶"}</span>
+        <div>
+          <b>{e.name}</b>
+          <small>{shareText(e, data)}</small>
+        </div>
+      </div>
+      <p>{e.desc}</p>
+      {parts.length > 1 && (
+        <ul>
+          {parts.map((p) => (
+            <li key={p.name}>
+              <div className="part-row">
+                <span>{p.name}</span>
+                <b>{perDay(p.value, data.population)}</b>
+              </div>
+              <div className="part-bar">
+                <div style={{ width: `${(p.value / e.value) * 100}%`, background: e.color }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function BiggerGame({ data }: { data: FinanceData }) {
   const entries = useMemo(() => buildEntries(data), [data]);
   const [questions, setQuestions] = useState(() => newGame(entries));
@@ -257,7 +299,17 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
             {round + 1 < questions.length ? "Seuraava →" : "Katso tulos →"}
           </button>
         </div>
-      ) : (
+      ) : null}
+
+      {picked && (
+        <div className="game-explain">
+          {[q.a, q.b].map((e) => (
+            <Explain key={e.id} entry={e} data={data} />
+          ))}
+        </div>
+      )}
+
+      {picked ? null : (
         <p className="game-hint">Valitse kortti. Vinkki: näppäimistöllä ← ja →.</p>
       )}
     </div>
