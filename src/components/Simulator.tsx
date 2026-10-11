@@ -14,6 +14,7 @@ import { EXPENDITURE_COLORS } from "../colors";
 import { money, mrd, num, pct, perDay, type Unit } from "../format";
 import { BarChart, LineChart } from "./charts";
 import { verdict } from "../verdict";
+import { track, trackOnce } from "../track";
 
 interface Props {
   data: FinanceData;
@@ -157,7 +158,16 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
     : progress < 0
       ? `Velka ${last.year}: ${pct(last.debtRatio, 0)} BKT:stä. Uskallatko jakaa?`
       : `Pääsit ${num(Math.max(0, progress) * 100, 0)} % tavoitteesta: velka ${last.year} on ${pct(last.debtRatio, 0)}.`;
+  // Seuranta: kokeiliko pelaaja säätimiä ja pääsikö tavoitteeseen. Jaetusta linkistä avattu skenaario ei vielä
+  // ole kävijän omaa kokeilua.
+  const initial = useRef(s);
+  useEffect(() => {
+    if (s === initial.current || !changed) return;
+    trackOnce("Simulaattori: kokeili");
+    if (reached) trackOnce("Simulaattori: tavoite saavutettu");
+  }, [s, changed, reached]);
   const shareScenario = async () => {
+    track("Simulaattori: jakoi", { tulos: reached ? "tavoite" : `${num(Math.max(0, progress) * 100, 0)} %` });
     const text =
       `Olen ${told.title}. ` +
       (reached

@@ -11,6 +11,7 @@ import Neighbors from "./components/Neighbors";
 import DebtMetaphors from "./components/DebtMetaphors";
 import DebtChart from "./components/DebtChart";
 import Cite, { SourcesContext } from "./components/Cite";
+import { track, trackChapters } from "./track";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -212,6 +213,19 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
       .catch((e) => setError(String(e)));
   }, [initialData]);
 
+  // Lukusyvyys: tapahtuma, kun lukija pääsee kunkin luvun kohdalle.
+  useEffect(() => {
+    if (!data) return;
+    return trackChapters({
+      arvaa: "Luku 1: Arvaa",
+      paljon: "Luku 2: Paljon vai vähän",
+      velka: "Luku 3: Velka",
+      naapurit: "Luku 4: Naapurit",
+      kokeile: "Luku 5: Kokeile",
+      lahteet: "Sivun loppu",
+    });
+  }, [data]);
+
   // Ankkurilinkki (#kokeile) toimii vasta, kun sisältö on ladattu.
   useEffect(() => {
     if (!data) return;
@@ -377,7 +391,10 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
                   role="tab"
                   aria-selected={game === g.id}
                   className={game === g.id ? "on" : ""}
-                  onClick={() => setGame(g.id)}
+                  onClick={() => {
+                    setGame(g.id);
+                    track("Välilehti", { peli: g.name });
+                  }}
                 >
                   <span>
                     <b>{g.name}</b>

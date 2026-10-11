@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FinanceData, Item } from "../types";
 import { EXPENDITURE_COLORS, REVENUE_COLORS } from "../colors";
 import { mrd, num, perDay } from "../format";
+import { track, trackOnce } from "../track";
 
 // "Kumpi on isompi?" -peli. Parit on valittu käsin niin, että niissä on yllätyksiä,
 // mutta oikea vastaus ja erotukset lasketaan aina datasta.
@@ -140,8 +141,11 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
   const pick = (id: string) => {
     if (picked || !q) return;
     setPicked(id);
+    trackOnce("Arvaa: aloitti");
     const winner = q.a.value > q.b.value ? q.a : q.b;
-    if (id === winner.id) setScore((s) => s + 1);
+    const right = id === winner.id;
+    if (right) setScore((s) => s + 1);
+    if (round === questions.length - 1) track("Arvaa: pelasi loppuun", { pisteet: score + (right ? 1 : 0) });
   };
   const next = () => {
     setPicked(null);
@@ -175,6 +179,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
     const url = `${location.origin}${location.pathname}#peli`;
     const text = `Sain ${score}/${questions.length} Taskuministerin "Kumpi on isompi?" -pelissä (${rank.title}). Tunnetko Suomen talouden paremmin?`;
     const share = async () => {
+      track("Arvaa: jakoi");
       try {
         if (navigator.share) await navigator.share({ title: "Taskuministeri", text, url });
         else {

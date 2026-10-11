@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import type { FinanceData, Part } from "../types";
 import { EXPENDITURE_COLORS } from "../colors";
 import { num } from "../format";
+import { track } from "../track";
 
 // "Sata euroa" -peli: pelaaja jakaa 100 € julkisia menoja haluamallaan tavalla
 // ja näkee sitten, miten Suomi oikeasti jakaa ne.
@@ -169,6 +170,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
   const persona = most.diff > 2 ? most.g.persona : "Realisti";
 
   const share = async () => {
+    track("Sata euroa: jakoi");
     const url = `${location.origin}${location.pathname}#peli`;
     const text = `Jaoin 100 € julkisia menoja Taskuministerissä. Minun Suomeni on ${similarity} % sama kuin oikea Suomi. Arvonimeni: ${persona} ${most.g.emoji}. Miten sinä jakaisit?`;
     try {
@@ -271,7 +273,14 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
                 Jaa loput {left} € tasan
               </button>
             )}
-            <button className="btn primary" onClick={() => setRevealed(true)} disabled={left !== 0}>
+            <button
+              className="btn primary"
+              onClick={() => {
+                setRevealed(true);
+                track("Sata euroa: katsoi tuloksen", { samankaltaisuus: similarity });
+              }}
+              disabled={left !== 0}
+            >
               {left === 0 ? "Näytä, miten Suomi jakaa →" : `Jaa vielä ${left} €`}
             </button>
           </div>
