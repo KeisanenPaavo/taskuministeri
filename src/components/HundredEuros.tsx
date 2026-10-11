@@ -170,7 +170,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
   const persona = most.diff > 2 ? most.g.persona : "Realisti";
 
   const share = async () => {
-    track("Sata euroa: jakoi");
+    track("Haasta kaveri", { peli: "Sata euroa", samankaltaisuus: similarity });
     const url = `${location.origin}${location.pathname}#peli`;
     const text = `Jaoin 100 € julkisia menoja Taskuministerissä. Minun Suomeni on ${similarity} % sama kuin oikea Suomi. Arvonimeni: ${persona} ${most.g.emoji}. Miten sinä jakaisit?`;
     try {

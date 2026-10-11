@@ -179,7 +179,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
     const url = `${location.origin}${location.pathname}#peli`;
     const text = `Sain ${score}/${questions.length} Taskuministerin "Kumpi on isompi?" -pelissä (${rank.title}). Tunnetko Suomen talouden paremmin?`;
     const share = async () => {
-      track("Arvaa: jakoi");
+      track("Haasta kaveri", { peli: "Arvaa", pisteet: score });
       try {
         if (navigator.share) await navigator.share({ title: "Taskuministeri", text, url });
         else {
