@@ -171,7 +171,7 @@ export default function HundredEuros({ data }: { data: FinanceData }) {
 
   const share = async () => {
     track("Haasta kaveri", { peli: "Sata euroa", samankaltaisuus: similarity });
-    const url = `${location.origin}${location.pathname}#peli`;
+    const url = `${location.origin}${location.pathname}#sata`;
     const text = `Jaoin 100 € julkisia menoja Taskuministerissä. Minun Suomeni on ${similarity} % sama kuin oikea Suomi. Arvonimeni: ${persona} ${most.g.emoji}. Miten sinä jakaisit?`;
     try {
       if (navigator.share) await navigator.share({ title: "Taskuministeri: Sata euroa", text, url });

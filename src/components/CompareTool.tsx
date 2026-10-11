@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { track } from "../track";
 import type { CompareData, CompareRow, CountryCode } from "../types";
 import { num } from "../format";
 import { LineChart } from "./charts";
@@ -47,6 +48,10 @@ export default function CompareTool({
   // Aikajanalle valittavat erät: pääluokat ja niiden alaerät.
   const options = group.rows.flatMap((r) => [{ row: r, sub: false }, ...r.parts.map((p) => ({ row: p, sub: true }))]);
   const picked = options[Math.min(pick, options.length - 1)].row;
+  const pickRow = (r: CompareRow) => {
+    setPick(options.findIndex((o) => o.row === r));
+    track("Vertailu: aikajana", { era: r.name });
+  };
 
   const max = Math.max(...group.rows.flatMap((r) => codes.map((c) => convRow(r, c) ?? 0))) * 1.08;
 
@@ -86,7 +91,7 @@ export default function CompareTool({
         aria-expanded={isOpen}
         onClick={() => {
           toggle(key);
-          setPick(options.findIndex((o) => o.row === r));
+          pickRow(r);
         }}
       >
         <span className="compare-sign" aria-hidden="true">
@@ -104,7 +109,7 @@ export default function CompareTool({
         role="row"
         title="Näytä aikajanalla"
         onClick={(e) => {
-          if (!(e.target as HTMLElement).closest(".compare-open")) setPick(options.findIndex((o) => o.row === r));
+          if (!(e.target as HTMLElement).closest(".compare-open")) pickRow(r);
         }}
       >
         {name}
@@ -146,6 +151,7 @@ export default function CompareTool({
               onClick={() => {
                 setGroupId(g.id);
                 setPick(defaultPick(g.rows));
+                track("Vertailu: välilehti", { ryhma: g.title });
               }}
             >
               {g.title}

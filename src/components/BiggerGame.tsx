@@ -162,7 +162,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
   // Näppäimistö: ← / → valitsee, Enter siirtyy eteenpäin.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const el = document.getElementById("peli");
+      const el = document.getElementById("arvaa");
       if (!el || done) return;
       const r = el.getBoundingClientRect();
       if (r.bottom < 0 || r.top > innerHeight) return;
@@ -176,7 +176,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
 
   if (done) {
     const rank = RANKS.find((r) => score >= r.min)!;
-    const url = `${location.origin}${location.pathname}#peli`;
+    const url = `${location.origin}${location.pathname}#arvaa`;
     const text = `Sain ${score}/${questions.length} Taskuministerin "Kumpi on isompi?" -pelissä (${rank.title}). Tunnetko Suomen talouden paremmin?`;
     const share = async () => {
       track("Haasta kaveri", { peli: "Arvaa", pisteet: score });

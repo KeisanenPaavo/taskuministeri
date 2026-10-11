@@ -11,7 +11,7 @@ import Neighbors from "./components/Neighbors";
 import DebtMetaphors from "./components/DebtMetaphors";
 import DebtChart from "./components/DebtChart";
 import Cite, { SourcesContext } from "./components/Cite";
-import { track, trackChapters } from "./track";
+import { track, trackChapters, trackReading } from "./track";
 
 // Skenaario tallennetaan URL:iin, jotta sen voi jakaa linkkinä.
 function readScenario(): Scenario {
@@ -226,12 +226,31 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
     });
   }, [data]);
 
+  useEffect(trackReading, []);
+
   // Ankkurilinkki (#kokeile) toimii vasta, kun sisältö on ladattu.
   useEffect(() => {
     if (!data) return;
     const hash = location.hash.slice(1);
+    // Saapuiko kävijä jaetusta linkistä? Pelit jakavat linkit #arvaa ja #sata, simulaattori #s=….
+    const shared = hash.startsWith("s=")
+      ? "Skenaario"
+      : hash === "sata"
+        ? "Sata euroa"
+        : hash === "arvaa"
+          ? "Arvaa"
+          : "";
+    if (shared) track("Saapui jaetusta linkistä", { linkki: shared });
+    if (hash === "sata") setGame("hundred");
     // Vanhat ankkurit ohjataan uusiin lukuihin; skenaariolinkki (#s=…) vie simulaattoriin.
-    const alias: Record<string, string> = { haaste: "kokeile", pelit: "kokeile", luvut: "paljon", rahat: "rahat" };
+    const alias: Record<string, string> = {
+      haaste: "kokeile",
+      pelit: "kokeile",
+      peli: "arvaa",
+      sata: "kokeile",
+      luvut: "paljon",
+      rahat: "rahat",
+    };
     const id = hash.startsWith("s=") ? "kokeile" : (alias[hash] ?? hash);
     if (!id || !/^[a-z]+$/.test(id)) return;
     // Odotetaan, että kaaviot ja fontit ovat asettuneet, jotta kohta ei siirry vierityksen jälkeen.

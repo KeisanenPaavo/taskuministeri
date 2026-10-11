@@ -372,14 +372,15 @@ export default function Simulator({ data, unit, scenario: s, setScenario }: Prop
               key={p.id}
               className={`chip ${activePreset?.id === p.id ? "on" : ""}`}
               title={p.desc}
-              onClick={() =>
+              onClick={() => {
+                track("Lähtötilanne", { valinta: p.name });
                 setScenario({
                   ...DEFAULT_SCENARIO,
                   ...p.apply,
                   spendingTrend: s.spendingTrend,
                   behavioral: s.behavioral,
-                })
-              }
+                });
+              }}
             >
               {p.name}
             </button>
@@ -719,7 +720,10 @@ function Slider({
         step={step}
         value={value}
         aria-label={label}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => {
+          onChange(Number(e.target.value));
+          trackOnce("Säädin", { saadin: label }, `Säädin:${label}`);
+        }}
         onDoubleClick={() => onChange(base)}
         style={{ ["--fill" as string]: `${fill}%`, ["--from" as string]: `${from}%` }}
       />

@@ -30,11 +30,34 @@ export function track(name: string, data?: Record<string, string | number>) {
   if (queue.length === 1) flush();
 }
 
-/** Lähettää tapahtuman vain kerran sivulatauksen aikana. */
-export function trackOnce(name: string, data?: Record<string, string | number>) {
-  if (sent.has(name)) return;
-  sent.add(name);
+/** Lähettää tapahtuman vain kerran sivulatauksen aikana (key erottaa saman tapahtuman eri kohteet). */
+export function trackOnce(name: string, data?: Record<string, string | number>, key = name) {
+  if (sent.has(key)) return;
+  sent.add(key);
   track(name, data);
+}
+
+/** Lähdelinkit ja "lue lisää" -osiot seurataan koko sivulta yhdellä kuuntelijalla. */
+export function trackReading() {
+  const onClick = (e: MouseEvent) => {
+    const a = (e.target as HTMLElement).closest?.("a");
+    if (!a) return;
+    if (a.closest(".cite")) track("Lähdeviite", { lahde: a.title || a.textContent || "" });
+    else if (a.host && a.host !== location.host) track("Lähdelinkki", { sivusto: a.host.replace(/^www\./, "") });
+  };
+  // toggle ei kupli, joten kuunnellaan capture-vaiheessa.
+  const onToggle = (e: Event) => {
+    const d = e.target as HTMLDetailsElement;
+    if (d.tagName !== "DETAILS" || !d.open) return;
+    const osio = d.querySelector("summary")?.textContent?.trim() ?? "";
+    trackOnce("Lue lisää", { osio }, `Lue lisää:${osio}`);
+  };
+  document.addEventListener("click", onClick);
+  document.addEventListener("toggle", onToggle, true);
+  return () => {
+    document.removeEventListener("click", onClick);
+    document.removeEventListener("toggle", onToggle, true);
+  };
 }
 
 /** Merkitsee, kuinka pitkälle juttua luetaan: tapahtuma, kun luku tulee näkyviin. */
