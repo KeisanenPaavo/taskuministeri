@@ -315,8 +315,8 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
             </p>
             <p className="lead dropcap">
               Suomen julkinen sektori käytti viime vuonna {Math.round(data.expenditureTotal / 1000)} miljardia euroa.
-              Luku on niin suuri, että sitä on vaikea hahmottaa, ja siksi miljardeista on helppo väitellä. Tässä jutussa
-              miljardit pienennetään taskukokoon: euroiksi päivässä, Netflix-tilauksiksi ja kahvikupeiksi.
+              Luku on suuri ja vaikea hahmottaa, joten miljardeista on helppo väitellä. Tässä jutussa miljardit
+              pienennetään taskukokoon: euroiksi päivässä, Netflix-tilauksiksi ja kahvikupeiksi.
             </p>
             <p className="story-text">Aloitetaan pelillä. Arvaa, kumpi on isompi.</p>
             <p className="chapter">Luku 1 · Arvaa</p>
