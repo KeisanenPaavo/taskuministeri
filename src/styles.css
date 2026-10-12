@@ -2237,7 +2237,7 @@ svg text {
   }
 }
 .compare-timeline {
-  margin-top: 28px;
+  margin: 20px 0 28px;
   padding-top: 12px;
   border-top: 1px solid var(--rule);
 }

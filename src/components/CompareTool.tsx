@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { track } from "../track";
 import type { CompareData, CompareRow, CountryCode } from "../types";
 import { num } from "../format";
@@ -48,9 +48,13 @@ export default function CompareTool({
   // Aikajanalle valittavat erät: pääluokat ja niiden alaerät.
   const options = group.rows.flatMap((r) => [{ row: r, sub: false }, ...r.parts.map((p) => ({ row: p, sub: true }))]);
   const picked = options[Math.min(pick, options.length - 1)].row;
+  // Aikajana on taulukon yläpuolella: tuodaan se näkyviin, jos se on vieritetty pois.
+  const timelineRef = useRef<HTMLDivElement>(null);
   const pickRow = (r: CompareRow) => {
     setPick(options.findIndex((o) => o.row === r));
     track("Vertailu: aikajana", { era: r.name });
+    const el = timelineRef.current;
+    if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const max = Math.max(...group.rows.flatMap((r) => codes.map((c) => convRow(r, c) ?? 0))) * 1.08;
@@ -160,9 +164,53 @@ export default function CompareTool({
         </div>
       </div>
 
+      <div className="compare-timeline" ref={timelineRef}>
+        <div className="compare-timeline-head">
+          <label htmlFor="compare-pick" className="unit-label">
+            Aikajanalla
+          </label>
+          <select id="compare-pick" value={pick} onChange={(e) => setPick(Number(e.target.value))}>
+            {options.map((o, i) => (
+              <option key={i} value={i}>
+                {o.sub ? "\u2003" : ""}
+                {o.row.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <h4>
+          {picked.name}, {data.from}–{group.year}
+        </h4>
+        <div className="legend">
+          {codes.map((c) => (
+            <span key={c}>
+              <i style={{ borderColor: colors[c] }} />
+              {names[c]}
+            </span>
+          ))}
+        </div>
+        <LineChart
+          height={240}
+          minY={0}
+          unit="%"
+          refLine={picked.id ? REF_LINES[picked.id] : undefined}
+          series={codes.map((c) => ({
+            label: names[c],
+            color: colors[c],
+            width: c === "FI" ? 3.5 : 2.5,
+            points: picked.hist[c]
+              .map((v, i) => ({ year: data.from + i, value: convAt(v, c, data.from + i) }))
+              .filter((p): p is { year: number; value: number } => p.value !== null),
+          }))}
+        />
+        <p className="compare-hint">
+          Osuus BKT:stä kasvaa myös silloin, kun talous supistuu: vuosien 2009 ja 2020 piikit johtuvat osin BKT:n
+          pudotuksesta.
+        </p>
+      </div>
       <p className="compare-hint">
         {group.hint} Vuosi {group.year}. Plusmerkki avaa tarkemman erittelyn. Valitse rivi, niin näet sen kehityksen
-        aikajanalla taulukon alla.
+        aikajanalla taulukon yllä.
       </p>
 
       <ul className="compare-gaps">
@@ -217,51 +265,6 @@ export default function CompareTool({
           {allOpen ? "Sulje erittelyt" : "Avaa kaikki erittelyt"}
         </button>
       )}
-
-      <div className="compare-timeline">
-        <div className="compare-timeline-head">
-          <label htmlFor="compare-pick" className="unit-label">
-            Aikajanalla
-          </label>
-          <select id="compare-pick" value={pick} onChange={(e) => setPick(Number(e.target.value))}>
-            {options.map((o, i) => (
-              <option key={i} value={i}>
-                {o.sub ? "\u2003" : ""}
-                {o.row.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <h4>
-          {picked.name}, {data.from}–{group.year}
-        </h4>
-        <div className="legend">
-          {codes.map((c) => (
-            <span key={c}>
-              <i style={{ borderColor: colors[c] }} />
-              {names[c]}
-            </span>
-          ))}
-        </div>
-        <LineChart
-          height={240}
-          minY={0}
-          unit="%"
-          refLine={picked.id ? REF_LINES[picked.id] : undefined}
-          series={codes.map((c) => ({
-            label: names[c],
-            color: colors[c],
-            width: c === "FI" ? 3.5 : 2.5,
-            points: picked.hist[c]
-              .map((v, i) => ({ year: data.from + i, value: convAt(v, c, data.from + i) }))
-              .filter((p): p is { year: number; value: number } => p.value !== null),
-          }))}
-        />
-        <p className="compare-hint">
-          Osuus BKT:stä kasvaa myös silloin, kun talous supistuu: vuosien 2009 ja 2020 piikit johtuvat osin BKT:n
-          pudotuksesta.
-        </p>
-      </div>
     </div>
   );
 }
