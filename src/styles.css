@@ -2638,43 +2638,61 @@ svg text {
 
 /* Jutun loppu: vastaus otsikon kysymykseen */
 .answer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 0 32px;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
   margin: 24px 0 8px;
   border-top: 1px solid var(--rule);
 }
-.answer-col h3 {
+.answer th,
+.answer td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 12px 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.answer thead th {
   font-family: var(--font-serif);
-  font-size: 22px;
-  margin: 14px 0 4px;
+  font-size: clamp(16px, 2.4vw, 22px);
 }
-.answer-row {
-  display: grid;
-  grid-template-columns: 110px auto;
-  grid-template-areas: "label big" "label like";
-  column-gap: 16px;
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
+.answer thead td {
+  width: 22%;
 }
-.answer-label {
-  grid-area: label;
+.answer tbody th {
   font-size: 14px;
   font-weight: 600;
   color: var(--muted);
-  padding-top: 8px;
+  padding-top: 18px;
 }
 .answer-big {
-  grid-area: big;
+  display: block;
   font-family: var(--font-serif);
-  font-size: clamp(28px, 3.6vw, 40px);
+  font-size: clamp(20px, 3.4vw, 36px);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .answer-like {
-  grid-area: like;
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
   color: var(--muted);
+}
+@media (max-width: 480px) {
+  .answer thead td {
+    width: 18%;
+  }
+  .answer th,
+  .answer td {
+    padding-right: 8px;
+  }
+  .answer tbody th {
+    font-size: 13px;
+  }
+  .answer-like {
+    font-size: 13px;
+  }
 }
 .answer-note {
   font-size: 13px;

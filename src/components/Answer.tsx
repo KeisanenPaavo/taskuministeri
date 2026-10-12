@@ -19,6 +19,8 @@ function count(n: number, one: string, partitive: string, elative: string) {
 }
 
 const euros = (v: number) => (v < 1 ? `${num(v * 100, 0)} senttiä` : `${num(v, v < 10 ? 2 : 0)} €`);
+/** Taulukossa lyhyempi muoto: 0,49 €. */
+const short = (v: number) => `${num(v, v < 10 ? 2 : 0)} €`;
 
 export default function Answer({ data }: { data: FinanceData }) {
   const per = (millions: number) => {
@@ -40,33 +42,48 @@ export default function Answer({ data }: { data: FinanceData }) {
 
   const cols = [
     { title: "Yksi miljardi", v: one },
+    { title: "10 miljardia", v: per(10_000) },
     { title: `Kaikki ${bn} miljardia`, v: all },
   ];
 
   return (
     <>
       <p className="section-lead">
-        Yksi miljardi euroa on jokaista suomalaista kohden {euros(one.day)} päivässä eli {one.cups}. Kuukaudessa se on{" "}
-        {euros(one.month)} eli {one.netflix}. Yhtenä summana miljardi on siis pieni. Julkinen sektori käyttää kuitenkin{" "}
-        {bn} miljardia joka vuosi.
+        Miljardi euroa on jokaista suomalaista kohden {euros(one.day)} päivässä eli {one.cups}. Kuukaudessa se on{" "}
+        {euros(one.month)} eli {one.netflix}.
       </p>
-      <div className="answer" role="table" aria-label="Miljardi jokaista suomalaista kohden">
-        {cols.map((c) => (
-          <div key={c.title} className="answer-col" role="rowgroup">
-            <h3>{c.title}</h3>
-            <div className="answer-row" role="row">
-              <span className="answer-label">Päivässä</span>
-              <span className="answer-big">{euros(c.v.day)}</span>
-              <span className="answer-like">{c.v.cups}</span>
-            </div>
-            <div className="answer-row" role="row">
-              <span className="answer-label">Kuukaudessa</span>
-              <span className="answer-big">{euros(c.v.month)}</span>
-              <span className="answer-like">{c.v.netflix}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <table className="answer" aria-label="Summat jokaista suomalaista kohden">
+        <thead>
+          <tr>
+            <td />
+            {cols.map((c) => (
+              <th key={c.title} scope="col">
+                {c.title}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Päivässä</th>
+            {cols.map((c) => (
+              <td key={c.title}>
+                <span className="answer-big">{short(c.v.day)}</span>
+                <span className="answer-like">{c.v.cups}</span>
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <th scope="row">Kuussa</th>
+            {cols.map((c) => (
+              <td key={c.title}>
+                <span className="answer-big">{short(c.v.month)}</span>
+                <span className="answer-like">{c.v.netflix}</span>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
       <p className="story-text">
         Velaksi otettiin {num(deficit / 1000, 1)} miljardia euroa, {euros(debt.month)} kuussa eli {debt.netflix}{" "}
         jokaista suomalaista kohden. Miljardi on vähän, kun sen jakaa yhdelle, ja paljon, kun niitä kertyy vuodesta
