@@ -2635,3 +2635,49 @@ svg text {
 .sim-flow > .step {
   margin-top: 18px;
 }
+
+/* Jutun loppu: vastaus otsikon kysymykseen */
+.answer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0 32px;
+  margin: 24px 0 8px;
+  border-top: 1px solid var(--rule);
+}
+.answer-col h3 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  margin: 14px 0 4px;
+}
+.answer-row {
+  display: grid;
+  grid-template-columns: 110px auto;
+  grid-template-areas: "label big" "label like";
+  column-gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.answer-label {
+  grid-area: label;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  padding-top: 8px;
+}
+.answer-big {
+  grid-area: big;
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 3.6vw, 40px);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.answer-like {
+  grid-area: like;
+  color: var(--muted);
+}
+.answer-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 12px;
+}

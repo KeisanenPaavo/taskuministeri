@@ -25,11 +25,14 @@ interface Yardstick {
   rows?: string[];
 }
 
+export const NETFLIX_PRICE = 15.99;
+export const COFFEE_PRICE = 3;
+
 const YARDSTICKS: Yardstick[] = [
   {
     id: "netflix",
     name: "Netflix",
-    price: 15.99,
+    price: NETFLIX_PRICE,
     period: "month",
     boxW: 22,
     heading: "Jos valtio laskuttaisi kuukausitilauksena",
@@ -47,7 +50,7 @@ const YARDSTICKS: Yardstick[] = [
   {
     id: "coffee",
     name: "Kahvi",
-    price: 3,
+    price: COFFEE_PRICE,
     period: "day",
     boxW: 14,
     heading: "Jos valtio laskuttaisi kahvikupeissa",

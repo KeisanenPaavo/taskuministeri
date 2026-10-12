@@ -10,6 +10,7 @@ import MuchOrLittle, { SubscriptionCompare } from "./components/MuchOrLittle";
 import Neighbors from "./components/Neighbors";
 import DebtMetaphors from "./components/DebtMetaphors";
 import DebtChart from "./components/DebtChart";
+import Answer from "./components/Answer";
 import Cite, { SourcesContext } from "./components/Cite";
 import { track, trackChapters, trackReading } from "./track";
 
@@ -222,6 +223,7 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
       velka: "Luku 3: Velka",
       naapurit: "Luku 4: Naapurit",
       kokeile: "Luku 5: Kokeile",
+      vastaus: "Lopuksi: vastaus",
       lahteet: "Sivun loppu",
     });
   }, [data]);
@@ -439,6 +441,12 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
               </>
             )}
             {game === "hundred" && <HundredEuros data={data} />}
+          </section>
+
+          <section id="vastaus">
+            <p className="chapter">Lopuksi</p>
+            <h2 className="section-title">Onko miljardi paljon vai vähän?</h2>
+            <Answer data={data} />
           </section>
         </main>
 
