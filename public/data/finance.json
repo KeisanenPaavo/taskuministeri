@@ -5,7 +5,6 @@
   "preliminary": true,
   "unit": "miljoonaa euroa",
   "population": 5640000,
-  "employed": 2732100,
   "gdp": 281783,
   "wages": 114532,
   "cashBenefits": 53140,
@@ -2969,7 +2968,7 @@
       },
       {
         "id": "nama",
-        "name": "Eurostat: BKT (nama_10_gdp), väkiluku ja työlliset (nama_10_pe)",
+        "name": "Eurostat: BKT (nama_10_gdp) ja väkiluku (nama_10_pe)",
         "url": "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table"
       }
     ]

@@ -441,13 +441,6 @@ async function fetchCompare() {
   };
 }
 
-/** Työlliset (kansantalouden tilinpito, kotimaakäsite), Eurostat nama_10_pe. Uusin vuosi, jolta luku on. */
-async function fetchEmployed(year) {
-  const emp = await eurostat("nama_10_pe", { na_item: "EMP_DC", unit: "THS_PER", sinceTimePeriod: "2015" }, "na_item");
-  const t = [...emp.times].reverse().find((t) => t <= String(year) && emp.get("FI", "EMP_DC", t) != null);
-  return Math.round(emp.get("FI", "EMP_DC", t) * 1000);
-}
-
 async function fetchNeighbors() {
   const since = { sinceTimePeriod: "2018" };
   const mainKeys = ["TE", "TR", "B9", "D41PAY"];
@@ -510,7 +503,7 @@ async function fetchNeighbors() {
       { id: "gov_10a_exp", name: "Eurostat: Menot tehtävittäin, COFOG (gov_10a_exp)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" },
       { id: "gov_10dd_edpt1", name: "Eurostat: Julkinen velka (gov_10dd_edpt1)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table" },
       { id: "gov_10a_taxag", name: "Eurostat: Verot ja sosiaaliturvamaksut (gov_10a_taxag)", url: "https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table" },
-      { id: "nama", name: "Eurostat: BKT (nama_10_gdp), väkiluku ja työlliset (nama_10_pe)", url: "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table" },
+      { id: "nama", name: "Eurostat: BKT (nama_10_gdp) ja väkiluku (nama_10_pe)", url: "https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table" },
     ],
   };
 }
@@ -831,7 +824,6 @@ async function main() {
   const last = history[history.length - 1];
 
   const neighbors = await fetchNeighbors();
-  const employed = await fetchEmployed(baseYear);
 
   const out = {
     generated: new Date().toISOString().slice(0, 10),
@@ -840,7 +832,6 @@ async function main() {
     preliminary: true,
     unit: "miljoonaa euroa",
     population: 5_640_000,
-    employed,
     gdp: Math.round(gdp),
     wages: Math.round(wages),
     cashBenefits: Math.round(cashBenefits),

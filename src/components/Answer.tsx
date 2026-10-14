@@ -23,10 +23,10 @@ const euros = (v: number) => (v < 1 ? `${num(v * 100, 0)} senttiä` : `${num(v, 
 const short = (v: number) => `${num(v, v < 10 ? 2 : 0)} €`;
 
 export default function Answer({ data }: { data: FinanceData }) {
-  const per = (millions: number, people = data.population) => {
+  const per = (millions: number) => {
     const total = millions * 1e6;
-    const day = total / people / 365;
-    const month = total / people / 12;
+    const day = total / data.population / 365;
+    const month = total / data.population / 12;
     return {
       day,
       month,
@@ -35,7 +35,6 @@ export default function Answer({ data }: { data: FinanceData }) {
     };
   };
   const one = per(1000);
-  const worker = per(1000, data.employed);
   const all = per(data.expenditureTotal);
   const deficit = data.expenditureTotal - data.revenueTotal;
   const debt = per(deficit);
@@ -91,12 +90,11 @@ export default function Answer({ data }: { data: FinanceData }) {
       </p>
       <p className="answer-close">
         <b>No, onko se miljardi paljon vai vähän?</b> Miljardi vuodessa on noin Netflix-tilauksen verran kuukaudessa
-        jokaista suomalaista kohden, kulki hän sitten rattaissa, Skodalla tai rollaattorilla. Jokaista töissä käyvää
-        kohden se on {euros(worker.month)} kuussa eli {worker.netflix}.
+        jokaista suomalaista kohden, kulki hän sitten rattaissa, Skodalla tai rollaattorilla.
       </p>
       <p className="answer-note">
-        Asukasluku {num(data.population / 1e6, 2)} miljoonaa, työllisiä {num(data.employed / 1e6, 2)} miljoonaa.
-        Kahvikuppi {num(COFFEE_PRICE, 0)} €, Netflix Standard {num(NETFLIX_PRICE, 2)} €/kk.
+        Asukasluku {num(data.population / 1e6, 2)} miljoonaa. Kahvikuppi {num(COFFEE_PRICE, 0)} €, Netflix Standard{" "}
+        {num(NETFLIX_PRICE, 2)} €/kk.
       </p>
     </>
   );
