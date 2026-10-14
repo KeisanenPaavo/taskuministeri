@@ -77,6 +77,8 @@ export interface FinanceData {
   baseYear: number;
   cofogYear: number;
   population: number;
+  /** Työlliset, henkeä (Eurostat nama_10_pe EMP_DC). */
+  employed: number;
   gdp: number;
   wages: number;
   cashBenefits: number;
