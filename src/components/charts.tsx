@@ -38,11 +38,26 @@ interface LineChartProps {
   refLine?: { value: number; label: string };
   splitYear?: number; // ennusteen alku
   minY?: number;
+  /** Tekstivastine ruudunlukijoille; oletuksena kuvaus muodostetaan sarjojen alku- ja loppuarvoista. */
+  desc?: string;
+}
+
+/** Esim. "Suomi: 44 % vuonna 2000, 88 % vuonna 2025." */
+function describeLines(series: Series[], unit: string) {
+  const u = unit === "%" ? " %" : ` ${unit}`;
+  return series
+    .filter((s) => s.points.length > 0)
+    .map((s) => {
+      const a = s.points[0];
+      const b = s.points[s.points.length - 1];
+      return `${s.label}: ${num(a.value, 0)}${u} vuonna ${a.year}, ${num(b.value, 0)}${u} vuonna ${b.year}.`;
+    })
+    .join(" ");
 }
 
 const M = { top: 12, right: 14, bottom: 26, left: 40 };
 
-export function LineChart({ series, height = 260, unit = "%", refLine, splitYear, minY }: LineChartProps) {
+export function LineChart({ series, height = 260, unit = "%", refLine, splitYear, minY, desc }: LineChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -85,6 +100,7 @@ export function LineChart({ series, height = 260, unit = "%", refLine, splitYear
         onPointerLeave={() => setHover(null)}
         style={{ display: "block", touchAction: "pan-y" }}
         role="img"
+        aria-label={desc ?? describeLines(series, unit)}
       >
         {splitYear !== undefined && (
           <rect
@@ -150,7 +166,15 @@ export function LineChart({ series, height = 260, unit = "%", refLine, splitYear
           <g>
             <line x1={sx(hover)} x2={sx(hover)} y1={M.top} y2={M.top + ih} stroke="var(--faint)" />
             {hoverValues.map(({ s, p }) => (
-              <circle key={s.label} cx={sx(p.year)} cy={sy(p.value)} r={4} fill={s.color} stroke="var(--surface)" strokeWidth={2} />
+              <circle
+                key={s.label}
+                cx={sx(p.year)}
+                cy={sy(p.value)}
+                r={4}
+                fill={s.color}
+                stroke="var(--surface)"
+                strokeWidth={2}
+              />
             ))}
           </g>
         )}
@@ -161,7 +185,10 @@ export function LineChart({ series, height = 260, unit = "%", refLine, splitYear
           {hoverValues.map(({ s, p }) => (
             <div key={s.label}>
               <span className="dot" style={{ background: s.color }} />
-              {s.label}: <b>{num(p.value, 1)} {unit}</b>
+              {s.label}:{" "}
+              <b>
+                {num(p.value, 1)} {unit}
+              </b>
             </div>
           ))}
         </Tooltip>
@@ -195,9 +222,11 @@ interface BarChartProps {
   unit?: string;
   refLine?: { value: number; label: string };
   fmt?: (v: number) => string;
+  /** Tekstivastine ruudunlukijoille. */
+  desc?: string;
 }
 
-export function BarChart({ bars, height = 200, unit = "%", refLine, fmt }: BarChartProps) {
+export function BarChart({ bars, height = 200, unit = "%", refLine, fmt, desc }: BarChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const vals = bars.flatMap((b) => [b.value, b.base ?? 0]).concat(refLine ? [refLine.value] : [], [0]);
@@ -215,7 +244,19 @@ export function BarChart({ bars, height = 200, unit = "%", refLine, fmt }: BarCh
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <svg width={width} height={height} style={{ display: "block" }} onPointerLeave={() => setHover(null)}>
+      <svg
+        width={width}
+        height={height}
+        style={{ display: "block" }}
+        onPointerLeave={() => setHover(null)}
+        role="img"
+        aria-label={
+          desc ??
+          (bars.length
+            ? `Vuodet ${bars[0].year}–${bars[bars.length - 1].year}: ${bars.map((b) => `${b.year} ${format(b.value)}`).join(", ")}.`
+            : "")
+        }
+      >
         <g className="axis">
           {ticks.map((t) => (
             <g key={t}>
@@ -271,7 +312,14 @@ export function BarChart({ bars, height = 200, unit = "%", refLine, fmt }: BarCh
                 rx={3}
               />
               {(bars.length <= 12 || i % 2 === 0) && (
-                <text x={x + bw / 2} y={height - 6} textAnchor="middle" className="axis" fontSize={11} fill="var(--faint)">
+                <text
+                  x={x + bw / 2}
+                  y={height - 6}
+                  textAnchor="middle"
+                  className="axis"
+                  fontSize={11}
+                  fill="var(--faint)"
+                >
                   {bw < 40 ? `’${String(b.year).slice(2)}` : b.year}
                 </text>
               )}
@@ -283,7 +331,9 @@ export function BarChart({ bars, height = 200, unit = "%", refLine, fmt }: BarCh
       {hover !== null && (
         <Tooltip x={M.left + (hover + 0.5) * bw} width={width}>
           <b>{bars[hover].year}</b>
-          <div>Sinun valintasi: <b>{format(bars[hover].value)}</b></div>
+          <div>
+            Sinun valintasi: <b>{format(bars[hover].value)}</b>
+          </div>
           {bars[hover].base !== undefined && <div>Ilman muutoksia: {format(bars[hover].base!)}</div>}
         </Tooltip>
       )}

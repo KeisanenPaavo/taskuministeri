@@ -35,6 +35,11 @@ export default function DebtChart({ data }: { data: FinanceData }) {
         minY={0}
         unit={pct ? "%" : "mrd €"}
         refLine={pct ? { value: 60, label: "EU:n viitearvo 60 %" } : undefined}
+        desc={
+          pct
+            ? `Julkinen velka nousi ${num(first.debtRatio, 0)} %:sta ${num(last.debtRatio, 0)} %:iin bruttokansantuotteesta vuosina ${first.year}–${last.year}. EU:n viitearvo on 60 %.`
+            : `Julkinen velka kasvoi ${num(first.debt / 1000, 0)} miljardista ${num(last.debt / 1000, 0)} miljardiin euroon vuosina ${first.year}–${last.year}.`
+        }
         series={[
           {
             label: "Julkinen velka",

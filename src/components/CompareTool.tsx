@@ -36,6 +36,9 @@ export default function CompareTool({
   colors: Record<CountryCode, string>;
 }) {
   const [groupId, setGroupId] = useState(data.groups[0].id);
+  // Oletuksena näytetään vain yleiskuva; menojen ja tulojen erittelyt avataan "Tutki tarkemmin" -painikkeella.
+  const [explore, setExplore] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const group = data.groups.find((g) => g.id === groupId)!;
   const [pick, setPick] = useState(() => defaultPick(data.groups[0].rows));
@@ -142,27 +145,29 @@ export default function CompareTool({
   };
 
   return (
-    <div className="compare">
+    <div className="compare" ref={rootRef}>
       <h3 className="compare-title">Vertaile itse</h3>
-      <div className="compare-controls">
-        <div className="toggle compare-groups" role="tablist" aria-label="Vertailtava asia">
-          {data.groups.map((g) => (
-            <button
-              key={g.id}
-              role="tab"
-              aria-selected={g.id === groupId}
-              className={g.id === groupId ? "on" : ""}
-              onClick={() => {
-                setGroupId(g.id);
-                setPick(defaultPick(g.rows));
-                track("Vertailu: välilehti", { ryhma: g.title });
-              }}
-            >
-              {g.title}
-            </button>
-          ))}
+      {explore && (
+        <div className="compare-controls">
+          <div className="toggle compare-groups" role="tablist" aria-label="Vertailtava asia">
+            {data.groups.map((g) => (
+              <button
+                key={g.id}
+                role="tab"
+                aria-selected={g.id === groupId}
+                className={g.id === groupId ? "on" : ""}
+                onClick={() => {
+                  setGroupId(g.id);
+                  setPick(defaultPick(g.rows));
+                  track("Vertailu: välilehti", { ryhma: g.title });
+                }}
+              >
+                {g.title}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="compare-timeline" ref={timelineRef}>
         <div className="compare-timeline-head">
@@ -209,8 +214,8 @@ export default function CompareTool({
         </p>
       </div>
       <p className="compare-hint">
-        {group.hint} Vuosi {group.year}. Plusmerkki avaa tarkemman erittelyn. Valitse rivi, niin näet sen kehityksen
-        aikajanalla taulukon yllä.
+        {group.hint} Vuosi {group.year}.{expandable.length > 0 ? " Plusmerkki avaa tarkemman erittelyn." : ""} Valitse
+        rivi, niin näet sen kehityksen aikajanalla taulukon yllä.
       </p>
 
       <ul className="compare-gaps">
@@ -263,6 +268,21 @@ export default function CompareTool({
           }
         >
           {allOpen ? "Sulje erittelyt" : "Avaa kaikki erittelyt"}
+        </button>
+      )}
+      {!explore && data.groups.length > 1 && (
+        <button
+          className="btn compare-explore"
+          onClick={() => {
+            const g = data.groups[1];
+            setExplore(true);
+            setGroupId(g.id);
+            setPick(defaultPick(g.rows));
+            track("Vertailu: tutki tarkemmin");
+            requestAnimationFrame(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+          }}
+        >
+          Tutki tarkemmin: menot ja tulot eriteltyinä →
         </button>
       )}
     </div>

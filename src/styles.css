@@ -138,6 +138,60 @@ a {
 .sections a:hover {
   text-decoration: underline;
 }
+.sections a.on {
+  box-shadow: inset 0 -3px 0 var(--text);
+}
+
+/* Lukusijainti: ohut palkki yläreunassa, kun otsikko on vieritetty pois */
+.reading-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+.reading-bar.show {
+  transform: none;
+}
+.reading-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 40px;
+}
+.reading-bar-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+  text-decoration: none;
+}
+.reading-bar-chapter {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#rahat,
+.hero {
+  scroll-margin-top: 48px;
+}
+.reading-bar-progress {
+  height: 3px;
+  background: var(--deficit);
+  transform-origin: left;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-bar {
+    transition: none;
+  }
+}
 
 /* Pörssinauhan tyylinen avainlukurivi */
 .ticker {
@@ -286,7 +340,8 @@ a {
 
 section {
   padding: 44px 0;
-  scroll-margin-top: 12px;
+  /* Jätetään tila yläreunan lukupalkille */
+  scroll-margin-top: 36px;
   border-top: 3px solid var(--rule);
 }
 .section-title {
@@ -2187,6 +2242,13 @@ svg text {
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
+}
+.compare-explore {
+  display: block;
+  margin-top: 16px;
+}
+.compare {
+  scroll-margin-top: 56px;
 }
 .compare-hint {
   font-size: 14px;

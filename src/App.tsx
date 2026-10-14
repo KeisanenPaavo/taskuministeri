@@ -11,6 +11,7 @@ import Neighbors from "./components/Neighbors";
 import DebtMetaphors from "./components/DebtMetaphors";
 import DebtChart from "./components/DebtChart";
 import Answer from "./components/Answer";
+import ReadingBar, { CHAPTERS, useReadingPosition } from "./components/ReadingBar";
 import Cite, { SourcesContext } from "./components/Cite";
 import { track, trackChapters, trackReading } from "./track";
 
@@ -202,6 +203,7 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
   const [unit, setUnit] = useState<Unit>("day");
   const [scenario, setScenarioState] = useState<Scenario>(readScenario);
   const [game, setGame] = useState<GameId>("sim");
+  const reading = useReadingPosition();
 
   useEffect(() => {
     if (initialData) return;
@@ -282,6 +284,7 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
   return (
     <SourcesContext.Provider value={sources}>
       <div className="has-mobile-bar">
+        <ReadingBar {...reading} />
         <header className="masthead-wrap">
           <div className="wrap">
             <div className="masthead-top">
@@ -295,11 +298,16 @@ export default function App({ initialData }: { initialData?: FinanceData }) {
               Taskuministeri
             </a>
             <nav className="sections" aria-label="Osastot">
-              <a href="#arvaa">Arvaa</a>
-              <a href="#paljon">Paljon vai vähän</a>
-              <a href="#velka">Velka</a>
-              <a href="#naapurit">Naapurit</a>
-              <a href="#kokeile">Kokeile ja pelaa</a>
+              {CHAPTERS.slice(0, 5).map((c, i) => (
+                <a
+                  key={c.id}
+                  href={`#${c.id}`}
+                  className={reading.chapter === i ? "on" : ""}
+                  aria-current={reading.chapter === i ? "location" : undefined}
+                >
+                  {c.name}
+                </a>
+              ))}
             </nav>
           </div>
           <Ticker data={data} />
