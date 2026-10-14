@@ -2694,6 +2694,18 @@ svg text {
     font-size: 13px;
   }
 }
+.answer-close {
+  margin: 28px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-serif);
+  font-size: clamp(19px, 2.4vw, 23px);
+  line-height: 1.45;
+}
+.answer-close b {
+  display: block;
+  margin-bottom: 4px;
+}
 .answer-note {
   font-size: 13px;
   color: var(--muted);

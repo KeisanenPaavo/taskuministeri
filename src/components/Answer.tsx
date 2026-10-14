@@ -86,8 +86,11 @@ export default function Answer({ data }: { data: FinanceData }) {
       </table>
       <p className="story-text">
         Velaksi otettiin {num(deficit / 1000, 1)} miljardia euroa, {euros(debt.month)} kuussa eli {debt.netflix}{" "}
-        jokaista suomalaista kohden. Miljardi on vähän, kun sen jakaa yhdelle, ja paljon, kun niitä kertyy vuodesta
-        toiseen. Siksi kannattaa aina kysyä: miljardi mihin verrattuna?
+        jokaista suomalaista kohden.
+      </p>
+      <p className="answer-close">
+        <b>No, onko se miljardi paljon vai vähän?</b> Miljardi vuodessa on noin Netflix-tilauksen verran kuukaudessa
+        jokaista suomalaista kohden, kulki hän sitten rattaissa, Skodalla tai rollaattorilla.
       </p>
       <p className="answer-note">
         Asukasluku {num(data.population / 1e6, 2)} miljoonaa. Kahvikuppi {num(COFFEE_PRICE, 0)} €, Netflix Standard{" "}
