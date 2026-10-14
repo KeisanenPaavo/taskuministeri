@@ -7,7 +7,7 @@ import { track, trackOnce } from "../track";
 // "Kumpi on isompi?" -peli. Parit on valittu käsin niin, että niissä on yllätyksiä,
 // mutta oikea vastaus ja erotukset lasketaan aina datasta.
 
-const ROUNDS = 10;
+const ROUNDS = 5;
 /** Liian tasaväkiset parit (ero alle tämän) jätetään pois, koska ne olisivat arpapeliä. */
 const MIN_DIFF = 0.03;
 
@@ -42,10 +42,11 @@ interface Question {
   b: Entry;
 }
 
+// min on osuus oikeista vastauksista.
 const RANKS: { min: number; title: string; text: string }[] = [
-  { min: 10, title: "Taskuministeri", text: "Täydet pisteet! Miljardit ovat sinulle selvää kauraa." },
-  { min: 8, title: "Valtiosihteeri", text: "Hienoa! Tunnet Suomen talouden mittasuhteet paremmin kuin useimmat." },
-  { min: 5, title: "Erityisavustaja", text: "Hyvä alku. Muutama luku pääsi yllättämään." },
+  { min: 1, title: "Taskuministeri", text: "Täydet pisteet! Miljardit ovat sinulle selvää kauraa." },
+  { min: 0.8, title: "Valtiosihteeri", text: "Hienoa! Tunnet Suomen talouden mittasuhteet paremmin kuin useimmat." },
+  { min: 0.5, title: "Erityisavustaja", text: "Hyvä alku. Muutama luku pääsi yllättämään." },
   { min: 0, title: "Kesäharjoittelija", text: "Miljardit ovat vaikeita. Siksi tämä sivu on olemassa!" },
 ];
 
@@ -148,6 +149,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
     if (round === questions.length - 1) track("Arvaa: pelasi loppuun", { pisteet: score + (right ? 1 : 0) });
   };
   const next = () => {
+    if (round + 1 < questions.length) track("Arvaa: kierros", { kysymys: round + 2 });
     setPicked(null);
     setRound((r) => r + 1);
   };
@@ -175,7 +177,7 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
   });
 
   if (done) {
-    const rank = RANKS.find((r) => score >= r.min)!;
+    const rank = RANKS.find((r) => score >= r.min * questions.length)!;
     const url = `${location.origin}${location.pathname}#arvaa`;
     const text = `Sain ${score}/${questions.length} Taskuministerin "Kumpi on isompi?" -pelissä (${rank.title}). Tunnetko Suomen talouden paremmin?`;
     const share = async () => {
@@ -286,6 +288,9 @@ export default function BiggerGame({ data }: { data: FinanceData }) {
       )}
 
       {picked ? null : <p className="game-hint">Valitse kortti. Vinkki: näppäimistöllä ← ja →.</p>}
+      <a className="game-skip" href="#paljon" onClick={() => track("Arvaa: ohitti", { kysymys: round + 1 })}>
+        Hyppää juttuun ↓
+      </a>
     </div>
   );
 }

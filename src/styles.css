@@ -1245,6 +1245,18 @@ svg text {
   font-size: 13px;
   margin: 14px 0 0;
 }
+.game-skip {
+  display: block;
+  width: fit-content;
+  margin: 10px auto 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.game-skip:hover {
+  color: var(--text);
+}
 .btn {
   display: inline-flex;
   align-items: center;

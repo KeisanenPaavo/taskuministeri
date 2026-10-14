@@ -90,8 +90,7 @@ export default function Answer({ data }: { data: FinanceData }) {
       </p>
       <p className="answer-close">
         <b>No, onko se miljardi paljon vai vähän?</b> Miljardi vuodessa on noin Netflix-tilauksen verran kuukaudessa
-        jokaista suomalaista kohden, kulki hän sitten rattaissa, Skodalla tai rollaattorilla. Velaksi otetaan yli{" "}
-        {Math.floor(deficit / 1000)} kertaa enemmän.
+        jokaista suomalaista kohden, kulki hän sitten rattaissa, Skodalla tai rollaattorilla.
       </p>
       <p className="answer-note">
         Asukasluku {num(data.population / 1e6, 2)} miljoonaa. Kahvikuppi {num(COFFEE_PRICE, 0)} €, Netflix Standard{" "}
